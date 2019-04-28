@@ -12,52 +12,72 @@
 // the screen should remain fully clear as long as no key is pressed.
 
 // Put your code here.
-(LOOP)
-	@8192
+(MAINLOOP)
+	@1000
 	D=A
 	@R0
-	M=D
-
-	@SCREEN
-	D=A
-	@R1
-	M=D
-
-	@0x1111
-	D=A
-	@R2
 	M=D
 
 	@KBD
 	D=M
 
-	@LOOP
-	D; JEQ
-
-(BLACK)
-	// R1には現在のSCREEN番号が保存されている
-	@R1
-	D=M
-	A=D
-	M=1
-
-(ALLBIT)
-	
-
-
-	@R1
-	D=M
-	D=D+1
-	M=D
-	
-	// 32回繰り返す
-	@R0
-	D=M
-	D=D-1
-	M=D
-
-	@BLACK
+	@BLACKLOOP
 	D; JGT
 
-	@LOOP
-	D; JLE
+
+(BLACKLOOP)
+	// screen部分のアドレスを最大アドレス分まで進めていく
+	@KBD
+	D=M
+
+	@MAINLOOP
+	D; JEQ
+
+	@R0
+	D=M
+
+	@BLACK
+	0; JMP
+
+	D=D-1
+	@R0
+	M=D
+
+	@BLACKLOOP
+	D; JGT
+
+(BLACK)
+	// 指定された先頭ピクセルから16ピクセル
+	// 分黒く塗り潰していく
+	@SCREEN
+	A=A+D
+
+	M=1
+	M=M+1
+	M=M+1
+	M=M+1
+	M=M+1
+	M=M+1
+	M=M+1
+	M=M+1
+	M=M+1
+	M=M+1
+	M=M+1
+	M=M+1
+	M=M+1
+	M=M+1
+	M=M+1
+
+
+
+// (WHITE)
+	// 指定された先頭ピクセルから16ピクセル
+	// 分黒く塗り潰していく
+//	@SCREEN
+//	A=A+D
+
+//(WHITELOOP)
+	
+
+//	M=0
+	
