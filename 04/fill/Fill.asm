@@ -13,71 +13,54 @@
 
 // Put your code here.
 (MAINLOOP)
-	@1000
+	@8192 // number of pixel
 	D=A
 	@R0
 	M=D
-
-	@KBD
-	D=M
-
-	@BLACKLOOP
-	D; JGT
-
-
-(BLACKLOOP)
-	// screen部分のアドレスを最大アドレス分まで進めていく
-	@KBD
-	D=M
-
-	@MAINLOOP
-	D; JEQ
-
-	@R0
-	D=M
-
-	@BLACK
-	0; JMP
-
-	D=D-1
-	@R0
+	@R1
 	M=D
 
+	@KBD
+	D=M
+
 	@BLACKLOOP
 	D; JGT
 
-(BLACK)
-	// 指定された先頭ピクセルから16ピクセル
-	// 分黒く塗り潰していく
+	@WHITELOOP
+	D; JEQ
+
+(BLACKLOOP)
+	@R0
+	D=M
+
 	@SCREEN
 	A=A+D
+	M=-1
 
-	M=1
-	M=M+1
-	M=M+1
-	M=M+1
-	M=M+1
-	M=M+1
-	M=M+1
-	M=M+1
-	M=M+1
-	M=M+1
-	M=M+1
-	M=M+1
-	M=M+1
-	M=M+1
-	M=M+1
+	@R0
+	M=M-1
+	D=M
 
-
-
-// (WHITE)
-	// 指定された先頭ピクセルから16ピクセル
-	// 分黒く塗り潰していく
-//	@SCREEN
-//	A=A+D
-
-//(WHITELOOP)
+	@BLACKLOOP
+	D; JGE
 	
+	@MAINLOOP
+	D; JLT
 
-//	M=0
+(WHITELOOP)
+	@R1
+	D=M
 	
+	@SCREEN
+	A=A+D
+	M=0
+	
+	@R1
+	M=M-1
+	D=M
+
+	@WHITELOOP
+	D; JGE
+
+	@MAINLOOP
+	D; JLT
