@@ -50,12 +50,12 @@ CHIP CPU {
     // A
     And ( a=instruction[12], b=instruction[12], out=cnta );
     // C1~C6 
-    And ( a=instruction[11], b=instruction[11], out=cntc1 );
-    And ( a=instruction[10], b=instruction[10], out=cntc2 );
-    And ( a=instruction[9],  b=instruction[9],  out=cntc3 );
-    And ( a=instruction[8],  b=instruction[8],  out=cntc4 );
-    And ( a=instruction[7],  b=instruction[7],  out=cntc5 );
-    And ( a=instruction[6],  b=instruction[6],  out=cntc6 );
+    And ( a=instruction[11], b=cnti, out=cntc1 );
+    And ( a=instruction[10], b=cnti, out=cntc2 );
+    And ( a=instruction[9],  b=cnti, out=cntc3 );
+    And ( a=instruction[8],  b=cnti, out=cntc4 );
+    And ( a=instruction[7],  b=cnti, out=cntc5 );
+    And ( a=instruction[6],  b=cnti, out=cntc6 );
     // D1~D3
     And ( a=instruction[5], b=instruction[5], out=cntd1 );
     And ( a=instruction[4], b=instruction[4], out=cntd2 );
@@ -71,20 +71,20 @@ CHIP CPU {
 
     ARegister ( in=outm1, load=cntd1, out=orega, out[0..14]=addressM );
     DRegister ( in=outm, load=cntd2, out=oregd );
-
     Mux16 ( a=orega, b=inM, sel=cntd3, out=outm2 );
 
-
     // 2章の対応表からC1~C6がALUのそれぞれの入力ピンと合致する
-    ALU ( x=outm2, y=oregd, 
+    ALU ( x=oregd, y=outm2,
     	  zx=cntc1, nx=cntc2, zy=cntc3, ny=cntc4, f=cntc5, no=cntc6, 
 	 out=outm, out=outM );
 
-
-    Or ( a=cntj1, b=cntj2, out=icntrl1 );
-    Or ( a=icntrl1, b=cntj3, out=icntrl2 );
-    Not ( in=icntrl2, out=lcntrl );
+    // PCのカウンタ値がずれる
+    Or ( a=cntj1, b=cntj2, out=lcntrl1 );
+    Or ( a=lcntrl1, b=cntj3, out=lcntrl2 );
+    And ( a=cnti, b=lcntrl2, out=lcntrl3 );
+    Not ( in=lcntrl3, out=icntrl );
     // icntrl2 = 0 : No Jump
     // icntrl2 = 1 : Jump
-    PC ( in=orega, load=lcntrl, inc=icntrl2, reset=reset, out[0..14]=pc  );
+    PC ( in=orega, load=lcntrl3, inc=icntrl, reset=reset, out[0..14]=pc[0..14]  );
+    And ( a=cntd3, b=cnti, out=writeM );
 }
