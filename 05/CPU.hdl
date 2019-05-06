@@ -69,16 +69,16 @@ CHIP CPU {
     // outmはoutMと同一
     Mux16 ( a=instruction, b=outm, sel=cnti, out=outm1 );
 
-    ARegister ( in=outm1, load=cntd1, out=orega, out[0..14]=addressM );
-    DRegister ( in=outm, load=cntd2, out=oregd );
-    Mux16 ( a=orega, b=inM, sel=cntd3, out=outm2 );
+    Mux ( a=true, b=false, sel=cnti, out=cntd1-1 );
+    ARegister ( in=outm1, load=cntd1-1, out=orega, out[0..14]=addressM );
+    DRegister ( in=outm,  load=cntd2, out=oregd );
+    Mux16 ( a=orega, b=inM, sel=cnta, out=outm2 );
 
     // 2章の対応表からC1~C6がALUのそれぞれの入力ピンと合致する
     ALU ( x=oregd, y=outm2,
     	  zx=cntc1, nx=cntc2, zy=cntc3, ny=cntc4, f=cntc5, no=cntc6, 
 	 out=outm, out=outM );
 
-    // PCのカウンタ値がずれる
     Or ( a=cntj1, b=cntj2, out=lcntrl1 );
     Or ( a=lcntrl1, b=cntj3, out=lcntrl2 );
     And ( a=cnti, b=lcntrl2, out=lcntrl3 );
