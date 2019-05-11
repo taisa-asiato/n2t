@@ -48,7 +48,7 @@ CHIP CPU {
     And ( a=instruction[14], b=instruction[14], out=cntx1 );
     And ( a=instruction[13], b=instruction[13], out=cntx2 );
     // A
-    And ( a=instruction[12], b=instruction[12], out=cnta );
+    And ( a=instruction[12], b=cnti, out=cnta );
     // C1~C6 
     And ( a=instruction[11], b=cnti, out=cntc1 );
     And ( a=instruction[10], b=cnti, out=cntc2 );
@@ -57,19 +57,21 @@ CHIP CPU {
     And ( a=instruction[7],  b=cnti, out=cntc5 );
     And ( a=instruction[6],  b=cnti, out=cntc6 );
     // D1~D3
-    And ( a=instruction[5], b=instruction[5], out=cntd1 );
-    And ( a=instruction[4], b=instruction[4], out=cntd2 );
-    And ( a=instruction[3], b=instruction[3], out=cntd3 );
+    And ( a=instruction[5], b=cnti, out=cntd1 );
+    And ( a=instruction[4], b=cnti, out=cntd2 );
+    And ( a=instruction[3], b=cnti, out=cntd3 );
     // J1~J3
-    And ( a=instruction[2], b=instruction[2], out=cntj1 );
-    And ( a=instruction[1], b=instruction[1], out=cntj2 );
-    And ( a=instruction[0], b=instruction[0], out=cntj3 );
+    And ( a=instruction[2], b=cnti, out=cntj1 );
+    And ( a=instruction[1], b=cnti, out=cntj2 );
+    And ( a=instruction[0], b=cnti, out=cntj3 );
 
 
     // outmはoutMと同一
     Mux16 ( a=instruction, b=outm, sel=cnti, out=outm1 );
 
-    Mux ( a=true, b=false, sel=cnti, out=cntd1-1 );
+
+    Not ( in=cnti, out=cntni );
+    Or ( a=cntni, b=cntd1, out=cntd1-1 );
     ARegister ( in=outm1, load=cntd1-1, out=orega, out[0..14]=addressM );
     DRegister ( in=outm,  load=cntd2, out=oregd );
     Mux16 ( a=orega, b=inM, sel=cnta, out=outm2 );
