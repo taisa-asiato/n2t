@@ -69,7 +69,7 @@ CHIP CPU {
     // outmはoutMと同一
     Mux16 ( a=instruction, b=outm, sel=cnti, out=outm1 );
 
-
+    // Aレジスタに値をロードする場合分けについて確認する
     Not ( in=cnti, out=cntni );
     Or ( a=cntni, b=cntd1, out=cntd1-1 );
     ARegister ( in=outm1, load=cntd1-1, out=orega, out[0..14]=addressM );
@@ -79,14 +79,34 @@ CHIP CPU {
     // 2章の対応表からC1~C6がALUのそれぞれの入力ピンと合致する
     ALU ( x=oregd, y=outm2,
     	  zx=cntc1, nx=cntc2, zy=cntc3, ny=cntc4, f=cntc5, no=cntc6, 
-	 out=outm, out=outM );
+	 out=outm, out=outM, out[15]=outsg, out[0..7]=outhr, out[8..15]=outlr );
 
-    Or ( a=cntj1, b=cntj2, out=lcntrl1 );
-    Or ( a=lcntrl1, b=cntj3, out=lcntrl2 );
-    And ( a=cnti, b=lcntrl2, out=lcntrl3 );
-    Not ( in=lcntrl3, out=icntrl );
+    // Jumpについて場合分け
+    // outm > 0 --> outm[15] = 0
+    // outm = 0 --> outm = 0
+    // outm < 0 --> outm[15] = 1
+    // 最上位bitで0未満か判定
+    // jmp構成として, jmp用コントロールbitと条件判定bitが共に1の場合jmp
+    And ( a=outsg, b=cntj1, out=jmplt );
+
+    // 最上位bit+nif0で0より大きい値か判定
+    Not ( in=outsg, out=lt0 );
+    And ( a=lt0, b=nif0, out=outgt);
+    And ( a=outgt, b=cntj3, out=jmpgt );
+    
+    // 0か判定
+    Or8Way ( in=outhr, out=if01 );
+    Or8Way ( in=outlr, out=if02 );
+    Or ( a=if01, b=if02, out=nif0 );
+    Not ( in=nif0, out=if0 );
+    And ( a=if0, b=cntj2, out=jmp0 );
+	
+    Or ( a=jmpgt,   b=jmplt, out=cntjmp1 );
+    Or ( a=cntjmp1, b=jmp0, out=cntjmp );
+    Not ( in=cntjmp, out=icntrl );
+
     // icntrl2 = 0 : No Jump
     // icntrl2 = 1 : Jump
-    PC ( in=orega, load=lcntrl3, inc=icntrl, reset=reset, out[0..14]=pc[0..14]  );
+    PC ( in=orega, load=cntjmp, inc=icntrl, reset=reset, out[0..14]=pc[0..14]  );
     And ( a=cntd3, b=cnti, out=writeM );
 }
