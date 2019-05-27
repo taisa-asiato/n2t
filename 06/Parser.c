@@ -15,10 +15,12 @@ char previous_cmd[256];
 void parserMain() {
 
 	int cmdtype = 0;
+	int length = 0;
+
 	// current_cmdは初期状態はから
 	strcpy( current_cmd, "" );
 
-	strcpy ( fname, "./add/Add.asm" );
+	strcpy ( fname, "./pong/Pong.asm" );
 	// 入力ファイルを開く
 	if ( ( fp = fopen( fname, "r" ) ) == NULL )  {
 		fprintf( stdout, "file not found\n" );
@@ -30,15 +32,20 @@ void parserMain() {
 		strncpy( previous_cmd, current_cmd, sizeof( previous_cmd ) / sizeof( char ) );
 		// 現在のコマンドに入力ストリームの入力を代入
 		strncpy( current_cmd, str, sizeof( str ) / sizeof( char ) );
+		length = strlen( current_cmd );
+		if ( current_cmd[length-1] == '\n' ) {
+			current_cmd[length-1] = '\0';
+		}
+		
 		cmdtype = commandType();
 		if ( cmdtype == A_COMMAND ) {
-			fprintf( stdout, "%s ---> : A_COMMAND\n", current_cmd );
+			fprintf( stdout, "[A_COMMAND]:%s\n", current_cmd );
 		} else if ( cmdtype == C_COMMAND ) {
-			fprintf( stdout, "%s ---> : C_COMMAND\n", current_cmd );
+			fprintf( stdout, "[C_COMMAND]:%s\n", current_cmd );
 		} else if ( cmdtype == L_COMMAND ){
-			fprintf( stdout, "%s ---> : L_COMMAND\n", current_cmd );
+			fprintf( stdout, "[L_COMMAND]:%s\n", current_cmd );
 		} else if ( cmdtype == E_COMMENT ) {
-			fprintf( stdout, "%s ---> : Comment out\n", current_cmd );
+			fprintf( stdout, "[E_COMMENT]:%s\n", current_cmd );
 		} else if ( cmdtype == E_CMDERR ) {
 			fprintf( stdout, "ERROR: Command type is not found\n" );
 		} else if ( cmdtype == E_BLANK ) {
@@ -63,23 +70,23 @@ bool hasMoreCommands ( ) {
 int commandType() {
 	char * splitstr;
 
-	if ( current_cmd[0] == '/' && current_cmd[1] == '/' ) { 
-		// コメントアウトの行
-		// コード変換不要
-		return E_COMMENT;
-	} else if ( isspace( current_cmd ) ) {
+	if ( 1 == strlen( current_cmd ) || current_cmd[0] == '\0' ) {
 		// 空白行
 		return E_BLANK;
+	} else if ( current_cmd[0] == '/' && current_cmd[1] == '/' ) { 
+		// コメントアウトの行
+		return E_COMMENT;
 	} else if ( current_cmd[0] == '@' ) {
 		// コマンド行の先頭が@の場合はA
 		return A_COMMAND;
+	} else if ( current_cmd[0] == '(' && current_cmd[strlen(current_cmd)-2] == ')' ) { 
+		// (Xxx)はL
+		return L_COMMAND;
 	} else {
-		if ( splitstr = strtok( current_cmd, ";" ) ) {
-			// コマンド行がジャンプ命令の場合はC
+		if ( ( splitstr = strtok( current_cmd, ";" ) ) || 
+		     ( splitstr = strtok( current_cmd, "=" ) ) ) {
+			// コマンド行がジャンプ命令, 代入命令の場合はC
 			return C_COMMAND;
-		} else { 
-			// 上記2つ以外のコマンドの場合はL
-			return L_COMMAND;
 		}
 	}
 	return E_CMDERR;
