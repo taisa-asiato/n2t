@@ -17,6 +17,7 @@ void parserMain() {
 	int cmdtype = 0;
 	int length = 0;
 
+	char symbolstring[256];
 	// current_cmdは初期状態はから
 	strcpy( current_cmd, "" );
 
@@ -38,12 +39,16 @@ void parserMain() {
 		}
 		
 		cmdtype = commandType();
+
+		if ( cmdtype == A_COMMAND || cmdtype == L_COMMAND ) {
+			strncpy( symbolstring, symbol(), 256 );
+		}
 		if ( cmdtype == A_COMMAND ) {
-			fprintf( stdout, "[A_COMMAND]:%s\n", current_cmd );
+			fprintf( stdout, "[A_COMMAND]: Symbol is %s\n", symbolstring );
 		} else if ( cmdtype == C_COMMAND ) {
 			fprintf( stdout, "[C_COMMAND]:%s\n", current_cmd );
 		} else if ( cmdtype == L_COMMAND ){
-			fprintf( stdout, "[L_COMMAND]:%s\n", current_cmd );
+			fprintf( stdout, "[L_COMMAND]: Symbol is %s\n", symbolstring );
 		} else if ( cmdtype == E_COMMENT ) {
 			fprintf( stdout, "[E_COMMENT]:%s\n", current_cmd );
 		} else if ( cmdtype == E_CMDERR ) {
@@ -90,4 +95,36 @@ int commandType() {
 		}
 	}
 	return E_CMDERR;
+}
+
+char * symbol() {
+	char retstr[256];
+	int i = 0;
+
+	if ( current_cmd[0] == '@' ) {
+		// A_COMMANDの場合
+		int length = strlen( current_cmd );
+		for ( i = 1 ; i < length ; i++ ) {
+			retstr[i-1] = current_cmd[i];
+		}
+	} else {
+		// L_COMMANDの場合
+		int length = strlen( current_cmd );
+		for ( i = 1 ; i < length-2 ; i++ ) {
+			retstr[i-1] = current_cmd[i];
+		}
+		retstr[i] = '\0';
+	}
+
+	return retstr;
+}
+
+char * dest() {
+	char reststr[4];
+	char splitstr[256];
+
+	retstr[3] = '\0';
+
+
+	if ( current_cmd )
 }

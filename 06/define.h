@@ -19,3 +19,5 @@ extern char str[256];
 void parserMain();
 bool hasMoreCommands();
 int commandType(); 
+char * symbol();
+char * dest();
