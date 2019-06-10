@@ -11,16 +11,21 @@
 char current_cmd[256];
 // 一つ前のコマンドを保持する変数
 char previous_cmd[256];
+// compからの返り値
+char retdest[4];
+// symbolからの返り値
+char retsymbol[256];
+// compからの返り値
+char retcomp[10];
 
 void parserMain() {
 
 	int cmdtype = 0;
 	int length = 0;
-
 	char symbolstring[256];
-	// current_cmdは初期状態はから
-	strcpy( current_cmd, "" );
+	char symbolstring2[256];
 
+	strcpy( current_cmd, "" );
 	strcpy ( fname, "./pong/Pong.asm" );
 	// 入力ファイルを開く
 	if ( ( fp = fopen( fname, "r" ) ) == NULL )  {
@@ -42,13 +47,18 @@ void parserMain() {
 
 		if ( cmdtype == A_COMMAND || cmdtype == L_COMMAND ) {
 			strncpy( symbolstring, symbol(), 256 );
-		}
-		if ( cmdtype == A_COMMAND ) {
-			fprintf( stdout, "[A_COMMAND]: Symbol is %s\n", symbolstring );
 		} else if ( cmdtype == C_COMMAND ) {
-			fprintf( stdout, "[C_COMMAND]:%s\n", current_cmd );
+			strncpy( symbolstring, dest(), 256 );
+			comp();
+		} 
+
+		if ( cmdtype == A_COMMAND ) {
+			fprintf( stdout, "[A_COMMAND]: %s\n", symbolstring );
+		} else if ( cmdtype == C_COMMAND ) {
+			fprintf( stdout, "[C_COMMAND]: %s ==== %s\n", symbolstring, 
+					symbolstring2 );
 		} else if ( cmdtype == L_COMMAND ){
-			fprintf( stdout, "[L_COMMAND]: Symbol is %s\n", symbolstring );
+			fprintf( stdout, "[L_COMMAND]: %s\n", symbolstring );
 		} else if ( cmdtype == E_COMMENT ) {
 			fprintf( stdout, "[E_COMMENT]:%s\n", current_cmd );
 		} else if ( cmdtype == E_CMDERR ) {
@@ -98,33 +108,53 @@ int commandType() {
 }
 
 char * symbol() {
-	char retstr[256];
 	int i = 0;
 
 	if ( current_cmd[0] == '@' ) {
 		// A_COMMANDの場合
 		int length = strlen( current_cmd );
 		for ( i = 1 ; i < length ; i++ ) {
-			retstr[i-1] = current_cmd[i];
+			retsymbol[i-1] = current_cmd[i];
 		}
 	} else {
 		// L_COMMANDの場合
 		int length = strlen( current_cmd );
 		for ( i = 1 ; i < length-2 ; i++ ) {
-			retstr[i-1] = current_cmd[i];
+			retsymbol[i-1] = current_cmd[i];
 		}
-		retstr[i] = '\0';
+		retsymbol[i] = '\0';
 	}
 
-	return retstr;
+	return retsymbol;
 }
 
 char * dest() {
-	char reststr[4];
-	char splitstr[256];
+	char * strpt;
+	int i = 0;
 
-	retstr[3] = '\0';
+	strpt = strtok( current_cmd, "=" );
+	for ( i = 0 ; i < strlen( strpt ) ; i++ ) {
+		retdest[i] = *( strpt + i );
+	}
+	retdest[i] = '\0';
+	// fprintf( stdout, "In:%s, copied word is %s, length is %lu\n", __func__, retdest, strlen( strpt) );
 
+	return retdest;
+}
 
-	if ( current_cmd )
+char * comp() {
+	char * strpt;
+	int i = 0;
+
+	strpt = strtok( current_cmd, "=" );
+	strpt = strtok( NULL, "" );
+
+	for ( i = 0 ; i < strlen( strpt ) ; i++ ) {
+		retcomp[i] = *( strpt + i );
+	}
+	retcomp[i] = '\0';
+	fprintf( stdout, "In:%s, copied word is %s, length is %lu\n", 
+			__func__, retcomp, strlen( strpt) );
+
+	return retcomp;
 }
