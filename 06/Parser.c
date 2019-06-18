@@ -46,17 +46,17 @@ void parserMain() {
 		cmdtype = commandType();
 
 		if ( cmdtype == A_COMMAND || cmdtype == L_COMMAND ) {
+			// fprintf( stdout, "A or E: %s\n", current_cmd );
 			strncpy( symbolstring, symbol(), 256 );
 		} else if ( cmdtype == C_COMMAND ) {
 			strncpy( symbolstring, dest(), 256 );
-			comp();
+			strncpy( symbolstring2, comp(), 256 );
 		} 
 
 		if ( cmdtype == A_COMMAND ) {
 			fprintf( stdout, "[A_COMMAND]: %s\n", symbolstring );
 		} else if ( cmdtype == C_COMMAND ) {
-			fprintf( stdout, "[C_COMMAND]: %s ==== %s\n", symbolstring, 
-					symbolstring2 );
+			fprintf( stdout, "[C_COMMAND]: %s = %s\n", symbolstring, symbolstring2 );
 		} else if ( cmdtype == L_COMMAND ){
 			fprintf( stdout, "[L_COMMAND]: %s\n", symbolstring );
 		} else if ( cmdtype == E_COMMENT ) {
@@ -108,31 +108,33 @@ int commandType() {
 }
 
 char * symbol() {
-	int i = 0;
+	int i = 0, j = 0;
 
 	if ( current_cmd[0] == '@' ) {
 		// A_COMMANDの場合
 		int length = strlen( current_cmd );
-		for ( i = 1 ; i < length ; i++ ) {
-			retsymbol[i-1] = current_cmd[i];
+		for ( i = 1, j = 0 ; i < length ; i++, j++ ) {
+			retsymbol[j] = current_cmd[i];
 		}
 	} else {
 		// L_COMMANDの場合
 		int length = strlen( current_cmd );
-		for ( i = 1 ; i < length-2 ; i++ ) {
-			retsymbol[i-1] = current_cmd[i];
+		for ( i = 1, j = 0 ; i < length-2 ; i++, j++ ) {
+			retsymbol[j] = current_cmd[i];
 		}
-		retsymbol[i] = '\0';
 	}
+	retsymbol[j] = '\0';
 
 	return retsymbol;
 }
 
 char * dest() {
+	char str[256];
 	char * strpt;
 	int i = 0;
 
-	strpt = strtok( current_cmd, "=" );
+	strncpy( str, current_cmd, sizeof( str ) / sizeof( char ) );
+	strpt = strtok( str, "=" );
 	for ( i = 0 ; i < strlen( strpt ) ; i++ ) {
 		retdest[i] = *( strpt + i );
 	}
@@ -143,18 +145,21 @@ char * dest() {
 }
 
 char * comp() {
-	char * strpt;
-	int i = 0;
+	char strpt[256];
+	int i = 0, len = strlen( current_cmd ), j = 0 ;
+	
+	strncpy( strpt, current_cmd, sizeof( strpt ) / sizeof( char ) );
 
-	strpt = strtok( current_cmd, "=" );
-	strpt = strtok( NULL, "" );
-
-	for ( i = 0 ; i < strlen( strpt ) ; i++ ) {
-		retcomp[i] = *( strpt + i );
+	while ( strpt[i] != '=' ) {
+		i++;
 	}
-	retcomp[i] = '\0';
-	fprintf( stdout, "In:%s, copied word is %s, length is %lu\n", 
-			__func__, retcomp, strlen( strpt) );
 
+	i++; // whileでのiの位置は=の位置を指しているため，位置を1進める
+	for ( j = 0 ; strpt[i] != '\0' ; j++,i++ ) {
+		retcomp[j] = strpt[i];
+	}
+	retcomp[j] = '\0';
+	// fprintf( stdout, "In:%s, copied word is %s, length is %lu\n", 
+	//		__func__, retcomp, strlen( strpt) );
 	return retcomp;
 }
