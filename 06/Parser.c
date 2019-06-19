@@ -12,7 +12,7 @@ char current_cmd[256];
 // 一つ前のコマンドを保持する変数
 char previous_cmd[256];
 // compからの返り値
-char retdest[4];
+char retdest[10];
 // symbolからの返り値
 char retsymbol[256];
 // compからの返り値
@@ -28,8 +28,8 @@ void parserMain() {
 	char symbolstring2[256];
 	char symbolstring3[256];
 
-	strcpy( current_cmd, "" );
 	strcpy ( fname, "./pong/Pong.asm" );
+	// strcpy ( fname, "./add/Add.asm" );
 	// 入力ファイルを開く
 	if ( ( fp = fopen( fname, "r" ) ) == NULL )  {
 		fprintf( stdout, "file not found\n" );
@@ -37,8 +37,7 @@ void parserMain() {
 	}
 
 	while ( hasMoreCommands() ) {
-		// 入力ファイルがまだコマンドが存在する場合
-		strncpy( previous_cmd, current_cmd, sizeof( previous_cmd ) / sizeof( char ) );
+		current_cmd[0] = '\0'; 
 		// 現在のコマンドに入力ストリームの入力を代入
 		strncpy( current_cmd, str, sizeof( str ) / sizeof( char ) );
 		length = strlen( current_cmd );
@@ -53,22 +52,23 @@ void parserMain() {
 			strncpy( symbolstring, symbol(), 256 );
 		} else if ( cmdtype == C_COMMAND ) {
 			symbolstring[0] = '\0', symbolstring2[0] = '\0', symbolstring3[0] = '\0';
-			strncpy( symbolstring, dest(), 256 );
-			strncpy( symbolstring2, comp(), 256 );
-			// strncpy( symbolstring3, jump(), 256 );
+			retdest[0] = '\0', retcomp[0] = '\0', retjump[0] = '\0';
+			strncpy( symbolstring, dest(), 10 );
+			strncpy( symbolstring2, comp(), 10 );
+			strncpy( symbolstring3, jump(), 10 );
 		} 
 
 		if ( cmdtype == A_COMMAND ) {
-			fprintf( stdout, "[A_COMMAND]: %s\n", symbolstring );
+			 fprintf( stdout, " [A_COMMAND]: %s\n", retsymbol );
 		} else if ( cmdtype == C_COMMAND ) {
-			fprintf( stdout, "[C_COMMAND]: %s=%s\n", 
-				symbolstring, symbolstring2 );
+			fprintf( stdout, " [C_COMMAND]: %s=%s;%s\n", 
+				retdest, retcomp, retjump );
 		} else if ( cmdtype == L_COMMAND ){
-			fprintf( stdout, "[L_COMMAND]: %s\n", symbolstring );
+			fprintf( stdout, " [L_COMMAND]: %s\n", symbolstring );
 		} else if ( cmdtype == E_COMMENT ) {
-			fprintf( stdout, "[E_COMMENT]:%s\n", current_cmd );
+			fprintf( stdout, " [E_COMMENT]:%s\n", current_cmd );
 		} else if ( cmdtype == E_CMDERR ) {
-			fprintf( stdout, "ERROR: Command type is not found\n" );
+			fprintf( stdout, " ERROR: Command type is not found\n" );
 		} else if ( cmdtype == E_BLANK ) {
 			fprintf( stdout, " ---> : Blank line\n" );
 		}
@@ -104,8 +104,8 @@ int commandType() {
 		// (Xxx)はL
 		return L_COMMAND;
 	} else {
-		if ( ( splitstr = strtok( current_cmd, ";" ) ) || 
-		     ( splitstr = strtok( current_cmd, "=" ) ) ) {
+		if ( ( splitstr = strstr( current_cmd, ";" ) ) || 
+		     ( splitstr = strstr( current_cmd, "=" ) ) ) {
 			// コマンド行がジャンプ命令, 代入命令の場合はC
 			return C_COMMAND;
 		}
@@ -136,65 +136,59 @@ char * symbol() {
 }
 
 char * dest() {
-	char str[256];
 	char * strpt;
 	int i = 0;
 
-	strncpy( str, current_cmd, sizeof( current_cmd ) / sizeof( char ) );
-	strpt = strtok( str, "=" );
-	for ( i = 0 ; i < strlen( strpt ) ; i++ ) {
-		retdest[i] = *( strpt + i );
+	if ( ( strpt = strstr( current_cmd, "=" ) ) ) { 
+		strpt = current_cmd;
+		for ( i = 0 ; *strpt != '=' ; i++, strpt++ ) {
+			retdest[i] = *strpt;
+		}
+		retdest[i] = '\0';
+	} else {
+		retdest[0] = '\0';
 	}
-	retdest[i] = '\0';
-	// fprintf( stdout, "In:%s, copied word is %s, length is %lu\n", __func__, retdest, strlen( strpt) );
+	fprintf( stdout, "In:%s, copied word is %s, length is %lu\n",
+			__func__, retdest, strlen( retdest ) );
 
 	return retdest;
 }
 
 char * comp() {
-	char strpt[256];
-	int i = 0, len = strlen( current_cmd ), j = 0 ;
-	
-	strncpy( strpt, current_cmd, sizeof( current_cmd ) / sizeof( char ) );
+	// char strpt[256];
+	char * strpt;
+	int j = 0 ;
 
-	while ( strpt[i] != '=' ) {
-		i++;
+	if ( ( strpt = strstr( current_cmd, "=" ) ) ) {
+		strpt++;
+		for ( j = 0 ; *strpt != '\0' ; j++, strpt++ ) {
+			retcomp[j] = *strpt;
+		}
+		retcomp[j] = '\0';
+	} else {
+		retcomp[0] = '\0';
 	}
 
-	i++; // whileでのiの位置は=の位置を指しているため，位置を1進める
-	for ( j = 0 ; strpt[i] != '\0' ; j++,i++ ) {
-		retcomp[j] = strpt[i];
-	}
-	retcomp[j] = '\0';
-	// fprintf( stdout, "In:%s, copied word is %s, length is %lu\n", 
-	//		__func__, retcomp, strlen( strpt) );
+	fprintf( stdout, "In:%s, copied word is %s, length is %lu\n", 
+			__func__, retcomp, strlen( retcomp ) );
 	return retcomp;
 }
 
 char * jump() {
-	char str[256];
-	int i = 0, len = strlen( current_cmd ), j = 0;
-	int flag = 0;
-
-	strncpy( str, current_cmd, sizeof( current_cmd ) / sizeof( char ) );
-	fprintf( stdout, "%d %s\n", len, str );
-	for ( i = 0 ; i < len ; i++ ) {
-		if ( str[i] == ';' ) {
-			flag = 1; // ;が含まれる文字列の場合
-		}
-	}
-
-	if ( flag == 1 ) { 
-		i++; // whileループを抜けた時の文字列位置は, ;のため, 位置を1ずらす
-		for ( j = 0 ; str[i] != '\0' ; i++, j++ ) {
-			retjump[j] = str[i];
+	char * strpt;
+	int j = 0;
+	
+	if ( ( strpt = strstr( current_cmd, ";" ) ) ) {
+		strpt++;
+		for ( j = 0 ; *strpt != '\0' ; strpt++, j++ ) {
+			retjump[j] = *strpt;
 		}
 		retjump[j] = '\0';
-
-		fprintf( stdout, " split word is %s\n",  retjump );
 	} else {
 		retjump[0] = '\0';
 	}
-
+	fprintf( stdout, "In:%s, copied word is %s, length is %lu\n", 
+			__func__, retjump, strlen( retjump ) );
+	
 	return retjump;
 }
