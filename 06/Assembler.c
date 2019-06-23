@@ -17,6 +17,12 @@ char retjump[10];
 // 現在のコマンドを保持する
 char current_cmd[256] = { 0 };
 
+char bitdest[8][4];
+// compのbit列を表す
+char bitcomp[18][6];
+// jumpのbit列を表す
+char bitjump[8][4];
+
 int main() {
 	int type = 0;
 	strcpy ( fname, "./pong/Pong.asm" );
@@ -27,19 +33,15 @@ int main() {
 		return 0;
 	}
 
+	DestDataInit();
+	JumpDataInit();
+
 	while ( hasMoreCommands() ) {
-		fprintf( stdout, "####>> %s", str );
-		type = parserMain();
-		/*if ( type == A_COMMAND ) {
-			fprintf( stdout, "%s\n", retsymbol );	
-		} else if ( type == C_COMMAND ) {
-			fprintf( stdout, "%s %s %s\n", retdest, retcomp, retjump );		
-		} else if ( type == L_COMMAND ) {
-			fprintf( stdout, "%s\n", retsymbol );	
-		} else {
-			fprintf( stdout, "error\n"  );
-		}*/
-		
+		// fprintf( stdout, "####>> %s", str );
+		//type = parserMain();
+		//CodeDest( retdest );
+		//CodeComp( retcomp );
+		//CodeJump( retjump );
 	}
 	fclose( fp );
 		
