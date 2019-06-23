@@ -8,17 +8,17 @@
 #define E_BLANK -3
 
 // 現在のコマンドを保持する
-char current_cmd[256];
+char current_cmd[256] = { 0 };
 // 一つ前のコマンドを保持する変数
-char previous_cmd[256];
+char previous_cmd[256] = { 0 };
 // compからの返り値
-char retdest[10];
+char retdest[10] = { 0 };
 // symbolからの返り値
-char retsymbol[256];
+char retsymbol[256] = { 0 };
 // compからの返り値
-char retcomp[10];
+char retcomp[10] = { 0 };
 // jumpからの返り値
-char retjump[10];
+char retjump[10] = { 0 };
 
 void parserMain() {
 
@@ -53,16 +53,13 @@ void parserMain() {
 		} else if ( cmdtype == C_COMMAND ) {
 			symbolstring[0] = '\0', symbolstring2[0] = '\0', symbolstring3[0] = '\0';
 			retdest[0] = '\0', retcomp[0] = '\0', retjump[0] = '\0';
-			strncpy( symbolstring, dest(), 10 );
-			strncpy( symbolstring2, comp(), 10 );
-			strncpy( symbolstring3, jump(), 10 );
+			dest(); comp(); jump();
 		} 
 
 		if ( cmdtype == A_COMMAND ) {
-			 fprintf( stdout, " [A_COMMAND]: %s\n", retsymbol );
+			fprintf( stdout, " [A_COMMAND]: %s\n", retsymbol );
 		} else if ( cmdtype == C_COMMAND ) {
-			fprintf( stdout, " [C_COMMAND]: %s=%s;%s\n", 
-				retdest, retcomp, retjump );
+			fprintf( stdout, " [C_COMMAND]: %s=%s;%s\n", retdest, retcomp, retjump );
 		} else if ( cmdtype == L_COMMAND ){
 			fprintf( stdout, " [L_COMMAND]: %s\n", symbolstring );
 		} else if ( cmdtype == E_COMMENT ) {
@@ -145,11 +142,21 @@ char * dest() {
 			retdest[i] = *strpt;
 		}
 		retdest[i] = '\0';
+		retdest[9] = '\0';
+	} else 	if ( ( strpt = strstr( current_cmd, ";" ) ) ) { 
+		strpt = current_cmd;
+		for ( i = 0 ; *strpt != ';' ; i++, strpt++ ) {
+			retdest[i] = *strpt;
+		}
+		retdest[i] = '\0';
+		retdest[9] = '\0';
 	} else {
-		retdest[0] = '\0';
+	//	fprintf( stdout, "Not found =\n" );
+		retdest[0] = ' ';
+		retdest[1] = '\0';
 	}
-	fprintf( stdout, "In:%s, copied word is %s, length is %lu\n",
-			__func__, retdest, strlen( retdest ) );
+	//fprintf( stdout, " ==> In:%s, copied word is %s, length is %lu\n",
+	//		__func__, retdest, strlen( retdest ) );
 
 	return retdest;
 }
@@ -165,12 +172,15 @@ char * comp() {
 			retcomp[j] = *strpt;
 		}
 		retcomp[j] = '\0';
+		retcomp[9] = '\0';
 	} else {
-		retcomp[0] = '\0';
+	//	fprintf( stdout, "Not found =\n" );
+		retcomp[0] = ' ';
+		retcomp[1] = '\0';
 	}
 
-	fprintf( stdout, "In:%s, copied word is %s, length is %lu\n", 
-			__func__, retcomp, strlen( retcomp ) );
+	//fprintf( stdout, " ==> In:%s, copied word is %s, length is %lu\n", 
+	//		__func__, retcomp, strlen( retcomp ) );
 	return retcomp;
 }
 
@@ -185,10 +195,12 @@ char * jump() {
 		}
 		retjump[j] = '\0';
 	} else {
-		retjump[0] = '\0';
+	//	fprintf( stdout, "Not found ;\n" );
+		retjump[0] = ' ';
+		retjump[1] = '\0';
 	}
-	fprintf( stdout, "In:%s, copied word is %s, length is %lu\n", 
-			__func__, retjump, strlen( retjump ) );
+	//fprintf( stdout, " ==> In:%s, copied word is %s, length is %lu\n", 
+	//		__func__, retjump, strlen( retjump ) );
 	
 	return retjump;
 }
