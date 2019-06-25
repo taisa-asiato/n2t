@@ -128,8 +128,7 @@ char * dest() {
 		retdest[9] = '\0';
 	} else {
 	//	fprintf( stdout, "Not found =\n" );
-		retdest[0] = ' ';
-		retdest[1] = '\0';
+		retdest[0] = '\0';
 	}
 	//fprintf( stdout, " ==> In:%s, copied word is %s, length is %lu\n",
 	//		__func__, retdest, strlen( retdest ) );
@@ -151,8 +150,7 @@ char * comp() {
 		retcomp[9] = '\0';
 	} else {
 	//	fprintf( stdout, "Not found =\n" );
-		retcomp[0] = ' ';
-		retcomp[1] = '\0';
+		retcomp[0] = '\0';
 	}
 
 	//fprintf( stdout, " ==> In:%s, copied word is %s, length is %lu\n", 
@@ -172,8 +170,7 @@ char * jump() {
 		retjump[j] = '\0';
 	} else {
 	//	fprintf( stdout, "Not found ;\n" );
-		retjump[0] = ' ';
-		retjump[1] = '\0';
+		retjump[0] = '\0';
 	}
 	//fprintf( stdout, " ==> In:%s, copied word is %s, length is %lu\n", 
 	//		__func__, retjump, strlen( retjump ) );

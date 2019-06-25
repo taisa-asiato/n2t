@@ -35,13 +35,13 @@ int main() {
 
 	DestDataInit();
 	JumpDataInit();
+	CompDataInit();
 
 	while ( hasMoreCommands() ) {
-		// fprintf( stdout, "####>> %s", str );
-		//type = parserMain();
-		//CodeDest( retdest );
-		//CodeComp( retcomp );
-		//CodeJump( retjump );
+		fprintf( stdout, "####>> %s", str );
+		type = parserMain();
+		fprintf( stdout, "%s%s%s\n", 
+			CodeDest( retdest ), CodeComp( retcomp ), CodeJump( retjump ) );
 	}
 	fclose( fp );
 		

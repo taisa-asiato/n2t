@@ -54,5 +54,7 @@ char * jump();
 ////////////
 char * CodeDest();
 char * CodeComp();
-char * COdeJump();
+char * CodeJump();
 void DestDataInit();
+void JumpDataInit();
+void CompDataInit();

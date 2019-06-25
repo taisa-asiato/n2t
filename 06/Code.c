@@ -10,9 +10,9 @@ void DestDataInit() {
 	strcpy( bitdest[6], "110" );
 	strcpy( bitdest[7], "111" );
 
-	for ( int i = 0 ; i < 8 ; i++ ) {
-		fprintf( stdout, "%s\n", bitdest[i] );
-	}
+//	for ( int i = 0 ; i < 8 ; i++ ) {
+//		fprintf( stdout, "%s\n", bitdest[i] );
+//	}
 }
 
 void JumpDataInit() {
@@ -25,12 +25,12 @@ void JumpDataInit() {
 	strcpy( bitjump[6], "110" );
 	strcpy( bitjump[7], "111" );
 
-	for ( int i = 0 ; i < 8 ; i++ ) {
-		fprintf( stdout, "%s\n", bitjump[i] );
-	}
+//	for ( int i = 0 ; i < 8 ; i++ ) {
+//		fprintf( stdout, "%s\n", bitjump[i] );
+//	}
 }
 
-void CompuDataInit(){
+void CompDataInit(){
 	strcpy( bitcomp[0], "101010" );
 	strcpy( bitcomp[1], "111111" );
 	strcpy( bitcomp[2], "111010" );
@@ -52,13 +52,84 @@ void CompuDataInit(){
 }
 
 char * CodeDest( char strcode[10] ) {
+	if ( strcmp( strcode, "" ) ) {
+		return bitdest[0];
+	} else if ( strcmp( strcode, "M" ) ) {
+		return bitdest[1];
+	} else if ( strcmp( strcode, "D" ) ) {
+		return bitdest[2];
+	} else if ( strcmp( strcode, "MD" ) ) {
+		return bitdest[3];
+	} else if ( strcmp( strcode, "A" ) ) {
+		return bitdest[4];
+	} else if ( strcmp( strcode, "AM" ) ) {
+		return bitdest[5];
+	} else if ( strcmp( strcode, "AD" ) ) {
+		return bitdest[6];
+	} else if ( strcmp( strcode, "AMD" ) ) {
+		return bitdest[7];
+	}
 	return NULL;
 }
 
-char * CodeComp( char strcomp[10] ) {
+char * CodeComp( char strcode[10] ) {
+	if ( strcmp( strcode, "0" ) ) {
+		return bitcomp[0];
+	} else if ( strcmp( strcode, "1" ) ) {
+		return bitcomp[1];
+	} else if ( strcmp( strcode, "-1" ) ) {
+		return bitcomp[2];
+	} else if ( strcmp( strcode, "D" ) ) {
+		return bitcomp[3];
+	} else if ( strcmp( strcode, "A" ) || strcmp( strcode, "M" ) ) {
+		return bitcomp[4];
+	} else if ( strcmp( strcode, "!D" ) ) {
+		return bitcomp[5];
+	} else if ( strcmp( strcode, "!A" ) || strcmp( strcode, "!M" ) ) {
+		return bitcomp[6];
+	} else if ( strcmp( strcode, "-D" ) ) {
+		return bitcomp[7];
+	} else if ( strcmp( strcode, "-A" ) || strcmp( strcode, "-M" ) ) {
+		return bitcomp[8];
+	} else if ( strcmp( strcode, "D+1" ) ) {
+		return bitcomp[9];
+	} else if ( strcmp( strcode, "A+1" ) || strcmp( strcode, "M+1" ) ) {
+		return bitcomp[10];
+	} else if ( strcmp( strcode, "D-1" ) ) {
+		return bitcomp[11];
+	} else if ( strcmp( strcode, "A-1" ) || strcmp( strcode, "M-1" ) ) {
+		return bitcomp[12];
+	} else if ( strcmp( strcode, "D+A" ) || strcmp( strcode, "D+M" ) ) {
+		return bitcomp[13];
+	} else if ( strcmp( strcode, "D-A" ) || strcmp( strcode, "D-M" ) ) {
+		return bitcomp[14];
+	} else if ( strcmp( strcode, "A-D" ) || strcmp( strcode, "M-D" ) ) {
+		return bitcomp[15];
+	} else if ( strcmp( strcode, "D&A" ) || strcmp( strcode, "D&M" ) ) {
+		return bitcomp[16];
+	} else if ( strcmp( strcode, "D|A" ) || strcmp( strcode, "D|M" ) ) {
+		return bitcomp[17];
+	} 
 	return NULL;
 }
 
-char * CodeJump( char strjump[10] ) {
-	return NULL;	
+char * CodeJump( char strcode[10] ) {
+	if ( strcmp( strcode, "" ) ) {
+		return bitjump[0];
+	} else if ( strcmp( strcode, "JGT" ) ) {
+		return bitjump[1];
+	} else if ( strcmp( strcode, "JEQ" ) ) {
+		return bitjump[2];
+	} else if ( strcmp( strcode, "JGE" ) ) {
+		return bitjump[3];
+	} else if ( strcmp( strcode, "JLT" ) ) {
+		return bitjump[4];
+	} else if ( strcmp( strcode, "JNE" ) ) {
+		return bitjump[5];
+	} else if ( strcmp( strcode, "JLE" ) ) {
+		return bitjump[6];
+	} else if ( strcmp( strcode, "JMP" ) ) {
+		return bitjump[7];
+	}
+	return NULL;
 }
