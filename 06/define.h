@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "data.h"
 
 // 各コマンド
 #define A_COMMAND 1
@@ -34,7 +35,7 @@ extern char current_cmd[256];
 // destのbit列を表す
 extern char bitdest[8][4];
 // compのbit列を表す
-extern char bitcomp[18][6];
+extern char bitcomp[18][7];
 // jumpのbit列を表す
 extern char bitjump[8][4];
 
@@ -58,3 +59,15 @@ char * CodeJump();
 void DestDataInit();
 void JumpDataInit();
 void CompDataInit();
+
+///////////////////
+/* SymnolTable.c */
+///////////////////
+void addEntry( char * symbol, char * address );
+bool contains( char * symbol );
+int getAddress( char * symbol );
+
+/////////////////
+/* Assembler.c */
+/////////////////
+char *  IntegerToBinaryString( char integer[256] );

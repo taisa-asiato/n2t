@@ -19,9 +19,11 @@ char current_cmd[256] = { 0 };
 
 char bitdest[8][4];
 // compのbit列を表す
-char bitcomp[18][6];
+char bitcomp[18][7];
 // jumpのbit列を表す
 char bitjump[8][4];
+// アドレスデータ
+static const char binstr[65536][17];
 
 int main() {
 	int type = 0;
@@ -40,10 +42,19 @@ int main() {
 	while ( hasMoreCommands() ) {
 		fprintf( stdout, "####>> %s", str );
 		type = parserMain();
-		fprintf( stdout, "%s%s%s\n", 
-			CodeDest( retdest ), CodeComp( retcomp ), CodeJump( retjump ) );
+		if ( type == A_COMMAND ) {
+			fprintf( stdout, "%s:0%s\n", str, IntegerToBinaryString( retsymbol ) );
+		} else if ( type == C_COMMAND ) {
+			fprintf( stdout, "%s%s%s\n", 
+				CodeDest( retdest ), CodeComp( retcomp ), CodeJump( retjump ) );
+		}
 	}
 	fclose( fp );
 		
 	return 0;
+}
+
+char *  IntegerToBinaryString( char integer[256] ) {
+	int before = atoi( integer );
+	return binstr[before];	
 }

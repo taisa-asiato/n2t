@@ -1,5 +1,9 @@
 #include "define.h"
 
+void FunctionPrint( char * str ) {
+	fprintf( stdout, "%s\n", str );
+}
+
 void DestDataInit() {
 	strcpy( bitdest[0], "000" );
 	strcpy( bitdest[1], "001" );
@@ -9,7 +13,7 @@ void DestDataInit() {
 	strcpy( bitdest[5], "101" );
 	strcpy( bitdest[6], "110" );
 	strcpy( bitdest[7], "111" );
-
+	FunctionPrint( __func__ );
 //	for ( int i = 0 ; i < 8 ; i++ ) {
 //		fprintf( stdout, "%s\n", bitdest[i] );
 //	}
@@ -24,7 +28,7 @@ void JumpDataInit() {
 	strcpy( bitjump[5], "101" );
 	strcpy( bitjump[6], "110" );
 	strcpy( bitjump[7], "111" );
-
+	FunctionPrint( __func__ );
 //	for ( int i = 0 ; i < 8 ; i++ ) {
 //		fprintf( stdout, "%s\n", bitjump[i] );
 //	}
@@ -49,6 +53,7 @@ void CompDataInit(){
 	strcpy( bitcomp[15], "000111" );
 	strcpy( bitcomp[16], "000000" );
 	strcpy( bitcomp[17], "010101" );
+	FunctionPrint( __func__ );
 }
 
 char * CodeDest( char strcode[10] ) {
