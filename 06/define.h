@@ -11,7 +11,9 @@
 #define E_CMDERR -1
 #define E_COMMENT -2
 #define E_BLANK -3
-
+// 命令がa=0 or a=1か判定する
+#define typeA 0
+#define typeM 1
 
 // 入力ファイルへのファイルポインタ
 extern FILE * fp;
@@ -59,6 +61,7 @@ char * CodeJump();
 void DestDataInit();
 void JumpDataInit();
 void CompDataInit();
+int CodeAorM();
 
 ///////////////////
 /* SymnolTable.c */

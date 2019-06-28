@@ -26,9 +26,10 @@ char bitjump[8][4];
 static const char binstr[65536][17];
 
 int main() {
-	int type = 0;
-	strcpy ( fname, "./pong/Pong.asm" );
-	// strcpy ( fname, "./add/Add.asm" );
+	int type = 0, length = 0;
+	char cpystr[256];
+	//strcpy ( fname, "./pong/Pong.asm" );
+	strcpy ( fname, "./add/Add.asm" );
 	// 入力ファイルを開く
 	if ( ( fp = fopen( fname, "r" ) ) == NULL )  {
 		fprintf( stdout, "file not found\n" );
@@ -38,19 +39,34 @@ int main() {
 	DestDataInit();
 	JumpDataInit();
 	CompDataInit();
+	// PrintData();
 
 	while ( hasMoreCommands() ) {
-		fprintf( stdout, "####>> %s", str );
+		strcpy( cpystr, current_cmd );
+		length = strlen( current_cmd );
+		cpystr[length-2] = '\0';
 		type = parserMain();
-		if ( type == A_COMMAND ) {
-			fprintf( stdout, "%s:0%s\n", str, IntegerToBinaryString( retsymbol ) );
-		} else if ( type == C_COMMAND ) {
-			fprintf( stdout, "%s%s%s\n", 
-				CodeDest( retdest ), CodeComp( retcomp ), CodeJump( retjump ) );
+		//fprintf( stdout, "%d\t%s\n", type, current_cmd );
+		
+		if ( type == A_COMMAND || type == C_COMMAND ) {
+			//fprintf( stdout, "%s\t\t\t:", cpystr );
+			if ( type == A_COMMAND ) {
+				fprintf( stdout, "0%s\n", binstr[atoi( retsymbol )] );
+			} else if ( type == C_COMMAND ) {
+				if ( CodeAorM() == typeM ) {
+					fprintf( stdout, "1111%s%s%s\n", CodeComp( retcomp ), 
+						CodeDest( retdest ), CodeJump( retjump ) );
+				} else {
+					fprintf( stdout, "1110%s%s%s\n", CodeComp( retcomp ),
+						CodeDest( retdest ), CodeJump( retjump ) );
+				}
+			}
+		} else {
+			// fprintf( stdout, "%s\n", cpystr );
 		}
+		
 	}
 	fclose( fp );
-		
 	return 0;
 }
 

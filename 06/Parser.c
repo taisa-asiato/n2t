@@ -36,6 +36,7 @@ int parserMain() {
 		dest(); comp(); jump();
 	} 
 
+	/*
 	if ( cmdtype == A_COMMAND ) {
 		fprintf( stdout, " [A_COMMAND]: %s\n", retsymbol );
 	} else if ( cmdtype == C_COMMAND ) {
@@ -49,7 +50,7 @@ int parserMain() {
 	} else if ( cmdtype == E_BLANK ) {
 		fprintf( stdout, " ---> : Blank line\n" );
 	}
-
+*/
 	return cmdtype;
 }
 
