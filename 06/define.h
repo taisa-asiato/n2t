@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "data.h"
 
 // 各コマンド
@@ -41,6 +42,12 @@ extern char bitcomp[18][7];
 // jumpのbit列を表す
 extern char bitjump[8][4];
 
+// シンボル登録用のテーブル
+extern char symboltable[0xFFFF+1][0xFF+1];
+extern char specialsymbol[5][10];
+// 登録シンボル数のカウンタ
+extern int symbolcnt;
+
 ////////////////
 /* Parser.c   */
 ////////////////
@@ -66,11 +73,16 @@ int CodeAorM();
 ///////////////////
 /* SymnolTable.c */
 ///////////////////
-void addEntry( char * symbol, char * address );
+void addEntry( char * symbol, int address );
 bool contains( char * symbol );
 int getAddress( char * symbol );
+void SymbolTableInit();
+void PrintTable();
 
 /////////////////
 /* Assembler.c */
 /////////////////
 char *  IntegerToBinaryString( char integer[256] );
+int FirstLoop();
+int SecondLoop();
+bool IsString( char retsymbol[10] );

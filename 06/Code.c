@@ -74,7 +74,7 @@ char * CodeDest( char strcode[10]) {
 	} else if ( strcmp( strcode, "AMD\0" ) == 0 ) {
 		return bitdest[7];
 	}
-	fprintf( stdout, "%s\n", __func__  );
+	// fprintf( stdout, "%s\n", __func__  );
 	return NULL;
 }
 
@@ -116,7 +116,7 @@ char * CodeComp( char strcode[10] ) {
 	} else if ( strcmp( strcode, "D|A" ) == 0 || strcmp( strcode, "D|M" ) == 0 ) {
 		return bitcomp[17];
 	} 
-	fprintf( stdout, "%s\n", __func__  );
+	// fprintf( stdout, "%s\n", __func__  );
 	return NULL;
 }
 
@@ -138,7 +138,7 @@ char * CodeJump( char strcode[10] ) {
 	} else if ( strcmp( strcode, "JMP" ) == 0 ) {
 		return bitjump[7];
 	}
-	fprintf( stdout, "%s\n", __func__  );
+	// fprintf( stdout, "%s\n", __func__  );
 	return NULL;
 }
 
