@@ -73,6 +73,7 @@ int FirstLoop() {
 				addEntry( retsymbol, symbolcnt );
 			}
 		}
+		// PrintStrASCII();
 	}
 
 	fclose( fp );
@@ -89,31 +90,31 @@ int SecondLoop() {
 	}
 
 	while ( hasMoreCommands() ) {
-	// 	strcpy( cpystr, current_cmd );
+	 	strcpy( cpystr, current_cmd );
 		length = strlen( current_cmd );
 		cpystr[length-1] = '\0';
 		cpystr[length-2] = '\0';
 		cpystr[length-3] = '\0';
 		type = parserMain();
-		fprintf( stdout, "%s:", current_cmd );
+		// fprintf( stdout, "%s:", retsymbol );
 		
 		if ( type == A_COMMAND || type == C_COMMAND || type == L_COMMAND) {
-			//fprintf( stdout, "%s\t\t\t:", cpystr );
+			fprintf( stdout, "%s\t\t\t:", cpystr );
 			if ( type == A_COMMAND ) {
 				if ( IsString( retsymbol ) ) {
 					address = getAddress( retsymbol );
-					fprintf( stdout, "%s [%4d]:0%s\n", retsymbol, address, binstr[address] );
+					fprintf( stdout, "0%s\n", binstr[address] );
 				} else {
-					fprintf( stdout, "%s 0%s\n", retsymbol, binstr[atoi( retsymbol )] );
+					fprintf( stdout, "0%s\n", binstr[atoi( retsymbol )] );
 				}
 			} else if ( type == C_COMMAND ) {
 				if ( CodeAorM() == typeM ) {
 					fprintf( stdout, "1111%s%s%s\n", CodeComp( retcomp ), CodeDest( retdest ), CodeJump( retjump ) );
 				} else {
-					fprintf( stdout, "1110%s%s%s\n", CodeComp( retcomp ),CodeDest( retdest ), CodeJump( retjump ) );
+					fprintf( stdout, "1110%s%s%s\n", CodeComp( retcomp ), CodeDest( retdest ), CodeJump( retjump ) );
 				}
-			//} else if ( type == L_COMMAND ) {
-			//	address = getAddress( retsymbol );
+			} else if ( type == L_COMMAND ) {
+				;
 			}
 		} else {
 			// fprintf( stdout, "%s\n", cpystr );
@@ -124,13 +125,22 @@ int SecondLoop() {
 	return 0;
 }
 
-bool IsString( char retsymbol[10] ) {
-	int strsize = strlen( retsymbol );
+bool IsString( char * strsymbol ) {
+	int strsize = strlen( strsymbol );
 
-	for ( int i = 0 ; i < strsize || retsymbol[i] != '\0' ; i++ ) {
-		if ( isdigit( retsymbol[i] ) ) {
+	for ( int i = 0 ; i < strsize ; i++ ) {
+		if ( isdigit( strsymbol[i] ) ) {
 			return false;
+		} else {
+			break;
 		}
 	}
 	return true;
+}
+
+void PrintStrASCII() {
+	for ( int i = 0 ; i < 10 ; i++ ) {
+		fprintf( stdout, "0x%x:", current_cmd[i] );
+	}
+	fprintf( stdout, "\n" );
 }

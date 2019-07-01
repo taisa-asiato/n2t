@@ -58,6 +58,7 @@ char * symbol();
 char * dest();
 char * comp();
 char * jump();
+void PrintFunctionName( char * funcname );
 
 ////////////
 /* Code.c */
@@ -85,4 +86,5 @@ void PrintTable();
 char *  IntegerToBinaryString( char integer[256] );
 int FirstLoop();
 int SecondLoop();
-bool IsString( char retsymbol[10] );
+bool IsString( char * strsymbol );
+void PrintStrASCII();

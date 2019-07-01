@@ -16,7 +16,7 @@ int parserMain() {
 	retdest[0] = '\0', retcomp[0] = '\0', retjump[0] = '\0';
 
 	// 現在のコマンドに入力ストリームの入力を代入
-	strncpy( current_cmd, str, sizeof( str ) / sizeof( char ) );
+	strcpy( current_cmd, str );
 	length = strlen( current_cmd );
 
 	/*
@@ -101,7 +101,7 @@ char * symbol() {
 	} else {
 		// L_COMMANDの場合
 		for ( i = 1, j = 0 ; current_cmd[i] != ')' ; i++, j++ ) {
-			// currend_cmdから左右の()を除いた文字だけ格納
+			// current_cmdから左右の()を除いた文字だけ格納
 			retsymbol[j] = current_cmd[i];
 		}
 	}
@@ -119,43 +119,44 @@ char * dest() {
 			retdest[i] = *strpt;
 		}
 		retdest[i] = '\0';
-		retdest[9] = '\0';
-	} else 	if ( ( strpt = strstr( current_cmd, ";" ) ) ) { 
-		strpt = current_cmd;
-		for ( i = 0 ; *strpt != ';' ; i++, strpt++ ) {
-			retdest[i] = *strpt;
-		}
-		retdest[i] = '\0';
-		retdest[9] = '\0';
 	} else {
 	//	fprintf( stdout, "Not found =\n" );
 		retdest[0] = '\0';
 	}
-	//fprintf( stdout, " ==> In:%s, copied word is %s, length is %lu\n",
-	//		__func__, retdest, strlen( retdest ) );
-
+	// PrintFunctionName( __func__ );	
 	return retdest;
 }
 
 char * comp() {
 	// char strpt[256];
 	char * strpt;
+	char * pt;
 	int j = 0 ;
 
 	if ( ( strpt = strstr( current_cmd, "=" ) ) ) {
 		strpt++;
-		for ( j = 0 ; *strpt != '\r' ; j++, strpt++ ) {
+		if ( pt = strstr( current_cmd, ";" ) ) {
+			for ( j = 0 ; *strpt != ';' ; j++, strpt++ ) {
+				retcomp[j] = *strpt;
+			}
+		} else { 
+			for ( j = 0 ; *strpt != '\r' ; j++, strpt++ ) {
+				retcomp[j] = *strpt;
+			}
+		}
+		retcomp[j] = '\0';
+	} else 	if ( ( strpt = strstr( current_cmd, ";" ) ) ) { 
+		strpt = current_cmd;
+		for ( j = 0 ; *strpt != ';' ; j++, strpt++ ) {
 			retcomp[j] = *strpt;
 		}
 		retcomp[j] = '\0';
-		retcomp[9] = '\0';
 	} else {
 	//	fprintf( stdout, "Not found =\n" );
 		retcomp[0] = '\0';
 	}
 
-	//fprintf( stdout, " ==> In:%s, copied word is %s, length is %lu\n", 
-	//		__func__, retcomp, strlen( retcomp ) );
+	// PrintFunctionName( __func__ );	
 	return retcomp;
 }
 
@@ -173,8 +174,11 @@ char * jump() {
 	//	fprintf( stdout, "Not found ;\n" );
 		retjump[0] = '\0';
 	}
-	//fprintf( stdout, " ==> In:%s, copied word is %s, length is %lu\n", 
-	//		__func__, retjump, strlen( retjump ) );
 	
+	// PrintFunctionName( __func__ );	
 	return retjump;
+}
+
+void PrintFunctionName( char * funcname ) {
+	fprintf( stdout, "%s\n", funcname );
 }

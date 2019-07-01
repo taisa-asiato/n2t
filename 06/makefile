@@ -4,3 +4,6 @@ build:
 	gcc -c Code.c
 	gcc -c SymbolTable.c
 	gcc -o Assembler Assembler.o Parser.o Code.o SymbolTable.o
+
+clean:
+	rm *.o Assembler
