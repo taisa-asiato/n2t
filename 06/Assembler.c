@@ -41,8 +41,8 @@ int main() {
 
 	// シンボル登録用のループ
 	FirstLoop();
-	// PrintTable();
-	SecondLoop();
+	PrintTable();
+	// SecondLoop();
 
 	return 0;
 }
@@ -83,6 +83,7 @@ int FirstLoop() {
 int SecondLoop() {
 	int type = 0, length = 0, address = 0;
 	char cpystr[256];
+	symbolcnt = 16;
 
 	if ( ( fp = fopen( fname, "r" ) ) == NULL )  {
 		fprintf( stdout, "file not found\n" );
@@ -100,26 +101,30 @@ int SecondLoop() {
 		// fprintf( stdout, "%s:", retsymbol );
 	
 	
-		if ( type == A_COMMAND || type == C_COMMAND || type == L_COMMAND ) {
-			// fprintf( stdout, "%-30s:", cpystr );
+		if ( type == A_COMMAND || type == C_COMMAND ) {
+			fprintf( stdout, "%-30s:", cpystr );
 			if ( type == A_COMMAND ) {
-				// fprintf( stdout, "A_COMMAND\t" );
+				fprintf( stdout, "A_COMMAND\t" );
 				if ( IsString( retsymbol ) ) {
-					address = getAddress( retsymbol );
+					if ( getAddress( retsymbol ) == -1 ) {
+					} else {
+						for ( ; IsContents( symbolcnt ) ; symbolcnt++ ) { ; }
+						addEntry( retsymbol, address );
+					}
 					fprintf( stdout, "0%s\n", binstr[address] );
 				} else {
 					fprintf( stdout, "0%s\n", binstr[atoi( retsymbol )] );
 				}
 			} else if ( type == C_COMMAND ) {
-				// fprintf( stdout, "C_COMMAND\t" );
+				fprintf( stdout, "C_COMMAND\t" );
 				if ( CodeAorM() == typeM ) {
 					fprintf( stdout, "1111%s%s%s\n", CodeComp( retcomp ), CodeDest( retdest ), CodeJump( retjump ) );
 				} else {
 					fprintf( stdout, "1110%s%s%s\n", CodeComp( retcomp ), CodeDest( retdest ), CodeJump( retjump ) );
 				}
-			} else if ( type == L_COMMAND ) {
-				// fprintf( stdout, "L_COMMAND\n" );
-			}
+			} /*else if ( type == L_COMMAND ) {
+				fprintf( stdout, "L_COMMAND\n" );
+			}*/
 		} else {
 			// fprintf( stdout, "E_COMMAND\n"  );
 		}
@@ -147,4 +152,11 @@ void PrintStrASCII() {
 		fprintf( stdout, "0x%x:", current_cmd[i] );
 	}
 	fprintf( stdout, "\n" );
+}
+
+bool IsContents( int address ) {
+	if ( binstr[address][0] == '\0' ) {
+		return false;
+	}
+	return true;
 }

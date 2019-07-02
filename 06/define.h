@@ -88,3 +88,4 @@ int FirstLoop();
 int SecondLoop();
 bool IsString( char * strsymbol );
 void PrintStrASCII();
+bool IsContents( int address );
