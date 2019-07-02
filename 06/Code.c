@@ -74,15 +74,16 @@ char * CodeDest( char strcode[10] ) {
 	} else if ( strcmp( strcode, "AMD\0" ) == 0 ) {
 		return bitdest[7];
 	}
+
 	// fprintf( stdout, "%s\n", __func__  );
-	for ( int i = 0 ; i < strlen( strcode ) ; i++ ) {
+	/*for ( int i = 0 ; i < strlen( strcode ) ; i++ ) {
 		fprintf( stdout, "%d\n", strcode[i] );
-	}
+	}*/
 	return NULL;
 }
 
 char * CodeComp( char strcode[10] ) {
-	if ( strcmp( strcode, "" ) == 0 || strlen( strcode ) == 0 || strcode[0] == '\0' || strcode[0] == 48 ) {
+	if ( strcode[0] == '0' || strcmp( strcode, "" ) == 0 || strlen( strcode ) == 0 || strcode[0] == '\0' || strcode[0] == 48 ) {
 		return bitcomp[0];
 	} else if ( strcmp( strcode, "1" ) == 0 ) {
 		return bitcomp[1];
@@ -120,10 +121,10 @@ char * CodeComp( char strcode[10] ) {
 		return bitcomp[17];
 	} 
 	// fprintf( stdout, "%s\n", __func__  );
-	fprintf( stdout, "%d 0x%x\n %c is word", strlen( strcode ), strcode[0], strcode[0]  );
+	/*fprintf( stdout, "%d 0x%x\n %c is word", strlen( strcode ), strcode[0], strcode[0]  );
 	for ( int i = 0 ; i < strlen( strcode ) ; i++ ) {
 		fprintf( stdout, "%d\n", strcode[i] );
-	}
+	}*/
 	return NULL;
 }
 

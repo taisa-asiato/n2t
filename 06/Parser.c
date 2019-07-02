@@ -36,7 +36,7 @@ int parserMain() {
 		dest(); comp(); jump();
 	} 
 
-	/*
+/*	
 	if ( cmdtype == A_COMMAND ) {
 		fprintf( stdout, " [A_COMMAND]: %s\n", retsymbol );
 	} else if ( cmdtype == C_COMMAND ) {
@@ -68,7 +68,7 @@ bool hasMoreCommands ( ) {
 int commandType() {
 	char * splitstr;
 
-	if ( 1 == strlen( current_cmd ) || current_cmd[0] == '\0' ) {
+	if ( 0 == strlen( current_cmd ) || current_cmd[0] == '\0' ) {
 		// 空白行
 		return E_BLANK;
 	} else if ( current_cmd[0] == '/' && current_cmd[1] == '/' ) { 
@@ -135,7 +135,7 @@ char * comp() {
 
 	if ( ( strpt = strstr( current_cmd, "=" ) ) ) {
 		strpt++;
-		if ( pt = strstr( current_cmd, ";" ) ) {
+		if ( ( pt = strstr( current_cmd, ";" ) ) ) {
 			for ( j = 0 ; *strpt != ';' ; j++, strpt++ ) {
 				retcomp[j] = *strpt;
 			}

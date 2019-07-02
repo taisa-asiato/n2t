@@ -29,7 +29,7 @@ char symboltable[0xFFFF+1][0xFF+1];
 char specialsymbol[5][10];
 
 // 登録シンボル数のカウンタ
-int symbolcnt = 0;
+int symbolcnt = -1;
 
 int main() {
 	strcpy ( fname, "./pong/Pong.asm" );
@@ -90,17 +90,20 @@ int SecondLoop() {
 	}
 
 	while ( hasMoreCommands() ) {
-	 	strcpy( cpystr, current_cmd );
+	 	type = 0;
+		type = parserMain();
+		strcpy( cpystr, current_cmd );
 		length = strlen( current_cmd );
 		cpystr[length-1] = '\0';
 		cpystr[length-2] = '\0';
-		cpystr[length-3] = '\0';
-		type = parserMain();
+
 		// fprintf( stdout, "%s:", retsymbol );
-		
-		if ( type == A_COMMAND || type == C_COMMAND || type == L_COMMAND) {
-			fprintf( stdout, "%s\t\t\t:", cpystr );
+	
+	
+		if ( type == A_COMMAND || type == C_COMMAND || type == L_COMMAND ) {
+			// fprintf( stdout, "%-30s:", cpystr );
 			if ( type == A_COMMAND ) {
+				// fprintf( stdout, "A_COMMAND\t" );
 				if ( IsString( retsymbol ) ) {
 					address = getAddress( retsymbol );
 					fprintf( stdout, "0%s\n", binstr[address] );
@@ -108,16 +111,17 @@ int SecondLoop() {
 					fprintf( stdout, "0%s\n", binstr[atoi( retsymbol )] );
 				}
 			} else if ( type == C_COMMAND ) {
+				// fprintf( stdout, "C_COMMAND\t" );
 				if ( CodeAorM() == typeM ) {
 					fprintf( stdout, "1111%s%s%s\n", CodeComp( retcomp ), CodeDest( retdest ), CodeJump( retjump ) );
 				} else {
 					fprintf( stdout, "1110%s%s%s\n", CodeComp( retcomp ), CodeDest( retdest ), CodeJump( retjump ) );
 				}
 			} else if ( type == L_COMMAND ) {
-				;
+				// fprintf( stdout, "L_COMMAND\n" );
 			}
 		} else {
-			// fprintf( stdout, "%s\n", cpystr );
+			// fprintf( stdout, "E_COMMAND\n"  );
 		}
 		
 	}
