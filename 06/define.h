@@ -60,6 +60,7 @@ char * comp();
 char * jump();
 void PrintFunctionName( char * funcname );
 void DelCommentOut();
+void DelSpace();
 
 ////////////
 /* Code.c */

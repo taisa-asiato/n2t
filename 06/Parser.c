@@ -26,10 +26,9 @@ int parserMain() {
 	}
 	*/
 
+	DelCommentOut();
+	DelSpace();
 	cmdtype = commandType();
-	if ( cmdtype > 0 ) {
-		DelCommentOut();
-	}
 
 	if ( cmdtype == A_COMMAND || cmdtype == L_COMMAND ) {
 		// fprintf( stdout, "A or E: %s\n", current_cmd );
@@ -95,9 +94,24 @@ int commandType() {
 
 void DelCommentOut() {
 	char * strpt;
-	if ( ( strpt = strstr( current_cmd, "//" ) ) || ( strpt = strstr( current_cmd, "" ) ) ) {
+	if ( ( strpt = strstr( current_cmd, "//" ) ) ) {
 		// コメントアウトを含む行
 		*strpt = '\r';
+	}
+}
+
+void DelSpace() {
+	char * strpt;
+	int length = strlen( current_cmd );
+	int i = 0;
+
+	// strpt = current_cmd;
+	while ( isspace( current_cmd[i] ) ) {
+		for ( i = 0 ; i < length ; i++ ) {
+			current_cmd[i] = current_cmd[i+1];
+		}
+		length--;
+		i = 0;
 	}
 }
 
