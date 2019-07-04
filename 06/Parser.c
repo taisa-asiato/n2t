@@ -27,6 +27,9 @@ int parserMain() {
 	*/
 
 	cmdtype = commandType();
+	if ( cmdtype > 0 ) {
+		DelCommentOut();
+	}
 
 	if ( cmdtype == A_COMMAND || cmdtype == L_COMMAND ) {
 		// fprintf( stdout, "A or E: %s\n", current_cmd );
@@ -88,6 +91,14 @@ int commandType() {
 		}
 	}
 	return E_CMDERR;
+}
+
+void DelCommentOut() {
+	char * strpt;
+	if ( ( strpt = strstr( current_cmd, "//" ) ) || ( strpt = strstr( current_cmd, "" ) ) ) {
+		// コメントアウトを含む行
+		*strpt = '\r';
+	}
 }
 
 char * symbol() {

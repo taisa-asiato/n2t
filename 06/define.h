@@ -59,6 +59,7 @@ char * dest();
 char * comp();
 char * jump();
 void PrintFunctionName( char * funcname );
+void DelCommentOut();
 
 ////////////
 /* Code.c */
@@ -88,4 +89,4 @@ int FirstLoop();
 int SecondLoop();
 bool IsString( char * strsymbol );
 void PrintStrASCII();
-bool IsContents( int address );
+bool HaveContents( int address );

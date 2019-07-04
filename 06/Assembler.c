@@ -32,8 +32,9 @@ char specialsymbol[5][10];
 int symbolcnt = -1;
 
 int main() {
-	strcpy ( fname, "./pong/Pong.asm" );
+	// strcpy ( fname, "./pong/Pong.asm" );
 	// strcpy ( fname, "./add/Add.asm" );
+	strcpy( fname, "Max.asm" );
 	DestDataInit();
 	JumpDataInit();
 	CompDataInit();
@@ -41,8 +42,8 @@ int main() {
 
 	// シンボル登録用のループ
 	FirstLoop();
-	PrintTable();
-	// SecondLoop();
+	SecondLoop();
+	// PrintTable();
 
 	return 0;
 }
@@ -81,9 +82,9 @@ int FirstLoop() {
 }
 
 int SecondLoop() {
-	int type = 0, length = 0, address = 0;
+	int type = 0, length = 0, address = 0, line = 0;
 	char cpystr[256];
-	symbolcnt = 16;
+	// symbolcnt = 16;
 
 	if ( ( fp = fopen( fname, "r" ) ) == NULL )  {
 		fprintf( stdout, "file not found\n" );
@@ -102,13 +103,13 @@ int SecondLoop() {
 	
 	
 		if ( type == A_COMMAND || type == C_COMMAND ) {
-			fprintf( stdout, "%-30s:", cpystr );
+			fprintf( stdout, "[%5d] %-30s:", line, cpystr );
 			if ( type == A_COMMAND ) {
-				fprintf( stdout, "A_COMMAND\t" );
+				//fprintf( stdout, "A_COMMAND\t" );
 				if ( IsString( retsymbol ) ) {
-					if ( getAddress( retsymbol ) == -1 ) {
-					} else {
-						for ( ; IsContents( symbolcnt ) ; symbolcnt++ ) { ; }
+					if ( -1 == ( address = getAddress( retsymbol ) ) ) {
+						for ( address = 16 ; HaveContents( address ) == true ; address++ ) { ; }
+						// symbolcnt++;
 						addEntry( retsymbol, address );
 					}
 					fprintf( stdout, "0%s\n", binstr[address] );
@@ -116,7 +117,7 @@ int SecondLoop() {
 					fprintf( stdout, "0%s\n", binstr[atoi( retsymbol )] );
 				}
 			} else if ( type == C_COMMAND ) {
-				fprintf( stdout, "C_COMMAND\t" );
+				//fprintf( stdout, "C_COMMAND\t" );
 				if ( CodeAorM() == typeM ) {
 					fprintf( stdout, "1111%s%s%s\n", CodeComp( retcomp ), CodeDest( retdest ), CodeJump( retjump ) );
 				} else {
@@ -128,6 +129,7 @@ int SecondLoop() {
 		} else {
 			// fprintf( stdout, "E_COMMAND\n"  );
 		}
+		line++;
 		
 	}
 	fclose( fp );
@@ -154,8 +156,8 @@ void PrintStrASCII() {
 	fprintf( stdout, "\n" );
 }
 
-bool IsContents( int address ) {
-	if ( binstr[address][0] == '\0' ) {
+bool HaveContents( int address ) {
+	if ( symboltable[address][0] == '\0' ) {
 		return false;
 	}
 	return true;
