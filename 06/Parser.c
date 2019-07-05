@@ -27,7 +27,7 @@ int parserMain() {
 	*/
 
 	DelCommentOut();
-	DelSpace();
+	DelSpaceFully();
 	cmdtype = commandType();
 
 	if ( cmdtype == A_COMMAND || cmdtype == L_COMMAND ) {
@@ -36,8 +36,8 @@ int parserMain() {
 	} else if ( cmdtype == C_COMMAND ) {
 		// C_COMMANDの場合は, dest, comp, jump各関数を実行する
 		dest(); comp(); jump();
+		//fprintf( stdout, "%s=%s;%s\n", retdest, retcomp, retjump );
 	} 
-
 /*	
 	if ( cmdtype == A_COMMAND ) {
 		fprintf( stdout, " [A_COMMAND]: %s\n", retsymbol );
@@ -113,6 +113,39 @@ void DelSpace() {
 		length--;
 		i = 0;
 	}
+}
+
+void DelSpaceFully() {
+	char * strpt;
+	int length = strlen( current_cmd );
+	int i = 0, j = 0;
+
+	/*
+	for ( i = 0 ; current_cmd[i] != '\r' ; i++ ) {
+		fprintf( stdout, "0x%2d ", current_cmd[i] );
+	}
+	fprintf( stdout, "\n" );
+	*/
+
+	i = 0;
+	while ( current_cmd[i] != '\r' ) {
+		// fprintf( stdout, "[%3d]%s", strlen( current_cmd ), current_cmd );
+		if ( isspace( current_cmd[i] ) ) {
+			// fprintf( stdout, "space, %d\n", i  );
+			for ( j = i ; current_cmd[j] != '\r' ; j++ ) {
+				current_cmd[j] = current_cmd[j+1];
+			}
+		} else {
+			i++;
+		}
+	}
+
+	/*
+	for ( i = 0 ; current_cmd[i] != '\r' ; i++ ) {
+		fprintf( stdout, "0x%2d ", current_cmd[i] );
+	}
+	fprintf( stdout, "\n" );
+	*/
 }
 
 char * symbol() {

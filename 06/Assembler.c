@@ -103,7 +103,7 @@ int SecondLoop() {
 	
 	
 		if ( type == A_COMMAND || type == C_COMMAND ) {
-			fprintf( stdout, "[%5d] %-30s:", line, cpystr );
+			//fprintf( stdout, "[%5d] %-30s:", line, cpystr );
 			if ( type == A_COMMAND ) {
 				//fprintf( stdout, "A_COMMAND\t" );
 				if ( IsString( retsymbol ) ) {

@@ -61,6 +61,7 @@ char * jump();
 void PrintFunctionName( char * funcname );
 void DelCommentOut();
 void DelSpace();
+void DelSpaceFully();
 
 ////////////
 /* Code.c */
