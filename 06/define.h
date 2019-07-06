@@ -43,10 +43,18 @@ extern char bitcomp[18][7];
 extern char bitjump[8][4];
 
 // シンボル登録用のテーブル
-extern char symboltable[0xFFFF+1][0xFF+1];
+// extern char symboltable[0xFFFF+1][0xFF+1];
 extern char specialsymbol[5][10];
 // 登録シンボル数のカウンタ
 extern int symbolcnt;
+
+extern int reg;
+
+typedef struct __symbol {
+	char symbolname[0xFF+1];
+	int symboladdress;
+} symandaddress;
+extern symandaddress symboltable[0xFFFF+1];
 
 ////////////////
 /* Parser.c   */

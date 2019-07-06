@@ -25,11 +25,15 @@ char bitjump[8][4];
 // アドレスデータ
 static const char binstr[65536][17];
 // シンボル登録テーブル
-char symboltable[0xFFFF+1][0xFF+1];
+// char symboltable[0xFFFF+1][0xFF+1];
 char specialsymbol[5][10];
+symandaddress symboltable[0xFFFF+1];
 
 // 登録シンボル数のカウンタ
-int symbolcnt = -1;
+int symbolcnt = 0;
+int tableoffset = 23;
+int ramoffset = 16;
+int reg = 0;
 
 int main() {
 	// strcpy ( fname, "./pong/Pong.asm" );
@@ -41,9 +45,12 @@ int main() {
 	SymbolTableInit();
 
 	// シンボル登録用のループ
+	//
 	FirstLoop();
+	PrintTable();
 	SecondLoop();
-	// PrintTable();
+	PrintTable();
+
 
 	return 0;
 }
@@ -55,7 +62,7 @@ char *  IntegerToBinaryString( char integer[256] ) {
 
 int FirstLoop() {
 	char ** tp;
-	int type = 0;
+	int type = 0, tmp = 0;
 
 	if ( ( fp = fopen( fname, "r" ) ) == NULL )  {
 		fprintf( stdout, "file not found\n" );
@@ -65,15 +72,18 @@ int FirstLoop() {
 	while ( hasMoreCommands() ) {
 		type = parserMain();
 		// fprintf( stdout, "%s", current_cmd );
-		if ( type > 0 ) { symbolcnt++; }
 		if ( type == L_COMMAND ) {
 			if ( !contains( retsymbol ) ) {
 				// FirstLoopではSymbolTableに登録されていない
 				// シンボル情報を登録するのみ
 				// fprintf( stdout, "%s is not registered\n", retsymbol );
-				addEntry( retsymbol, symbolcnt );
+
+				addEntry( retsymbol, symbolcnt-tmp );
+				tmp++;
+				reg++;
 			}
 		}
+		if ( type > 0 ) { symbolcnt++; }
 		// PrintStrASCII();
 	}
 
@@ -108,9 +118,11 @@ int SecondLoop() {
 				//fprintf( stdout, "A_COMMAND\t" );
 				if ( IsString( retsymbol ) ) {
 					if ( -1 == ( address = getAddress( retsymbol ) ) ) {
-						for ( address = 16 ; HaveContents( address ) == true ; address++ ) { ; }
+						for ( address = 0  ; HaveContents( address ) == true ; address++ ) { ; }
 						// symbolcnt++;
-						addEntry( retsymbol, address );
+						addEntry( retsymbol, ramoffset );
+						ramoffset++;
+						reg++;
 					}
 					fprintf( stdout, "0%s\n", binstr[address] );
 				} else {
@@ -119,9 +131,11 @@ int SecondLoop() {
 			} else if ( type == C_COMMAND ) {
 				//fprintf( stdout, "C_COMMAND\t" );
 				if ( CodeAorM() == typeM ) {
-					fprintf( stdout, "1111%s%s%s\n", CodeComp( retcomp ), CodeDest( retdest ), CodeJump( retjump ) );
+					fprintf( stdout, "1111%s%s%s\n", 
+						CodeComp( retcomp ), CodeDest( retdest ), CodeJump( retjump ) );
 				} else {
-					fprintf( stdout, "1110%s%s%s\n", CodeComp( retcomp ), CodeDest( retdest ), CodeJump( retjump ) );
+					fprintf( stdout, "1110%s%s%s\n", 
+						CodeComp( retcomp ), CodeDest( retdest ), CodeJump( retjump ) );
 				}
 			} /*else if ( type == L_COMMAND ) {
 				fprintf( stdout, "L_COMMAND\n" );
@@ -157,7 +171,7 @@ void PrintStrASCII() {
 }
 
 bool HaveContents( int address ) {
-	if ( symboltable[address][0] == '\0' ) {
+	if ( symboltable[address].symbolname[0] == '\0' || symboltable[address].symboladdress == -1 ) {
 		return false;
 	}
 	return true;
