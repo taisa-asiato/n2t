@@ -87,7 +87,7 @@ void PrintTable() {
 		if ( symboltable[i].symboladdress == -1 || symboltable[i].symbolname[0] == '\0' ) {
 			break;
 		}
-		fprintf( stdout, "[%5d] %-30s = %d\n", i, 
+		fprintf( stdout, "[%5d] %-50s = %d\n", i, 
 				symboltable[i].symbolname, symboltable[i].symboladdress );
 	}
 }

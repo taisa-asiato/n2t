@@ -36,9 +36,9 @@ int ramoffset = 16;
 int reg = 0;
 
 int main() {
-	// strcpy ( fname, "./pong/Pong.asm" );
+	strcpy ( fname, "./pong/Pong.asm" );
 	// strcpy ( fname, "./add/Add.asm" );
-	strcpy( fname, "Max.asm" );
+	// strcpy( fname, "Max.asm" );
 	DestDataInit();
 	JumpDataInit();
 	CompDataInit();
@@ -47,9 +47,9 @@ int main() {
 	// シンボル登録用のループ
 	//
 	FirstLoop();
-	PrintTable();
+	//PrintTable();
 	SecondLoop();
-	PrintTable();
+	//PrintTable();
 
 
 	return 0;
@@ -113,7 +113,7 @@ int SecondLoop() {
 	
 	
 		if ( type == A_COMMAND || type == C_COMMAND ) {
-			//fprintf( stdout, "[%5d] %-30s:", line, cpystr );
+			// fprintf( stdout, "[%5d] %-30s:", line, cpystr );
 			if ( type == A_COMMAND ) {
 				//fprintf( stdout, "A_COMMAND\t" );
 				if ( IsString( retsymbol ) ) {
@@ -121,6 +121,7 @@ int SecondLoop() {
 						for ( address = 0  ; HaveContents( address ) == true ; address++ ) { ; }
 						// symbolcnt++;
 						addEntry( retsymbol, ramoffset );
+						address = ramoffset;
 						ramoffset++;
 						reg++;
 					}
