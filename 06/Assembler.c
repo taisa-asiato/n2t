@@ -35,8 +35,8 @@ int tableoffset = 23;
 int ramoffset = 16;
 int reg = 0;
 
-int main() {
-	strcpy ( fname, "./pong/Pong.asm" );
+int main( int argv, char ** args ) {
+	strcpy ( fname, args[1] );
 	// strcpy ( fname, "./add/Add.asm" );
 	// strcpy( fname, "Max.asm" );
 	DestDataInit();
@@ -71,7 +71,7 @@ int FirstLoop() {
 
 	while ( hasMoreCommands() ) {
 		type = parserMain();
-		// fprintf( stdout, "%s", current_cmd );
+		// fprintf( stdout, "%d %s", type, current_cmd );
 		if ( type == L_COMMAND ) {
 			if ( !contains( retsymbol ) ) {
 				// FirstLoopではSymbolTableに登録されていない
@@ -113,7 +113,7 @@ int SecondLoop() {
 	
 	
 		if ( type == A_COMMAND || type == C_COMMAND ) {
-			// fprintf( stdout, "[%5d] %-30s:", line, cpystr );
+			// fprintf( stdout, "[%5d][%2d] %-30s:", type, line, cpystr );
 			if ( type == A_COMMAND ) {
 				//fprintf( stdout, "A_COMMAND\t" );
 				if ( IsString( retsymbol ) ) {

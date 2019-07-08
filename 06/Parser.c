@@ -94,10 +94,14 @@ int commandType() {
 
 void DelCommentOut() {
 	char * strpt;
+	// fprintf( stdout, " before del comment ut %s", current_cmd );
 	if ( ( strpt = strstr( current_cmd, "//" ) ) ) {
 		// コメントアウトを含む行
 		*strpt = '\r';
+		*(strpt+1) = '\0';
 	}
+	// *(strpt+1) = '\0';
+	// fprintf( stdout, "after del comment out %s", current_cmd );
 }
 
 void DelSpace() {
