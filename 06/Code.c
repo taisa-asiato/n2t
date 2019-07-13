@@ -13,10 +13,6 @@ void DestDataInit() {
 	strcpy( /* AM */ bitdest[5], "101\0" );
 	strcpy( /* AD */ bitdest[6], "110\0" );
 	strcpy( /* AMD*/ bitdest[7], "111\0" );
-	//FunctionPrint( __func__ );
-//	for ( int i = 0 ; i < 8 ; i++ ) {
-//		fprintf( stdout, "%s\n", bitdest[i] );
-//	}
 }
 
 void JumpDataInit() {
@@ -28,10 +24,6 @@ void JumpDataInit() {
 	strcpy( /*JNE */ bitjump[5], "101\0" );
 	strcpy( /*JLE */ bitjump[6], "110\0" );
 	strcpy( /*JMP */ bitjump[7], "111\0" );
-	//FunctionPrint( __func__ );
-//	for ( int i = 0 ; i < 8 ; i++ ) {
-//		fprintf( stdout, "%s\n", bitjump[i] );
-//	}
 }
 
 void CompDataInit(){
@@ -53,7 +45,6 @@ void CompDataInit(){
 	strcpy( bitcomp[15], "000111\0" );
 	strcpy( bitcomp[16], "000000\0" );
 	strcpy( bitcomp[17], "010101\0" );
-	//FunctionPrint( __func__ );
 }
 
 char * CodeDest( char strcode[10] ) {
@@ -75,10 +66,6 @@ char * CodeDest( char strcode[10] ) {
 		return bitdest[7];
 	}
 
-	// fprintf( stdout, "%s\n", __func__  );
-	/*for ( int i = 0 ; i < strlen( strcode ) ; i++ ) {
-		fprintf( stdout, "%d\n", strcode[i] );
-	}*/
 	return NULL;
 }
 
@@ -120,11 +107,6 @@ char * CodeComp( char strcode[10] ) {
 	} else if ( strcmp( strcode, "D|A" ) == 0 || strcmp( strcode, "D|M" ) == 0 ) {
 		return bitcomp[17];
 	} 
-	// fprintf( stdout, "%s\n", __func__  );
-	/*fprintf( stdout, "%d 0x%x\n %c is word", strlen( strcode ), strcode[0], strcode[0]  );
-	for ( int i = 0 ; i < strlen( strcode ) ; i++ ) {
-		fprintf( stdout, "%d\n", strcode[i] );
-	}*/
 	return NULL;
 }
 
@@ -146,7 +128,6 @@ char * CodeJump( char strcode[10] ) {
 	} else if ( strcmp( strcode, "JMP" ) == 0 ) {
 		return bitjump[7];
 	}
-	// fprintf( stdout, "%s\n", __func__  );
 	return NULL;
 }
 

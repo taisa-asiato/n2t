@@ -36,20 +36,16 @@ int ramoffset = 16;
 int reg = 0;
 
 int main( int argv, char ** args ) {
+
 	strcpy ( fname, args[1] );
-	// strcpy ( fname, "./add/Add.asm" );
-	// strcpy( fname, "Max.asm" );
 	DestDataInit();
 	JumpDataInit();
 	CompDataInit();
 	SymbolTableInit();
 
 	// シンボル登録用のループ
-	//
 	FirstLoop();
-	//PrintTable();
 	SecondLoop();
-	//PrintTable();
 
 
 	return 0;
@@ -71,12 +67,10 @@ int FirstLoop() {
 
 	while ( hasMoreCommands() ) {
 		type = parserMain();
-		// fprintf( stdout, "%d %s", type, current_cmd );
 		if ( type == L_COMMAND ) {
 			if ( !contains( retsymbol ) ) {
 				// FirstLoopではSymbolTableに登録されていない
 				// シンボル情報を登録するのみ
-				// fprintf( stdout, "%s is not registered\n", retsymbol );
 
 				addEntry( retsymbol, symbolcnt-tmp );
 				tmp++;
@@ -84,7 +78,6 @@ int FirstLoop() {
 			}
 		}
 		if ( type > 0 ) { symbolcnt++; }
-		// PrintStrASCII();
 	}
 
 	fclose( fp );
@@ -109,13 +102,8 @@ int SecondLoop() {
 		cpystr[length-1] = '\0';
 		cpystr[length-2] = '\0';
 
-		// fprintf( stdout, "%s:", retsymbol );
-	
-	
 		if ( type == A_COMMAND || type == C_COMMAND ) {
-			// fprintf( stdout, "[%5d][%2d] %-30s:", type, line, cpystr );
 			if ( type == A_COMMAND ) {
-				//fprintf( stdout, "A_COMMAND\t" );
 				if ( IsString( retsymbol ) ) {
 					if ( -1 == ( address = getAddress( retsymbol ) ) ) {
 						for ( address = 0  ; HaveContents( address ) == true ; address++ ) { ; }
@@ -130,7 +118,6 @@ int SecondLoop() {
 					fprintf( stdout, "0%s\n", binstr[atoi( retsymbol )] );
 				}
 			} else if ( type == C_COMMAND ) {
-				//fprintf( stdout, "C_COMMAND\t" );
 				if ( CodeAorM() == typeM ) {
 					fprintf( stdout, "1111%s%s%s\n", 
 						CodeComp( retcomp ), CodeDest( retdest ), CodeJump( retjump ) );
@@ -138,9 +125,7 @@ int SecondLoop() {
 					fprintf( stdout, "1110%s%s%s\n", 
 						CodeComp( retcomp ), CodeDest( retdest ), CodeJump( retjump ) );
 				}
-			} /*else if ( type == L_COMMAND ) {
-				fprintf( stdout, "L_COMMAND\n" );
-			}*/
+			} 
 		} else {
 			// fprintf( stdout, "E_COMMAND\n"  );
 		}

@@ -19,40 +19,16 @@ int parserMain() {
 	strcpy( current_cmd, str );
 	length = strlen( current_cmd );
 
-	/*
-	fprintf( stdout, "len = %2d\n", length );
-	for ( int i = 0 ; i < length ; i++ ) {
-		fprintf( stdout, "%2d:%2d\n", i, current_cmd[i] );
-	}
-	*/
-
 	DelCommentOut();
 	DelSpaceFully();
 	cmdtype = commandType();
 
 	if ( cmdtype == A_COMMAND || cmdtype == L_COMMAND ) {
-		// fprintf( stdout, "A or E: %s\n", current_cmd );
 		symbol();
 	} else if ( cmdtype == C_COMMAND ) {
 		// C_COMMANDの場合は, dest, comp, jump各関数を実行する
 		dest(); comp(); jump();
-		//fprintf( stdout, "%s=%s;%s\n", retdest, retcomp, retjump );
 	} 
-/*	
-	if ( cmdtype == A_COMMAND ) {
-		fprintf( stdout, " [A_COMMAND]: %s\n", retsymbol );
-	} else if ( cmdtype == C_COMMAND ) {
-		fprintf( stdout, " [C_COMMAND]: %s=%s;%s\n", retdest, retcomp, retjump );
-	} else if ( cmdtype == L_COMMAND ){
-		fprintf( stdout, " [L_COMMAND]: %s\n", retsymbol );
-	} else if ( cmdtype == E_COMMENT ) {
-		fprintf( stdout, " [E_COMMENT]:%s\n", current_cmd );
-	} else if ( cmdtype == E_CMDERR ) {
-		fprintf( stdout, " ERROR: Command type is not found\n" );
-	} else if ( cmdtype == E_BLANK ) {
-		fprintf( stdout, " ---> : Blank line\n" );
-	}
-*/
 	return cmdtype;
 }
 
@@ -94,14 +70,11 @@ int commandType() {
 
 void DelCommentOut() {
 	char * strpt;
-	// fprintf( stdout, " before del comment ut %s", current_cmd );
 	if ( ( strpt = strstr( current_cmd, "//" ) ) ) {
 		// コメントアウトを含む行
 		*strpt = '\r';
 		*(strpt+1) = '\0';
 	}
-	// *(strpt+1) = '\0';
-	// fprintf( stdout, "after del comment out %s", current_cmd );
 }
 
 void DelSpace() {
@@ -109,7 +82,6 @@ void DelSpace() {
 	int length = strlen( current_cmd );
 	int i = 0;
 
-	// strpt = current_cmd;
 	while ( isspace( current_cmd[i] ) ) {
 		for ( i = 0 ; i < length ; i++ ) {
 			current_cmd[i] = current_cmd[i+1];
@@ -124,18 +96,10 @@ void DelSpaceFully() {
 	int length = strlen( current_cmd );
 	int i = 0, j = 0;
 
-	/*
-	for ( i = 0 ; current_cmd[i] != '\r' ; i++ ) {
-		fprintf( stdout, "0x%2d ", current_cmd[i] );
-	}
-	fprintf( stdout, "\n" );
-	*/
-
+	
 	i = 0;
 	while ( current_cmd[i] != '\r' ) {
-		// fprintf( stdout, "[%3d]%s", strlen( current_cmd ), current_cmd );
 		if ( isspace( current_cmd[i] ) ) {
-			// fprintf( stdout, "space, %d\n", i  );
 			for ( j = i ; current_cmd[j] != '\r' ; j++ ) {
 				current_cmd[j] = current_cmd[j+1];
 			}
@@ -143,13 +107,6 @@ void DelSpaceFully() {
 			i++;
 		}
 	}
-
-	/*
-	for ( i = 0 ; current_cmd[i] != '\r' ; i++ ) {
-		fprintf( stdout, "0x%2d ", current_cmd[i] );
-	}
-	fprintf( stdout, "\n" );
-	*/
 }
 
 char * symbol() {
@@ -182,15 +139,12 @@ char * dest() {
 		}
 		retdest[i] = '\0';
 	} else {
-	//	fprintf( stdout, "Not found =\n" );
 		retdest[0] = '\0';
 	}
-	// PrintFunctionName( __func__ );	
 	return retdest;
 }
 
 char * comp() {
-	// char strpt[256];
 	char * strpt;
 	char * pt;
 	int j = 0 ;
@@ -214,11 +168,9 @@ char * comp() {
 		}
 		retcomp[j] = '\0';
 	} else {
-	//	fprintf( stdout, "Not found =\n" );
 		retcomp[0] = '\0';
 	}
 
-	// PrintFunctionName( __func__ );	
 	return retcomp;
 }
 
@@ -233,11 +185,9 @@ char * jump() {
 		}
 		retjump[j] = '\0';
 	} else {
-	//	fprintf( stdout, "Not found ;\n" );
 		retjump[0] = '\0';
 	}
 	
-	// PrintFunctionName( __func__ );	
 	return retjump;
 }
 

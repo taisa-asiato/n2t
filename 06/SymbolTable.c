@@ -58,13 +58,7 @@ bool contains( char * symbol ) {
 			return true;
 		}
 	}
-/*
-	for ( int i = 0 ; i < 5 ; i++ ) {
-		if ( strcmp( specialsymbol[i], symbol ) == 0 ) {
-			return true;
-		}
-	}
-*/
+/
 	return false;
 }
 
