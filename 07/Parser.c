@@ -11,9 +11,9 @@ char current_cmd[256];
 // コマンドのみを格納する
 char cmd[256];
 // 第一引数
-char arg1[256];
+char argstr1[256];
 // 第二引数
-char arg2[256];
+char argstr2[256];
 
 
 
@@ -26,12 +26,26 @@ int main( int argv, char ** argc ) {
 }
 
 void ParseMain() {
+	int type = 0, arg2c = 0;
 	fp = fopen( filename, "r" ); 
 
 	while ( hasMoreCommands() ) {
 		// PrintAscii( line );
 		advance();
-		fprintf( stdout, "%s, %s, %s\n", cmd, arg1, arg2 );	
+		type = commandType();
+
+		fprintf( stdout, "%s", cmd );
+		if ( type != C_RETURN ) {
+			arg1();
+			fprintf( stdout, " %s", argstr1 );
+		}
+
+		arg2c = 0;
+		if ( type == C_PUSH || type == C_POP || type == C_FUNCTION || type == C_CALL ) {
+			arg2c = arg2();
+			fprintf( stdout, " %d", arg2c );
+		}
+		fprintf( stdout, "\n" );	
 	}
 
 	fclose( fp );
@@ -51,7 +65,7 @@ void advance() {
 	/* この実装では, 空白行, コメントアウト部分の削除も含めて行う */
 	char * cp;
 	char tmp_str[256];
-	int i = 0, length = strlen( line );
+	int i = 0, length = strlen( line ), type = 0;
 	strcpy( tmp_str, line );
 
 	if ( tmp_str[0] == '\r' ) {
@@ -74,28 +88,61 @@ void advance() {
 		}
 
 		InitCommand();
-		// strcpy( current_cmd, tmp_str );
-		if ( cp = strtok( tmp_str, " " ) ) {
+		strcpy( current_cmd, tmp_str );
+		if ( ( cp = strtok( current_cmd, " " ) ) ) {
 			// commandを格納
 			strcpy( cmd, cp );
 		}
-
-		if ( cp = strtok( NULL, " " ) ) {
+		
+		if ( ( cp = strtok( NULL, " " ) ) ) {
 			// arg1を格納
-			strcpy( arg1, cp );
+			strcpy( argstr1, cp );
 		}
 
-		if ( cp = strtok( NULL, " " ) ) {
+		if ( ( cp = strtok( NULL, " " ) ) ) {
 			// arg2を格納
-			strcpy( arg2, cp );
+			strcpy( argstr2, cp );
 		}
 	}
 }
 
 int commandType() {
+
+	if ( strcmp( cmd, "add" ) == 0 || strcmp( cmd, "sub" ) == 0 || 
+	     strcmp( cmd, "neg") == 0  || strcmp( cmd, "eq") == 0   || 
+	     strcmp( cmd, "gt" ) == 0  || strcmp( cmd, "lt" ) == 0  || 
+	     strcmp( cmd, "and" ) == 0 || strcmp( cmd, "or" ) == 0  || 
+	     strcmp( cmd, "not" ) == 0 ) {
+		return C_ARITHMETIC;
+	} else if ( strcmp( cmd, "push" ) == 0 ) {
+		return C_PUSH;
+	} else if ( strcmp( cmd, "pop" ) == 0 ) {
+		return C_POP;
+	}
 	return 1;	
 }
 
+char * arg1() {
+	char * cp;
+	char tmp_str[256];
+/*
+	cp = strtok( current_cmd, " " );
+	strcpy( argstr1, cp );
+*/	
+	return argstr1;
+}
+
+int arg2() {
+	char * cp;
+	int tmp_arg2;
+	
+/*	cp = strtok( current_cmd, " " );
+	strcpy( argstr2, cp );
+*/
+	tmp_arg2 = atoi( argstr2 );
+	
+	return tmp_arg2;
+}
 
 void InitAll() {
 	filename[0] = '\0';
@@ -107,8 +154,8 @@ void InitAll() {
 
 void InitCommand() {
 	cmd[0] = '\0';
-	arg1[0] = '\0';
-	arg2[0] = '\0';
+	argstr1[0] = '\0';
+	argstr2[0] = '\0';
 }
 
 void PrintAscii( char ** str ) {

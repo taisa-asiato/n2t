@@ -28,9 +28,9 @@ extern char current_cmd[256];
 // コマンドのみを格納する
 extern char cmd[256];
 // 第一引数
-extern char arg1[256];
+extern char argstr1[256];
 // 第二引数
-extern char arg2[256];
+extern char argstr2[256];
 
 //////////////
 /* Parser.c */
@@ -38,8 +38,8 @@ extern char arg2[256];
 bool hasMoreCommands();
 void advance();
 int commandType();
-char * argv1();
-int argv2();
+char * arg1();
+int arg2();
 void ParseMain();
 void InitAll();
 void PrintAscii( char ** str );
