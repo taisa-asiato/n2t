@@ -23,6 +23,8 @@ extern FILE * fp;
 extern char filename[256];
 // 入力ファイルの文字列（１行）
 extern char line[256];
+// 現在のコマンドを保持する
+extern char current_cmd[256];
 
 //////////////
 /* Parser.c */
@@ -33,3 +35,5 @@ int comamndType();
 char * argv1();
 int argv2();
 void ParseMain();
+void Init();
+void PrintAscii( char ** str );
