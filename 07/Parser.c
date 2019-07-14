@@ -8,9 +8,17 @@ char filename[256];
 char line[256];
 // 現在のコマンド
 char current_cmd[256];
+// コマンドのみを格納する
+char cmd[256];
+// 第一引数
+char arg1[256];
+// 第二引数
+char arg2[256];
+
+
 
 int main( int argv, char ** argc ) {
-	Init();
+	InitAll();
 	strcpy( filename, argc[1] );
 	fprintf( stdout, "%s\n", filename );
 	ParseMain();
@@ -23,7 +31,7 @@ void ParseMain() {
 	while ( hasMoreCommands() ) {
 		// PrintAscii( line );
 		advance();
-		fprintf( stdout, "%s\n", current_cmd );	
+		fprintf( stdout, "%s, %s, %s\n", cmd, arg1, arg2 );	
 	}
 
 	fclose( fp );
@@ -49,6 +57,7 @@ void advance() {
 	if ( tmp_str[0] == '\r' ) {
 		// 空白行の場合
 		tmp_str[0] = '\0';
+		// strcpy( current_cmd, tmp_str );
 	} else { 
 		if ( ( cp = strstr( tmp_str, "//" ) ) ) {
 			// コメントアウト以降の文字列は不要のため，NULL文字に置換
@@ -63,14 +72,43 @@ void advance() {
 				tmp_str[i] = '\0';
 			}
 		}
+
+		InitCommand();
+		// strcpy( current_cmd, tmp_str );
+		if ( cp = strtok( tmp_str, " " ) ) {
+			// commandを格納
+			strcpy( cmd, cp );
+		}
+
+		if ( cp = strtok( NULL, " " ) ) {
+			// arg1を格納
+			strcpy( arg1, cp );
+		}
+
+		if ( cp = strtok( NULL, " " ) ) {
+			// arg2を格納
+			strcpy( arg2, cp );
+		}
 	}
-	strcpy( current_cmd, tmp_str );
 }
 
-void Init() {
+int commandType() {
+	return 1;	
+}
+
+
+void InitAll() {
 	filename[0] = '\0';
 	line[0] = '\0';
 	current_cmd[0] = '\0';
+
+	InitCommand();
+}
+
+void InitCommand() {
+	cmd[0] = '\0';
+	arg1[0] = '\0';
+	arg2[0] = '\0';
 }
 
 void PrintAscii( char ** str ) {
