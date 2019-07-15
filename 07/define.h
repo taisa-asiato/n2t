@@ -32,6 +32,12 @@ extern char argstr1[256];
 // 第二引数
 extern char argstr2[256];
 
+
+// 出力先ファイルへのファイルポインタ
+extern FILE * outputfp;
+// 出力先ファイルネーム
+extern FILE * outputfilename[256];
+
 //////////////
 /* Parser.c */
 //////////////
@@ -44,3 +50,12 @@ void ParseMain();
 void InitAll();
 void PrintAscii( char ** str );
 void InitCommand();
+
+
+//////////////////
+/* CodeWriter.c */
+//////////////////
+void setFileName( char ** outputfilename );
+void writeArithmetic( char ** command );
+void writePushPop( char ** command, char ** segment, int index );
+void close();
