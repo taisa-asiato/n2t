@@ -31,6 +31,11 @@ extern char cmd[256];
 extern char argstr1[256];
 // 第二引数
 extern char argstr2[256];
+// スタック領域
+extern int stack[0xff];
+// ヒープ領域
+extern int heap[0xff];
+
 
 
 // 出力先ファイルへのファイルポインタ
@@ -55,7 +60,7 @@ void InitCommand();
 //////////////////
 /* CodeWriter.c */
 //////////////////
-void setFileName( char ** outputfilename );
-void writeArithmetic( char ** command );
-void writePushPop( char ** command, char ** segment, int index );
+void setFileName( char * outputfilename );
+void writeArithmetic( char * command );
+void writePushPop( int command, char * segment, int index );
 void close();

@@ -1,15 +1,14 @@
 #include "define.h"
 
-void setFileName( char ** outputfilename ) {
+void setFileName( char * outputfilename ) {
 	outputfp = fopen( outputfilename, "w" );
-
 }
 
-void writeArithmetic( char ** command ) {
+void writeArithmetic( char * command ) {
 
 	char convstr[256];
 
-	if ( strcmp( comamnd, "add" ) == 0 ) {
+	if ( strcmp( command, "add" ) == 0 ) {
 		fprintf( outputfp, "D+A\n" );
 	} else if ( strcmp( command, "sub" ) == 0 ) {
 		fprintf( outputfp, "D-A\n" );
@@ -27,6 +26,34 @@ void writeArithmetic( char ** command ) {
 		fprintf( outputfp, "D|A\n" );
 	} else if ( strcmp( command, "not" ) == 0 ) {
 		fprintf( outputfp, "!A\n" );
+	}
+}
+
+void writePushPop( int command, char * segment, int index ) {
+	if ( command == C_POP ) {
+		;
+	} else if ( command == C_PUSH ) {
+		if ( strcmp( segment, "local" ) == 0 ) {
+			;	
+		} else if ( strcmp( segment, "argument" ) == 0 ) {
+			;
+		} else if ( strcmp( segment, "this" ) == 0 ) { 
+			;
+		} else if ( strcmp( segment, "that" ) == 0 ) {
+			;
+		} else if ( strcmp( segment, "pointer" ) == 0 ) {
+			;
+		} else if ( strcmp( segment, "temp" ) == 0 ) {
+			;
+		} else if ( strcmp( segment, "constant" ) == 0 ) {
+			// constantはindexの値を定数値のindexとして扱うのみ
+			fprintf( outputfp, "@%d\n", index );
+		} else if ( strcmp( segment, "static" ) == 0 ) {
+			fprintf( outputfp, "@xxx.%d\n", index );
+			fprintf( outputfp, "D=M\n" );
+		}
+	} else {
+		fprintf( stdout, "ERROR: command is invalid value\n" );
 	}
 }
 

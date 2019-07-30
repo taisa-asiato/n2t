@@ -14,6 +14,15 @@ char cmd[256];
 char argstr1[256];
 // 第二引数
 char argstr2[256];
+// スタック領域
+int stack[0xff];
+// ヒープ領域
+int heap[0xff];
+
+// 出力先ファイルへのファイルポインタ
+FILE * outputfp;
+// 出力先ファイルネーム
+FILE * outputfilename[256];
 
 
 
@@ -25,29 +34,45 @@ int main( int argv, char ** argc ) {
 	return 0;	
 }
 
+// TODO: 関数名をParseMainから変更する必要あり
+//     : 関数内部での処理がparse以外のことも行なっているため
+//     : PasereMain -> VMTransMainにする
 void ParseMain() {
 	int type = 0, arg2c = 0;
 	fp = fopen( filename, "r" ); 
 
+	setFileName( "a.asm" );
+	// 入力ストリームの文字列を最後まで読む
 	while ( hasMoreCommands() ) {
 		// PrintAscii( line );
 		advance();
 		type = commandType();
 
 		fprintf( stdout, "%s", cmd );
+
+		// 1番目の引数をargstr1に格納する
 		if ( type != C_RETURN ) {
 			arg1();
 			fprintf( stdout, " %s", argstr1 );
 		}
 
+		// 2番目の引数をargstr2に格納する
 		arg2c = 0;
 		if ( type == C_PUSH || type == C_POP || type == C_FUNCTION || type == C_CALL ) {
 			arg2c = arg2();
 			fprintf( stdout, " %d", arg2c );
 		}
 		fprintf( stdout, "\n" );	
+
+		// ファイル書き込み用
+		if ( type == C_POP || type == C_PUSH ) {
+			writePushPop( type, argstr1, atoi( argstr2 ) );
+		} else if ( type == C_ARITHMETIC ) {
+			writeArithmetic( cmd );
+		}
 	}
 
+	close();
 	fclose( fp );
 }
 
