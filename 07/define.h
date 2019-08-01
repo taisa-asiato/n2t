@@ -64,3 +64,7 @@ void setFileName( char * outputfilename );
 void writeArithmetic( char * command );
 void writePushPop( int command, char * segment, int index );
 void close();
+// 算術コマンド用関数
+void callAddFunction();
+// セグメント格納用関数
+void callConstantFunction();
