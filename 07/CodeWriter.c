@@ -13,21 +13,29 @@ void writeArithmetic( char * command ) {
 	if ( strcmp( command, "add" ) == 0 ) {
 		callAddFunction();
 	} else if ( strcmp( command, "sub" ) == 0 ) {
-		fprintf( outputfp, "M=D-M\n" );
+		// fprintf( outputfp, "M=D-M\n" );
+		callSubFunction();
 	} else if ( strcmp( command, "neg" ) == 0 ) {
-		fprintf( outputfp, "-M\n" );
+		// fprintf( outputfp, "-M\n" );
+		callNegFunction();
 	} else if ( strcmp( command, "eq" ) == 0 ) { 
-		fprintf( outputfp, "JLE\n" );
+		// fprintf( outputfp, "JLE\n" );
+		callEqFunction();
 	} else if ( strcmp( command, "gt" ) == 0 ) {
-		fprintf( outputfp, "JGT\n" );
+		// fprintf( outputfp, "JGT\n" );
+		callGtFunction();
 	} else if ( strcmp( command, "lt" ) == 0 ) {
-		fprintf( outputfp, "JLT\n" );
+		// fprintf( outputfp, "JLT\n" );
+		callLtFunction();
 	} else if ( strcmp( command, "and" ) == 0 ) {
-		fprintf( outputfp, "D&M\n" );
+		// fprintf( outputfp, "D&M\n" );
+		callAndFunction();
 	} else if ( strcmp( command, "or" ) == 0 ) {
-		fprintf( outputfp, "D|M\n" );
+		// fprintf( outputfp, "D|M\n" );
+		callOrFunction();
 	} else if ( strcmp( command, "not" ) == 0 ) {
-		fprintf( outputfp, "!M\n" );
+		// fprintf( outputfp, "!M\n" );
+		callNotFunction();
 	}
 }
 
@@ -73,6 +81,49 @@ void callAddFunction() {
 	fprintf( outputfp, "D=M\n" );
 	fprintf( outputfp, "A=A-1\n" );
 	fprintf( outputfp, "M=D+M\n");
+}
+void callSubFunction() {
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "D=M\n" );
+	fprintf( outputfp, "A=A-1\n" );
+	fprintf( outputfp, "M=D-M\n");
+}
+
+void callNegFunction() {
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "M=-M\n" );
+}
+void callEqFunction() {
+	callSubFunction();
+	fprintf( outputfp, "M;JEQ\n" );
+}
+
+void callGtFunction() {
+	callSubFunction();
+	fprintf( outputfp, "M;JGT\n" );
+}
+void callLtFunction() {
+	callSubFunction();
+	fprintf( outputfp, "M;JLT\n" );
+}
+void callAndFunction() {
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "D=M\n" );
+	fprintf( outputfp, "A=A-1\n" );
+	fprintf( outputfp, "M=D&M\n" );
+}
+void callOrFunction() {
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "D=M\n" );
+	fprintf( outputfp, "A=A-1\n" );
+	fprintf( outputfp, "M=D|M\n" );
+}
+void callNotFunction() {
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "M=!M\n" );
 }
 
 void callConstantFunction( int index ) {

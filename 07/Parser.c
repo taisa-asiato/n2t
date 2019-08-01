@@ -22,7 +22,7 @@ int heap[0xff];
 // 出力先ファイルへのファイルポインタ
 FILE * outputfp;
 // 出力先ファイルネーム
-FILE * outputfilename[256];
+char outputfilename[1000];
 
 
 
@@ -30,6 +30,7 @@ int main( int argv, char ** argc ) {
 	InitAll();
 	strcpy( filename, argc[1] );
 	fprintf( stdout, "%s\n", filename );
+//	makeOutputFilename();
 	ParseMain();
 	return 0;	
 }
@@ -191,4 +192,13 @@ void PrintAscii( char ** str ) {
 		fprintf( stdout, "[%2d]", line[i] );
 	}
 	fprintf( stdout, "\n" );
+}
+
+void makeOutputFilename() {
+	char * cp;
+	cp = strstr( filename, ".vm" );
+	*cp = '\0';
+	fprintf( stdout, "%s\n", filename );
+	snprintf( outputfilename, 256, "%s.asm", filename );
+	fprintf( stdout, "%s", outputfilename );
 }

@@ -41,7 +41,7 @@ extern int heap[0xff];
 // 出力先ファイルへのファイルポインタ
 extern FILE * outputfp;
 // 出力先ファイルネーム
-extern FILE * outputfilename[256];
+extern char outputfilename[1000];
 
 //////////////
 /* Parser.c */
@@ -55,7 +55,7 @@ void ParseMain();
 void InitAll();
 void PrintAscii( char ** str );
 void InitCommand();
-
+void makeOutputFilename();
 
 //////////////////
 /* CodeWriter.c */
@@ -66,5 +66,13 @@ void writePushPop( int command, char * segment, int index );
 void close();
 // 算術コマンド用関数
 void callAddFunction();
+void callSubFunction();
+void callNegFunction();
+void callEqFunction();
+void callGtFunction();
+void callLtFunction();
+void callAndFunction();
+void callOrFunction();
+void callNotFunction();
 // セグメント格納用関数
-void callConstantFunction();
+void callConstantFunction( int index );
