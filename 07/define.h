@@ -42,6 +42,10 @@ extern int heap[0xff];
 extern FILE * outputfp;
 // 出力先ファイルネーム
 extern char outputfilename[1000];
+// 各算術コマンドの数
+extern unsigned int eqnum;
+extern unsigned int ltnum;
+extern unsigned int gtnum;
 
 //////////////
 /* Parser.c */

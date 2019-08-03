@@ -23,8 +23,9 @@ int heap[0xff];
 FILE * outputfp;
 // 出力先ファイルネーム
 char outputfilename[1000];
-
-
+unsigned int eqnum = 0;
+unsigned int ltnum = 0;
+unsigned int gtnum = 0;
 
 int main( int argv, char ** argc ) {
 	InitAll();
