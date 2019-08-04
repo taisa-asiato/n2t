@@ -7,7 +7,7 @@ void callAddFunction() {
 	// に保存された数の和を求める。
 	// 求めた数は1個前のメモリアドレス位置に保存される
 	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "A=M-1\n" );
 	fprintf( outputfp, "D=M\n" );
 	fprintf( outputfp, "A=A-1\n" );
 	fprintf( outputfp, "M=D+M\n");
@@ -17,7 +17,7 @@ void callAddFunction() {
 }
 void callSubFunction() {
 	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "A=M-1\n" );
 	fprintf( outputfp, "D=M\n" );
 	fprintf( outputfp, "A=A-1\n" );
 	fprintf( outputfp, "M=M-D\n");
@@ -28,13 +28,15 @@ void callSubFunction() {
 
 void callNegFunction() {
 	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "A=M-1\n" );
 	fprintf( outputfp, "M=-M\n" );
+//	fprintf( outputfp, "@SP\n" );
+//	fprintf( outputfp, "M=M-1\n" );
 }
 
 void callEqFunction() {
 	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "A=M-1\n" );
 	fprintf( outputfp, "D=M\n" );
 	fprintf( outputfp, "A=A-1\n" );
 	fprintf( outputfp, "D=M-D\n");
@@ -43,6 +45,7 @@ void callEqFunction() {
 	// -1の値を指定されたメモリアドレスへ書き込む
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "M=M-1\n" ); // 比較結果の値を入れるメモリアドレスを計算し直す
+	fprintf( outputfp, "M=M-1\n" );
 	fprintf( outputfp, "@ZEROEQ%d\n", eqnum );
 	fprintf( outputfp, "D;JEQ\n" );
 
@@ -57,22 +60,28 @@ void callEqFunction() {
 	fprintf( outputfp, "@INSERTEQVAL%d\n", eqnum );
 	fprintf( outputfp, "0;JMP\n" );
 
-	// 値が比較結果をメモリアドレスに格納する
+	// 比較結果をメモリアドレスに格納する
 	fprintf( outputfp, "(INSERTEQVAL%d)\n", eqnum );
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "A=M\n" );
 	fprintf( outputfp, "M=D\n" );
+	// 次回登録できるメモリアドレスの位置を再計算する
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "M=M+1\n" );
+
+
 	eqnum++;
 }
 
 void callGtFunction() {
 	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "A=M-1\n" );
 	fprintf( outputfp, "D=M\n" );
 	fprintf( outputfp, "A=A-1\n" );
 	fprintf( outputfp, "D=M-D\n");
 	// 引き算終了
 	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "M=M-1\n" );
 	fprintf( outputfp, "M=M-1\n" );
 	fprintf( outputfp, "@GT%d\n", gtnum );
 	fprintf( outputfp, "D;JGT\n" );
@@ -90,17 +99,23 @@ void callGtFunction() {
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "A=M\n" ); 
 	fprintf( outputfp, "M=D\n" );
+	// 次回登録できるメモリアドレスの位置を再計算する
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "M=M+1\n" );
+
+
 	gtnum++;
 }
 
 void callLtFunction() {
 	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "A=M-1\n" );
 	fprintf( outputfp, "D=M\n" );
 	fprintf( outputfp, "A=A-1\n" );
 	fprintf( outputfp, "D=M-D\n");
 	// 引き算終了
 	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "M=M-1\n" );
 	fprintf( outputfp, "M=M-1\n" );
 	fprintf( outputfp, "@LT%d\n", ltnum );
 	fprintf( outputfp, "D;JLT\n" );
@@ -119,26 +134,40 @@ void callLtFunction() {
 	fprintf( outputfp, "A=M\n" );
 	fprintf( outputfp, "M=D\n" );
 
+	// 次回登録できるメモリアドレスの位置を再計算する
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "M=M+1\n" );
 	ltnum++;
 }
 
 void callAndFunction() {
 	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "A=M-1\n" );
 	fprintf( outputfp, "D=M\n" );
 	fprintf( outputfp, "A=A-1\n" );
 	fprintf( outputfp, "M=D&M\n" );
+	// 次回値を格納できるメモリアドレス位置が変わるため
+	// メモリアドレスを再計算する
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "M=M-1\n" );
 }
+
 void callOrFunction() {
 	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "A=M-1\n" );
 	fprintf( outputfp, "D=M\n" );
 	fprintf( outputfp, "A=A-1\n" );
 	fprintf( outputfp, "M=D|M\n" );
+	// 次回値を格納できるメモリアドレス位置が変わるため
+	// メモリアドレスを再計算する
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "M=M-1\n" );
+
 }
+
 void callNotFunction() {
 	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "A=M-1\n" );
 	fprintf( outputfp, "M=!M\n" );
 }
 
@@ -147,8 +176,9 @@ void callConstantFunction( int index ) {
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "A=M+1\n" );
+	fprintf( outputfp, "A=M\n" );
 	fprintf( outputfp, "M=D\n" );
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "M=M+1\n" );
 }
+
