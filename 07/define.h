@@ -98,3 +98,5 @@ void callPopArgumentFunction( int index );
 void callPopThisFunction( int index );
 void callPopThatFunction( int index );
 void callPopConstantFunction( int index );
+void callPopTempFunction( int index );
+void callPopPointerFunction( int index );

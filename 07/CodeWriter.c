@@ -50,9 +50,9 @@ void writePushPop( int command, char * segment, int index ) {
 		} else if ( strcmp( segment, "that" ) == 0 ) {
 			callPopThatFunction( index );
 		} else if ( strcmp( segment, "pointer" ) == 0 ) {
-			;
+			callPopPointerFunction( index );
 		} else if ( strcmp( segment, "temp" ) == 0 ) {
-			;
+			callPopTempFunction( index );
 		} else if ( strcmp( segment, "constant" ) == 0 ) {
 			callPopConstantFunction( index );
 		} else if ( strcmp( segment, "static" ) == 0 ) {
@@ -69,9 +69,9 @@ void writePushPop( int command, char * segment, int index ) {
 		} else if ( strcmp( segment, "that" ) == 0 ) {
 			callPushThatFunction( index );
 		} else if ( strcmp( segment, "pointer" ) == 0 ) {
-			;
+			callPushPointerFunction( index );
 		} else if ( strcmp( segment, "temp" ) == 0 ) {
-			;
+			callPushTempFunction( index );
 		} else if ( strcmp( segment, "constant" ) == 0 ) {
 			callPushConstantFunction( index );
 		} else if ( strcmp( segment, "static" ) == 0 ) {
