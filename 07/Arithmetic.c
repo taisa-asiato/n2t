@@ -171,14 +171,3 @@ void callNotFunction() {
 	fprintf( outputfp, "M=!M\n" );
 }
 
-void callConstantFunction( int index ) {
-	// SPレジスタが指すメモリアドレスには，メモリに記録された定数の数を記録する
-	fprintf( outputfp, "@%d\n", index );
-	fprintf( outputfp, "D=A\n" );
-	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "A=M\n" );
-	fprintf( outputfp, "M=D\n" );
-	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "M=M+1\n" );
-}
-

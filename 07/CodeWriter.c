@@ -1,6 +1,6 @@
 #include "define.h"
 
-void setFileName( char * outputfilename ) {
+void setFileName() {
 	outputfp = fopen( outputfilename, "w" );
 }
 
@@ -41,22 +41,39 @@ void writeArithmetic( char * command ) {
 
 void writePushPop( int command, char * segment, int index ) {
 	if ( command == C_POP ) {
-		;
-	} else if ( command == C_PUSH ) {
 		if ( strcmp( segment, "local" ) == 0 ) {
-			;	
+			callPopLocalFunction( index );	
 		} else if ( strcmp( segment, "argument" ) == 0 ) {
-			;
+			callPopArgumentFunction( index );
 		} else if ( strcmp( segment, "this" ) == 0 ) { 
-			;
+			callPopThisFunction( index );
 		} else if ( strcmp( segment, "that" ) == 0 ) {
-			;
+			callPopThatFunction( index );
 		} else if ( strcmp( segment, "pointer" ) == 0 ) {
 			;
 		} else if ( strcmp( segment, "temp" ) == 0 ) {
 			;
 		} else if ( strcmp( segment, "constant" ) == 0 ) {
-			callConstantFunction( index );
+			callPopConstantFunction( index );
+		} else if ( strcmp( segment, "static" ) == 0 ) {
+			fprintf( outputfp, "@xxx.%d\n", index );
+			fprintf( outputfp, "D=M\n" );
+		}
+	} else if ( command == C_PUSH ) {
+		if ( strcmp( segment, "local" ) == 0 ) {
+			callPushLocalFunction( index );	
+		} else if ( strcmp( segment, "argument" ) == 0 ) {
+			callPushArgumentFunction( index );
+		} else if ( strcmp( segment, "this" ) == 0 ) { 
+			callPushThisFunction( index );
+		} else if ( strcmp( segment, "that" ) == 0 ) {
+			callPushThatFunction( index );
+		} else if ( strcmp( segment, "pointer" ) == 0 ) {
+			;
+		} else if ( strcmp( segment, "temp" ) == 0 ) {
+			;
+		} else if ( strcmp( segment, "constant" ) == 0 ) {
+			callPushConstantFunction( index );
 		} else if ( strcmp( segment, "static" ) == 0 ) {
 			fprintf( outputfp, "@xxx.%d\n", index );
 			fprintf( outputfp, "D=M\n" );

@@ -35,9 +35,6 @@ extern char argstr2[256];
 extern int stack[0xff];
 // ヒープ領域
 extern int heap[0xff];
-
-
-
 // 出力先ファイルへのファイルポインタ
 extern FILE * outputfp;
 // 出力先ファイルネーム
@@ -68,6 +65,11 @@ void setFileName( char * outputfilename );
 void writeArithmetic( char * command );
 void writePushPop( int command, char * segment, int index );
 void close();
+
+
+//////////////////
+/* Arithmetic.c */
+//////////////////
 // 算術コマンド用関数
 void callAddFunction();
 void callSubFunction();
@@ -78,5 +80,21 @@ void callLtFunction();
 void callAndFunction();
 void callOrFunction();
 void callNotFunction();
+
+
+//////////////
+/* Memory.c */
+//////////////
 // セグメント格納用関数
-void callConstantFunction( int index );
+void callPushConstantFunction( int index );
+void callPushLocalFunction( int index );
+void callPushArgumentFunction( int index );
+void callPushThisFunction( int index );
+void callPushThatFunction( int index );
+void callPushPointerFunction();
+void callPushTempFunction();
+void callPopLocalFunction( int index );
+void callPopArgumentFunction( int index );
+void callPopThisFunction( int index );
+void callPopThatFunction( int index );
+void callPopConstantFunction( int index );

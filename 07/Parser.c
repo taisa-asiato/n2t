@@ -15,9 +15,6 @@ char argstr1[256];
 // 第二引数
 char argstr2[256];
 // スタック領域
-int stack[0xff];
-// ヒープ領域
-int heap[0xff];
 
 // 出力先ファイルへのファイルポインタ
 FILE * outputfp;
@@ -31,7 +28,8 @@ int main( int argv, char ** argc ) {
 	InitAll();
 	strcpy( filename, argc[1] );
 	fprintf( stdout, "%s\n", filename );
-//	makeOutputFilename();
+	makeOutputFilename();
+	fprintf( stdout, "ParserMain Start\n" );
 	ParseMain();
 	return 0;	
 }
@@ -196,10 +194,13 @@ void PrintAscii( char ** str ) {
 }
 
 void makeOutputFilename() {
+	outputfilename[0] = 0;
 	char * cp;
-	cp = strstr( filename, ".vm" );
+	char tmpfname[256];
+	strcpy( tmpfname, filename );
+
+	cp = strstr( tmpfname, ".vm" );
 	*cp = '\0';
-	fprintf( stdout, "%s\n", filename );
-	snprintf( outputfilename, 256, "%s.asm", filename );
-	fprintf( stdout, "%s", outputfilename );
+	snprintf( outputfilename, 256, "%s.asm", tmpfname );
+	fprintf( stdout, "%s\n", outputfilename );
 }
