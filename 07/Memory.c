@@ -110,9 +110,25 @@ void callPushConstantFunction( int index ) {
 	// SPレジスタが指すメモリアドレスには，メモリに記録された定数の数を記録する
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
+
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "A=M\n" );
 	fprintf( outputfp, "M=D\n" );
+	
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "M=M+1\n" );
+}
+
+void callPushStaticFunction( int index ) {
+	// シンボルで刺されたアドレスの値をDレジスタに保存する
+	fprintf( outputfp, "@%s.%d\n", fnameex2, index );
+	fprintf( outputfp, "D=M\n" );
+	// M[@SP]へ値を保存する
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "M=D\n" );
+
+	// @SPの指す値を更新
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "M=M+1\n" );
 }
@@ -292,3 +308,30 @@ void callPopPointerFunction( int index ) {
 	fprintf( outputfp, "D=M-1\n" );
 	fprintf( outputfp, "M=D\n" );
 }
+
+void callPopStaticFunction( int index ) {
+	fprintf( outputfp, "@%s.%d\n", fnameex2, index );
+	fprintf( outputfp, "D=A\n" );
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "M=D\n" );
+
+	// 上記で計算したアドレスに格納するデータをDレジスタに保持させる
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "A=A-1\n" );
+	fprintf( outputfp, "D=M\n" ); // D=M[@SP-1]
+
+	// @SPが指すアドレスにはデータ格納先のアドレスが, @SP-1には格納するデータが
+	// 保存されているので，代入を行う
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "M=D\n" );
+
+	//pop後@SPの指すアドレスを1減らす
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "D=M-1\n" );
+	fprintf( outputfp, "M=D\n" );
+}
+

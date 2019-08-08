@@ -54,10 +54,9 @@ void writePushPop( int command, char * segment, int index ) {
 		} else if ( strcmp( segment, "temp" ) == 0 ) {
 			callPopTempFunction( index );
 		} else if ( strcmp( segment, "constant" ) == 0 ) {
-			callPopConstantFunction( index );
+			; // callPopConstantFunction( index );
 		} else if ( strcmp( segment, "static" ) == 0 ) {
-			fprintf( outputfp, "@xxx.%d\n", index );
-			fprintf( outputfp, "D=M\n" );
+			callPopStaticFunction( index );
 		}
 	} else if ( command == C_PUSH ) {
 		if ( strcmp( segment, "local" ) == 0 ) {
@@ -75,8 +74,7 @@ void writePushPop( int command, char * segment, int index ) {
 		} else if ( strcmp( segment, "constant" ) == 0 ) {
 			callPushConstantFunction( index );
 		} else if ( strcmp( segment, "static" ) == 0 ) {
-			fprintf( outputfp, "@xxx.%d\n", index );
-			fprintf( outputfp, "D=M\n" );
+			callPushStaticFunction( index );
 		}
 	} else {
 		fprintf( stdout, "ERROR: command is invalid value\n" );

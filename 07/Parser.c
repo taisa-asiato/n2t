@@ -20,6 +20,9 @@ char argstr2[256];
 FILE * outputfp;
 // 出力先ファイルネーム
 char outputfilename[1000];
+// .vm除去したもの
+char fnameex2[256];
+
 unsigned int eqnum = 0;
 unsigned int ltnum = 0;
 unsigned int gtnum = 0;

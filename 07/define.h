@@ -43,6 +43,7 @@ extern char outputfilename[1000];
 extern unsigned int eqnum;
 extern unsigned int ltnum;
 extern unsigned int gtnum;
+extern char fnameex2[256];
 
 //////////////
 /* Parser.c */
@@ -81,7 +82,6 @@ void callAndFunction();
 void callOrFunction();
 void callNotFunction();
 
-
 //////////////
 /* Memory.c */
 //////////////
@@ -93,10 +93,13 @@ void callPushThisFunction( int index );
 void callPushThatFunction( int index );
 void callPushPointerFunction();
 void callPushTempFunction();
+void callPushStaticFunction( int index );
+
 void callPopLocalFunction( int index );
 void callPopArgumentFunction( int index );
 void callPopThisFunction( int index );
 void callPopThatFunction( int index );
-void callPopConstantFunction( int index );
+// void callPopConstantFunction( int index );
 void callPopTempFunction( int index );
 void callPopPointerFunction( int index );
+void callPopStaticFunction( int index );
