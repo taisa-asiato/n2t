@@ -292,6 +292,3 @@ void callPopPointerFunction( int index ) {
 	fprintf( outputfp, "D=M-1\n" );
 	fprintf( outputfp, "M=D\n" );
 }
-
-
-void callPopConstantFunction( index ) { ; }
