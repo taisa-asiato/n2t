@@ -138,7 +138,24 @@ void writeCall( char * functionName, int numArgs ) {
 
 	// LCLの指すメモリアドレスの値を変更する
 	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "" );
+	fprintf( outputfp, "D=M\n" );
+	fprintf( outputfp, "@LCL\n" );
+	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "M=D\n" );
+
+	// ラベルを宣言する
+	fprintf( outputfp, "(%s)\n", functionName );
+}
+
+void wiretReturn() {
+	fprintf( outputfp, "@LCL\n" );
+	fprintf( outputfp, "D=M\n" );
+	fprintf( outputfp, "@5\n" );
+	fprintf( outputfp, "D=D-A\n" ); // Dレジスタに戻りアドレスを格納する
+
+	
+
+
 }
 
 void callPushLableValue( char * labelname ) {
