@@ -45,6 +45,10 @@ void ParseMain() {
 	fp = fopen( filename, "r" ); 
 
 	setFileName( "a.asm" );
+	
+	// 初期化用のアセンブラコードは必ず最初に呼ばれる
+	writeInit();
+
 	// 入力ストリームの文字列を最後まで読む
 	while ( hasMoreCommands() ) {
 		// PrintAscii( line );
@@ -72,6 +76,18 @@ void ParseMain() {
 			writePushPop( type, argstr1, atoi( argstr2 ) );
 		} else if ( type == C_ARITHMETIC ) {
 			writeArithmetic( cmd );
+		} else if ( type == C_GOTO ) {
+			writeGoto( argstr1 );
+		} else if ( type == C_LABEL ) {
+			writeLabel( argstr1 );
+		} else if ( type == C_IF ) {
+			writeIf( argstr1 );
+		} else if ( type == C_FUNCTION ) {
+			writeFunction( argstr1, atoi( argstr2 ) );
+		} else if ( type == C_RETURN ) {
+			writeReturn();
+		} else if ( type == C_CALL ) {
+			writeCall( argstr1, atoi( argstr2 ) );
 		}
 	}
 
@@ -146,6 +162,18 @@ int commandType() {
 		return C_PUSH;
 	} else if ( strcmp( cmd, "pop" ) == 0 ) {
 		return C_POP;
+	} else if ( strcmp( cmd, "function" ) == 0 ) {
+		return C_FUNCTION;
+	} else if ( strcmp( cmd, "call" ) == 0 ) {
+		return C_CALL;
+	} else if ( strcmp( cmd, "return" ) == 0 ) {
+		return C_RETURN;
+	} else if ( strcmp( cmd, "label" ) == 0 ) {
+		return C_LABEL;
+	} else if ( strcmp( cmd, "goto" ) == 0 ) {
+		return C_GOTO;
+	} else if ( strcmp( cmd, "if-goto" ) == 0 ) {
+		return C_IF;
 	}
 	return 1;	
 }

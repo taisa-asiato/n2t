@@ -101,12 +101,12 @@ void writeLabel( char * label ) {
 	fprintf( outputfp, "@%s\n", label );
 }
 
-void writeGoto( char * lebel ) {
+void writeGoto( char * label ) {
 	fprintf( outputfp, "@%s\n", label );
 	fprintf( outputfp, "0;JMP\n" );
 }
 
-void writeIf( char * lebel ) {
+void writeIf( char * label ) {
 	// スタックポインタの指すアドレスに格納された値を
 	// ポップし, その値で関数へJMPするか決定する
 	fprintf( outputfp, "@SP\n" );
@@ -118,8 +118,8 @@ void writeIf( char * lebel ) {
 
 void writeCall( char * functionName, int numArgs ) {
 	// ラベルをスタックポインタの指すアドレスへ格納する
-	callPushLableValue( functionName );
-	// 呼び出し側の各レジスタの指すメモリアドレスを順次格納していく
+	callPushLabelValue( functionName );
+	// 呼び出し側の各レジスタの1指すメモリアドレスを順次格納していく
 	callPushLabelValue( "LCL" );
 	callPushLabelValue( "ARG" );
  	callPushLabelValue( "THIS" );
@@ -147,18 +147,41 @@ void writeCall( char * functionName, int numArgs ) {
 	fprintf( outputfp, "(%s)\n", functionName );
 }
 
-void wiretReturn() {
+void writeReturn() {
+	// LCLのリターンアドレスを取得する
 	fprintf( outputfp, "@LCL\n" );
 	fprintf( outputfp, "D=M\n" );
 	fprintf( outputfp, "@5\n" );
 	fprintf( outputfp, "D=D-A\n" ); // Dレジスタに戻りアドレスを格納する
+	fprintf( outputfp, "@FRAME\n" );
+	fprintf( outputfp, "M=D\n" );
 
-	
+	// 関数の戻り値を別の場所へ移動する
+	callPopArgumentFunction( 0 ); // *ARG=pop()
+	fprintf( outputfp, "@ARG\n" ); // SP=ARG+1
+	fprintf( outputfp, "D=A+1\n" );
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "M=D\n" );
 
+	callRestoreMemoryValue( "THAT", 1 ); // THAT=*(FRAME-1)
+	callRestoreMemoryValue( "THIS", 2 ); // THIS=*(FRAME-2)
+	callRestoreMemoryValue( "ARG",  3 ); // ARG =*(FRAME-3)
+	callRestoreMemoryValue( "LCL",  4 ); // LCL =*(FRAME-4)
 
+	fprintf( outputfp, "@FRAME\n" );
+	fprintf( outputfp, "A=M\n" ); // goto RET
+	fprintf( outputfp, "0;JMP\n" );
 }
 
-void callPushLableValue( char * labelname ) {
+void writeFunction( char * functionName, int numArgs ) {
+	
+	fprintf( outputfp, "(%s)\n", functionName );
+	for ( int i = 0 ; i < numArgs ; i++ ) {
+		callPushConstantFunction( 0 ); // numArgs回0pushを行う
+	}
+}
+
+void callPushLabelValue( char * labelname ) {
 	fprintf( outputfp, "@%s\n", labelname );
 	fprintf( outputfp, "D=A\n" ); // D=A
 	fprintf( outputfp, "@SP\n" );
@@ -166,4 +189,13 @@ void callPushLableValue( char * labelname ) {
 	fprintf( outputfp, "M=D\n" );  // M[0]=D
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "M=M+1\n" );
+}
+
+void callRestoreMemoryValue( char * label, int num ) {
+	fprintf( outputfp, "@LCL\n" );
+	fprintf( outputfp, "D=A\n" );
+	fprintf( outputfp, "@%d\n", num );
+	fprintf( outputfp, "D=D-A\n" );
+	fprintf( outputfp, "@%s\n", label );
+	fprintf( outputfp, "M=D\n" );
 }
