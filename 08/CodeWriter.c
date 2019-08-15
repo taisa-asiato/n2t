@@ -100,13 +100,13 @@ void writeInit() {
 /* プログラムフローVMコードをアセンブラに変換する */
 ////////////////////////////////////////////////////
 void writeLabel( char * label ) {
-	printoutCommentMessage( "label" );
-	fprintf( outputfp, "@%s\n", label );
+	// printoutCommentMessage( "label" );
+	fprintf( outputfp, "(%s)\n", label );
 }
 
 
 void writeGoto( char * label ) {
-	printoutCommentMessage( "goto label" );
+	// printoutCommentMessage( "goto label" );
 	fprintf( outputfp, "@%s\n", label );
 	fprintf( outputfp, "0;JMP\n" );
 }
@@ -114,7 +114,7 @@ void writeGoto( char * label ) {
 void writeIf( char * label ) {
 	// スタックポインタの指すアドレスに格納された値を
 	// ポップし, その値で関数へJMPするか決定する
-	printoutCommentMessage( "if-goto label" );
+	// printoutCommentMessage( "if-goto label" );
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "A=M\n" ); // A=M[@SP], Aレジスタにスタックポインタのアドレスを格納
 	fprintf( outputfp, "D=M\n" ); // D=M[A]
