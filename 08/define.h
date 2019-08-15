@@ -77,6 +77,7 @@ void writeFunction( char * functionName, int numArgs );
 // シンボルの値を簡単にpushできるようサブルーチン化
 void callPushLabelValue( char * labelname );
 void callRestoreMemoryValue( char * label, int num );
+void printoutCommentMessage( char * contents  );
 
 //////////////////
 /* Arithmetic.c */

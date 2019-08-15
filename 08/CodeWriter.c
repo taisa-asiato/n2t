@@ -85,7 +85,6 @@ void close() {
 	fclose( outputfp );
 }
 
-
 void writeInit() {
 	// @SPの値が256を指すようにする
 	fprintf( outputfp, "@256\n" );
@@ -97,11 +96,17 @@ void writeInit() {
 	fprintf( outputfp, "0;JMP\n" );
 }
 
+////////////////////////////////////////////////////
+/* プログラムフローVMコードをアセンブラに変換する */
+////////////////////////////////////////////////////
 void writeLabel( char * label ) {
+	printoutCommentMessage( "label" );
 	fprintf( outputfp, "@%s\n", label );
 }
 
+
 void writeGoto( char * label ) {
+	printoutCommentMessage( "goto label" );
 	fprintf( outputfp, "@%s\n", label );
 	fprintf( outputfp, "0;JMP\n" );
 }
@@ -109,13 +114,17 @@ void writeGoto( char * label ) {
 void writeIf( char * label ) {
 	// スタックポインタの指すアドレスに格納された値を
 	// ポップし, その値で関数へJMPするか決定する
+	printoutCommentMessage( "if-goto label" );
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "A=M\n" ); // A=M[@SP], Aレジスタにスタックポインタのアドレスを格納
 	fprintf( outputfp, "D=M\n" ); // D=M[A]
 	fprintf( outputfp, "@%s\n", label );
-	fprintf( outputfp, "D;JMP\n" );
+	fprintf( outputfp, "D;JNE\n" );
 }
 
+//////////////////////////////////////////////
+/* 関数コールVMコードをアセンブラに変換する */
+//////////////////////////////////////////////
 void writeCall( char * functionName, int numArgs ) {
 	// ラベルをスタックポインタの指すアドレスへ格納する
 	callPushLabelValue( functionName );
@@ -198,4 +207,8 @@ void callRestoreMemoryValue( char * label, int num ) {
 	fprintf( outputfp, "D=D-A\n" );
 	fprintf( outputfp, "@%s\n", label );
 	fprintf( outputfp, "M=D\n" );
+}
+
+void printoutCommentMessage( char * contents ) {
+	fprintf( outputfp, "//%s\n",  contents);
 }

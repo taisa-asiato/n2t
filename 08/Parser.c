@@ -47,7 +47,7 @@ void ParseMain() {
 	setFileName( "a.asm" );
 	
 	// 初期化用のアセンブラコードは必ず最初に呼ばれる
-	writeInit();
+	// writeInit();
 
 	// 入力ストリームの文字列を最後まで読む
 	while ( hasMoreCommands() ) {
