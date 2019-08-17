@@ -92,7 +92,7 @@ void writeInit() {
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "M=D\n" );
 	// call Sys.initを行う
-	fprintf( outputfp, "@Sys.init\n" );
+	fprintf( outputfp, "(Sys.init)\n" );
 	fprintf( outputfp, "0;JMP\n" );
 }
 
@@ -116,8 +116,10 @@ void writeIf( char * label ) {
 	// ポップし, その値で関数へJMPするか決定する
 	// printoutCommentMessage( "if-goto label" );
 	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "A=M\n" ); // A=M[@SP], Aレジスタにスタックポインタのアドレスを格納
+	fprintf( outputfp, "A=M-1\n" ); // A=M[@SP]-1
 	fprintf( outputfp, "D=M\n" ); // D=M[A]
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "M=M-1\n" );
 	fprintf( outputfp, "@%s\n", label );
 	fprintf( outputfp, "D;JNE\n" );
 }

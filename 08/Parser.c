@@ -56,6 +56,9 @@ void ParseMain() {
 		type = commandType();
 
 		fprintf( stdout, "%s", cmd );
+		if ( type != -1 ) {
+			fprintf( outputfp, "//%s", line  );
+		}
 
 		// 1番目の引数をargstr1に格納する
 		if ( type != C_RETURN ) {
@@ -175,7 +178,7 @@ int commandType() {
 	} else if ( strcmp( cmd, "if-goto" ) == 0 ) {
 		return C_IF;
 	}
-	return 1;	
+	return -1;	
 }
 
 char * arg1() {
@@ -232,6 +235,7 @@ void makeOutputFilename() {
 
 	cp = strstr( tmpfname, ".vm" );
 	*cp = '\0';
+	strcpy( fnameex2, tmpfname );
 	snprintf( outputfilename, 256, "%s.asm", tmpfname );
 	fprintf( stdout, "%s\n", outputfilename );
 }

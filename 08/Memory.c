@@ -2,6 +2,7 @@
 
 void callPushLocalFunction( int index ) {
 	// やることはM[@SP] = M[@lcl+index]
+	// printoutCommentMessage( "push local" );
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@LCL\n"  );
@@ -21,6 +22,8 @@ void callPushLocalFunction( int index ) {
 
 void callPushArgumentFunction( int index ) {
 	// やることはM[@SP] = M[@arg+index]
+	
+	// printoutCommentMessage( "push argument" );
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@ARG\n"  );
@@ -39,6 +42,8 @@ void callPushArgumentFunction( int index ) {
 
 void callPushThisFunction( int index ) {
 	// 他lclと同様
+	
+	// printoutCommentMessage( "push this" );
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@THIS\n"  );
@@ -56,6 +61,8 @@ void callPushThisFunction( int index ) {
 }
 
 void callPushThatFunction( int index ) {
+
+	// printoutCommentMessage( "push that" );
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@THAT\n"  );
@@ -73,6 +80,8 @@ void callPushThatFunction( int index ) {
 }
 
 void callPushPointerFunction( int index ) {
+
+	// printoutCommentMessage( "push pointer" );
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@3\n"  );
@@ -90,6 +99,8 @@ void callPushPointerFunction( int index ) {
 }
 
 void callPushTempFunction( int index ) {
+
+	//printoutCommentMessage( "push temp" );
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@5\n"  );
@@ -108,6 +119,8 @@ void callPushTempFunction( int index ) {
 
 void callPushConstantFunction( int index ) {
 	// SPレジスタが指すメモリアドレスには，メモリに記録された定数の数を記録する
+	//
+	// printoutCommentMessage( "push constant" );
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
 
@@ -121,6 +134,8 @@ void callPushConstantFunction( int index ) {
 
 void callPushStaticFunction( int index ) {
 	// シンボルで刺されたアドレスの値をDレジスタに保存する
+	//
+	// printoutCommentMessage( "push static" );
 	fprintf( outputfp, "@%s.%d\n", fnameex2, index );
 	fprintf( outputfp, "D=M\n" );
 	// M[@SP]へ値を保存する
@@ -136,6 +151,8 @@ void callPushStaticFunction( int index ) {
 void callPopLocalFunction( int index ) {
 	// やることはM[index+LCL] = M[@SP-1]
 	// @SP部分に格納するアドレスの値を仮に保存しておく
+	//
+	// printoutCommentMessage( "pop local" );
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@LCL\n"  );
@@ -166,6 +183,8 @@ void callPopLocalFunction( int index ) {
 void callPopArgumentFunction( int index ) {
 	// やることはM[index+LCL] = M[@SP-1]
 	// @SP部分に格納するアドレスの値を仮に保存しておく
+	//
+	// printoutCommentMessage( "pop argument" );
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@ARG\n"  );
@@ -194,6 +213,8 @@ void callPopArgumentFunction( int index ) {
 }
 
 void callPopThisFunction( int index ) {
+
+	// printoutCommentMessage( "pop this" );
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@THIS\n"  );
@@ -225,6 +246,8 @@ void callPopThisFunction( int index ) {
 
 void callPopThatFunction( int index ) {
 	// @SP部分に格納するアドレスの値を仮に保存しておく
+	//
+	/// printoutCommentMessage( "pop that" );
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@THAT\n"  );
@@ -254,6 +277,8 @@ void callPopThatFunction( int index ) {
 
 void callPopTempFunction( int index ) {
 	// 番目のRAMアドレスを指す。
+	
+	//printoutCommentMessage( "pop temp" );
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@5\n"  );
@@ -282,6 +307,8 @@ void callPopTempFunction( int index ) {
 }
 
 void callPopPointerFunction( int index ) {
+
+	// printoutCommentMessage( "pop pointer" );
 	fprintf( outputfp, "@%d\n", index );
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@3\n"  );
@@ -310,6 +337,8 @@ void callPopPointerFunction( int index ) {
 }
 
 void callPopStaticFunction( int index ) {
+
+	// printoutCommentMessage( "pop pointer" );
 	fprintf( outputfp, "@%s.%d\n", fnameex2, index );
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@SP\n" );
