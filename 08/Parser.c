@@ -47,7 +47,7 @@ void ParseMain() {
 	setFileName( "a.asm" );
 	
 	// 初期化用のアセンブラコードは必ず最初に呼ばれる
-	// writeInit();
+	//	writeInit();
 
 	// 入力ストリームの文字列を最後まで読む
 	while ( hasMoreCommands() ) {
@@ -55,45 +55,43 @@ void ParseMain() {
 		advance();
 		type = commandType();
 
-		fprintf( stdout, "%s", cmd );
 		if ( type != -1 ) {
 			fprintf( outputfp, "//%s", line  );
-		}
+			fprintf( stdout, "%s", cmd );
+			// 1番目の引数をargstr1に格納する
+			if ( type != C_RETURN ) {
+				arg1();
+				fprintf( stdout, " %s", argstr1 );
+			}
 
-		// 1番目の引数をargstr1に格納する
-		if ( type != C_RETURN ) {
-			arg1();
-			fprintf( stdout, " %s", argstr1 );
-		}
+			// 2番目の引数をargstr2に格納する
+			arg2c = 0;
+			if ( type == C_PUSH || type == C_POP || type == C_FUNCTION || type == C_CALL ) {
+				arg2c = arg2();
+				fprintf( stdout, " %d", arg2c );
+			}
+			fprintf( stdout, "\n" );	
 
-		// 2番目の引数をargstr2に格納する
-		arg2c = 0;
-		if ( type == C_PUSH || type == C_POP || type == C_FUNCTION || type == C_CALL ) {
-			arg2c = arg2();
-			fprintf( stdout, " %d", arg2c );
-		}
-		fprintf( stdout, "\n" );	
-
-		// ファイル書き込み用
-		if ( type == C_POP || type == C_PUSH ) {
-			writePushPop( type, argstr1, atoi( argstr2 ) );
-		} else if ( type == C_ARITHMETIC ) {
-			writeArithmetic( cmd );
-		} else if ( type == C_GOTO ) {
-			writeGoto( argstr1 );
-		} else if ( type == C_LABEL ) {
-			writeLabel( argstr1 );
-		} else if ( type == C_IF ) {
-			writeIf( argstr1 );
-		} else if ( type == C_FUNCTION ) {
-			writeFunction( argstr1, atoi( argstr2 ) );
-		} else if ( type == C_RETURN ) {
-			writeReturn();
-		} else if ( type == C_CALL ) {
-			writeCall( argstr1, atoi( argstr2 ) );
+			// ファイル書き込み用
+			if ( type == C_POP || type == C_PUSH ) {
+				writePushPop( type, argstr1, atoi( argstr2 ) );
+			} else if ( type == C_ARITHMETIC ) {
+				writeArithmetic( cmd );
+			} else if ( type == C_GOTO ) {
+				writeGoto( argstr1 );
+			} else if ( type == C_LABEL ) {
+				writeLabel( argstr1 );
+			} else if ( type == C_IF ) {
+				writeIf( argstr1 );
+			} else if ( type == C_FUNCTION ) {
+				writeFunction( argstr1, atoi( argstr2 ) );
+			} else if ( type == C_RETURN ) {
+				writeReturn();
+			} else if ( type == C_CALL ) {
+				writeCall( argstr1, atoi( argstr2 ) );
+			}
 		}
 	}
-
 	close();
 	fclose( fp );
 }
@@ -118,7 +116,8 @@ void advance() {
 	if ( tmp_str[0] == '\r' ) {
 		// 空白行の場合
 		tmp_str[0] = '\0';
-		// strcpy( current_cmd, tmp_str );
+		fprintf( stdout, "blank line\n" );
+		strcpy( cmd, tmp_str );
 	} else { 
 		if ( ( cp = strstr( tmp_str, "//" ) ) ) {
 			// コメントアウト以降の文字列は不要のため，NULL文字に置換
@@ -154,7 +153,6 @@ void advance() {
 }
 
 int commandType() {
-
 	if ( strcmp( cmd, "add" ) == 0 || strcmp( cmd, "sub" ) == 0 || 
 	     strcmp( cmd, "neg") == 0  || strcmp( cmd, "eq") == 0   || 
 	     strcmp( cmd, "gt" ) == 0  || strcmp( cmd, "lt" ) == 0  || 
