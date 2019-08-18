@@ -1,7 +1,11 @@
 #include "define.h"
 
-void setFileName() {
-	outputfp = fopen( outputfilename, "w" );
+void setFileName( int count ) {
+	if ( count == 0 ) {
+		outputfp = fopen( outputfilename, "w" );
+	} else {
+		outputfp = fopen( outputfilename, "a" );
+	}
 }
 
 void writeArithmetic( char * command ) {

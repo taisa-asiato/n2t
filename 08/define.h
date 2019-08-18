@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 
 /* マクロ */
 #define C_ARITHMETIC	1
@@ -20,7 +21,7 @@
 // 入力ファイルへのファイルポインタ
 extern FILE * fp;
 // 入力ファイルネーム
-extern char filename[256];
+extern char inputfilename[256];
 // 入力ファイルの文字列（１行）
 extern char line[256];
 // 現在のコマンドを保持する
@@ -53,16 +54,17 @@ void advance();
 int commandType();
 char * arg1();
 int arg2();
-void ParseMain();
+void VMTransMain( int count );
 void InitAll();
 void PrintAscii( char ** str );
 void InitCommand();
 void makeOutputFilename();
-
+void makeFileName( char * dirname, char * filename );
+ 
 //////////////////
 /* CodeWriter.c */
 //////////////////
-void setFileName( char * outputfilename );
+void setFileName( int count );
 void writeArithmetic( char * command );
 void writePushPop( int command, char * segment, int index );
 void close();

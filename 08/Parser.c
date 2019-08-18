@@ -3,7 +3,7 @@
 // 入力ファイルへのファイルポインタ
 FILE * fp;
 // 入力ファイルのファイルネーム
-char filename[256];
+char inputfilename[256];
 // 入力ストリーム
 char line[256];
 // 現在のコマンド
@@ -28,26 +28,47 @@ unsigned int ltnum = 0;
 unsigned int gtnum = 0;
 
 int main( int argv, char ** argc ) {
-	InitAll();
-	strcpy( filename, argc[1] );
-	fprintf( stdout, "%s\n", filename );
-	makeOutputFilename();
-	fprintf( stdout, "ParserMain Start\n" );
-	ParseMain();
+	DIR * dirp;
+	struct dirent * entp;
+	int loopcount = 0;
+
+	// 入力ディレクトリが無かった場合の動作
+	if ( argv != 2 ) {
+		fprintf( stdout, "[Usage]./VMTranslator dirname\n" );
+		return 0;
+	}
+
+	if ( ( dirp = opendir( argc[1] ) ) ) {
+		fprintf( stdout, "Open Directory\n" );
+		while ( ( entp = readdir( dirp ) ) != NULL ) {
+			fprintf( stdout, "%s\n", entp->d_name );
+			if ( strstr( entp->d_name, ".vm" ) != NULL ) {
+				if ( loopcount == 0 ) {
+					// 初回だけブートストラップコードを挿入する
+					writeInit();
+					makeOutputFilename();
+				}
+				InitAll();	
+				fprintf( stdout, "%s\n", inputfilename );
+				fprintf( stdout, "ParserMain Start\n" );
+				VMTransMain( loopcount );
+				loopcount++;
+			}
+		}
+	} else {
+		fprintf( stdout, "Directory not found\n" );
+	}
 	return 0;	
 }
 
 // TODO: 関数名をParseMainから変更する必要あり
 //     : 関数内部での処理がparse以外のことも行なっているため
 //     : PasereMain -> VMTransMainにする
-void ParseMain() {
+void VMTransMain( int count ) {
 	int type = 0, arg2c = 0;
-	fp = fopen( filename, "r" ); 
+	fp = fopen( inputfilename, "r" ); 
 
-	setFileName( "a.asm" );
-	
-	// 初期化用のアセンブラコードは必ず最初に呼ばれる
-	//	writeInit();
+	setFileName( count );
 
 	// 入力ストリームの文字列を最後まで読む
 	while ( hasMoreCommands() ) {
@@ -202,7 +223,6 @@ int arg2() {
 }
 
 void InitAll() {
-	filename[0] = '\0';
 	line[0] = '\0';
 	current_cmd[0] = '\0';
 
@@ -229,11 +249,15 @@ void makeOutputFilename() {
 	outputfilename[0] = 0;
 	char * cp;
 	char tmpfname[256];
-	strcpy( tmpfname, filename );
+	strcpy( tmpfname, inputfilename );
 
 	cp = strstr( tmpfname, ".vm" );
 	*cp = '\0';
 	strcpy( fnameex2, tmpfname );
 	snprintf( outputfilename, 256, "%s.asm", tmpfname );
 	fprintf( stdout, "%s\n", outputfilename );
+}
+
+void makeFileName( char * d_name, char * f_name ) {
+	sprintf( inputfilename, "./%s%s", d_name, f_name );
 }
