@@ -116,7 +116,7 @@ void advance() {
 	if ( tmp_str[0] == '\r' ) {
 		// 空白行の場合
 		tmp_str[0] = '\0';
-		fprintf( stdout, "blank line\n" );
+		// fprintf( stdout, "blank line\n" );
 		strcpy( cmd, tmp_str );
 	} else { 
 		if ( ( cp = strstr( tmp_str, "//" ) ) ) {

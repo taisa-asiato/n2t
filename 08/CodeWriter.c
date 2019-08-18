@@ -162,15 +162,14 @@ void writeReturn() {
 	// LCLのリターンアドレスを取得する
 	fprintf( outputfp, "@LCL\n" );
 	fprintf( outputfp, "D=M\n" );
-	fprintf( outputfp, "@5\n" );
-	fprintf( outputfp, "D=D-A\n" ); // Dレジスタに戻りアドレスを格納する
-	fprintf( outputfp, "@FRAME\n" );
-	fprintf( outputfp, "M=D\n" );
+	fprintf( outputfp, "@FRAME\n" ); // 一時変数を仕様できるメモリアドレスを設定する
+	// fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "M=D\n" ); //M[FRAME]=D
 
 	// 関数の戻り値を別の場所へ移動する
 	callPopArgumentFunction( 0 ); // *ARG=pop()
 	fprintf( outputfp, "@ARG\n" ); // SP=ARG+1
-	fprintf( outputfp, "D=A+1\n" );
+	fprintf( outputfp, "D=M+1\n" ); // 
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "M=D\n" );
 
@@ -180,7 +179,9 @@ void writeReturn() {
 	callRestoreMemoryValue( "LCL",  4 ); // LCL =*(FRAME-4)
 
 	fprintf( outputfp, "@FRAME\n" );
-	fprintf( outputfp, "A=M\n" ); // goto RET
+	fprintf( outputfp, "D=M\n" );
+	fprintf( outputfp, "@5\n" );
+	fprintf( outputfp, "A=D-A\n" ); // goto RET
 	fprintf( outputfp, "0;JMP\n" );
 }
 
@@ -203,10 +204,13 @@ void callPushLabelValue( char * labelname ) {
 }
 
 void callRestoreMemoryValue( char * label, int num ) {
-	fprintf( outputfp, "@LCL\n" );
-	fprintf( outputfp, "D=A\n" );
+	fprintf( outputfp, "@FRAME\n" );
+	fprintf( outputfp, "D=M\n" ); // D=M[@FRAME]
 	fprintf( outputfp, "@%d\n", num );
-	fprintf( outputfp, "D=D-A\n" );
+	// A=D-A ( M[@FRAME] - A ) FRAMEに保存されたメモリアドレス位置から
+	// num分ひいたメモリアドレス位置の値をlabel位置のレジスタに格納する
+	fprintf( outputfp, "A=D-A\n" ); 
+	fprintf( outputfp, "D=M\n" );
 	fprintf( outputfp, "@%s\n", label );
 	fprintf( outputfp, "M=D\n" );
 }
