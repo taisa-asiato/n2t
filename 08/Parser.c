@@ -3,7 +3,7 @@
 // 入力ファイルへのファイルポインタ
 FILE * fp;
 // 入力ファイルのファイルネーム
-char inputfilename[256];
+char inputfilename[1024];
 // 入力ストリーム
 char line[256];
 // 現在のコマンド
@@ -31,6 +31,7 @@ int main( int argv, char ** argc ) {
 	DIR * dirp;
 	struct dirent * entp;
 	int loopcount = 0;
+	char tmpname[256];
 
 	// 入力ディレクトリが無かった場合の動作
 	if ( argv != 2 ) {
@@ -42,11 +43,14 @@ int main( int argv, char ** argc ) {
 		fprintf( stdout, "Open Directory\n" );
 		while ( ( entp = readdir( dirp ) ) != NULL ) {
 			fprintf( stdout, "%s\n", entp->d_name );
-			if ( strstr( entp->d_name, ".vm" ) != NULL ) {
+			strcpy( tmpname, entp->d_name );
+			if ( strstr( tmpname, ".vm" ) != NULL ) {
+				fprintf( stdout, "===>\n" );
+				makeFileName( argc[1], entp->d_name );
 				if ( loopcount == 0 ) {
-					// 初回だけブートストラップコードを挿入する
-					writeInit();
+					fprintf( stdout, "===>\n" );
 					makeOutputFilename();
+					fprintf( stdout, "===>\n" );
 				}
 				InitAll();	
 				fprintf( stdout, "%s\n", inputfilename );
@@ -69,6 +73,11 @@ void VMTransMain( int count ) {
 	fp = fopen( inputfilename, "r" ); 
 
 	setFileName( count );
+
+	if ( count == 0 ) {
+		// 初回だけブートストラップコードを挿入する
+		writeInit();
+	}
 
 	// 入力ストリームの文字列を最後まで読む
 	while ( hasMoreCommands() ) {
@@ -259,5 +268,6 @@ void makeOutputFilename() {
 }
 
 void makeFileName( char * d_name, char * f_name ) {
-	sprintf( inputfilename, "./%s%s", d_name, f_name );
+	sprintf( inputfilename, "%s%s", d_name, f_name );
+	fprintf( stdout, "%s\n", inputfilename  );
 }

@@ -21,7 +21,7 @@
 // 入力ファイルへのファイルポインタ
 extern FILE * fp;
 // 入力ファイルネーム
-extern char inputfilename[256];
+extern char inputfilename[1024];
 // 入力ファイルの文字列（１行）
 extern char line[256];
 // 現在のコマンドを保持する
@@ -59,7 +59,7 @@ void InitAll();
 void PrintAscii( char ** str );
 void InitCommand();
 void makeOutputFilename();
-void makeFileName( char * dirname, char * filename );
+void makeFileName( char * d_name, char * f_name );
  
 //////////////////
 /* CodeWriter.c */
