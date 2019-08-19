@@ -40,17 +40,15 @@ int main( int argv, char ** argc ) {
 	}
 
 	if ( ( dirp = opendir( argc[1] ) ) ) {
+		// 入力ディレクトリが存在する
 		fprintf( stdout, "Open Directory\n" );
 		while ( ( entp = readdir( dirp ) ) != NULL ) {
-			fprintf( stdout, "%s\n", entp->d_name );
 			strcpy( tmpname, entp->d_name );
 			if ( strstr( tmpname, ".vm" ) != NULL ) {
-				fprintf( stdout, "===>\n" );
+				fprintf( stdout, "=== >>> %s <<< ===\n", entp->d_name );
 				makeFileName( argc[1], entp->d_name );
 				if ( loopcount == 0 ) {
-					fprintf( stdout, "===>\n" );
-					makeOutputFilename();
-					fprintf( stdout, "===>\n" );
+					makeOutputFilename( argc[1] );
 				}
 				InitAll();	
 				fprintf( stdout, "%s\n", inputfilename );
@@ -76,6 +74,8 @@ void VMTransMain( int count ) {
 
 	if ( count == 0 ) {
 		// 初回だけブートストラップコードを挿入する
+		fprintf( outputfp, "//This is BootStrap Code\n" );
+		fprintf( stdout, "//This is BootStrap Code\n" );
 		writeInit();
 	}
 
@@ -212,10 +212,6 @@ int commandType() {
 char * arg1() {
 	char * cp;
 	char tmp_str[256];
-/*
-	cp = strtok( current_cmd, " " );
-	strcpy( argstr1, cp );
-*/	
 	return argstr1;
 }
 
@@ -223,9 +219,6 @@ int arg2() {
 	char * cp;
 	int tmp_arg2;
 	
-/*	cp = strtok( current_cmd, " " );
-	strcpy( argstr2, cp );
-*/
 	tmp_arg2 = atoi( argstr2 );
 	
 	return tmp_arg2;
@@ -254,16 +247,20 @@ void PrintAscii( char ** str ) {
 	fprintf( stdout, "\n" );
 }
 
-void makeOutputFilename() {
+void makeOutputFilename( char * str ) {
 	outputfilename[0] = 0;
 	char * cp;
 	char tmpfname[256];
-	strcpy( tmpfname, inputfilename );
+	char pre_str[256];
 
-	cp = strstr( tmpfname, ".vm" );
-	*cp = '\0';
-	strcpy( fnameex2, tmpfname );
-	snprintf( outputfilename, 256, "%s.asm", tmpfname );
+	strcpy( pre_str, str );
+	cp = strtok( pre_str, "/" );
+	while ( cp != NULL ) {
+		strcpy( tmpfname, cp );
+		cp = strtok( NULL, "/" );
+		fprintf( stdout, "%s\n", cp );
+	}
+	snprintf( outputfilename, 256, "%s%s.asm", str, tmpfname );
 	fprintf( stdout, "%s\n", outputfilename );
 }
 

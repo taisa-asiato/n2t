@@ -95,9 +95,9 @@ void writeInit() {
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "M=D\n" );
+	fprintf( stdout, "Initiallize\n" );
 	// call Sys.initを行う
-	fprintf( outputfp, "(Sys.init)\n" );
-	fprintf( outputfp, "0;JMP\n" );
+	writeGoto( "Sys.init" );
 }
 
 ////////////////////////////////////////////////////
@@ -157,6 +157,7 @@ void writeCall( char * functionName, int numArgs ) {
 	fprintf( outputfp, "@LCL\n" );
 	fprintf( outputfp, "A=M\n" );
 	fprintf( outputfp, "M=D\n" );
+	writeGoto( "functionName" );
 
 	// ラベルを宣言する
 	fprintf( outputfp, "(%s)\n", functionName );
