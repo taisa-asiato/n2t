@@ -103,7 +103,6 @@ void callGtFunction() {
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "M=M+1\n" );
 
-
 	gtnum++;
 }
 

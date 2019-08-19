@@ -132,7 +132,7 @@ void writeIf( char * label ) {
 /* 関数コールVMコードをアセンブラに変換する */
 //////////////////////////////////////////////
 void writeCall( char * functionName, int numArgs ) {
-	// ラベルをスタックポインタの指すアドレスへ格納する
+	// ラベルが指すアドレスをスタックポインタの指すアドレスへ格納する
 	callPushLabelValue( functionName );
 	// 呼び出し側の各レジスタの1指すメモリアドレスを順次格納していく
 	callPushLabelValue( "LCL" );
