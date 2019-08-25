@@ -23,9 +23,11 @@ char outputfilename[1000];
 // .vm除去したもの
 char fnameex2[256];
 
-unsigned int eqnum = 0;
-unsigned int ltnum = 0;
-unsigned int gtnum = 0;
+unsigned int  eqnum = 0;
+unsigned int  ltnum = 0;
+unsigned int  gtnum = 0;
+unsigned int retval = 0;
+unsigned int framenum = 0;
 
 int main( int argv, char ** argc ) {
 	DIR * dirp;

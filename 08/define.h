@@ -45,7 +45,8 @@ extern unsigned int eqnum;
 extern unsigned int ltnum;
 extern unsigned int gtnum;
 extern char fnameex2[256];
-
+extern unsigned int retval;
+extern unsigned int framenum;
 //////////////
 /* Parser.c */
 //////////////
@@ -78,6 +79,7 @@ void writeReturn();
 void writeFunction( char * functionName, int numArgs );
 // シンボルの値を簡単にpushできるようサブルーチン化
 void callPushLabelValue( char * labelname );
+void callPushLabelLATT( char * labelname  );
 void callRestoreMemoryValue( char * label, int num );
 void printoutCommentMessage( char * contents  );
 

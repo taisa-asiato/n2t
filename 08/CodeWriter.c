@@ -132,35 +132,45 @@ void writeIf( char * label ) {
 /* 関数コールVMコードをアセンブラに変換する */
 //////////////////////////////////////////////
 void writeCall( char * functionName, int numArgs ) {
+	char ret[256];
+
 	// ラベルが指すアドレスをスタックポインタの指すアドレスへ格納する
-	callPushLabelValue( functionName );
+	sprintf( ret, "%s$RET.%d", functionName, retval );
+	callPushLabelValue( ret );
+
 	// 呼び出し側の各レジスタの1指すメモリアドレスを順次格納していく
-	callPushLabelValue( "LCL" );
-	callPushLabelValue( "ARG" );
- 	callPushLabelValue( "THIS" );
-	callPushLabelValue( "THAT" );
+	callPushLabelLATT( "LCL" );
+	callPushLabelLATT( "ARG" );
+ 	callPushLabelLATT( "THIS" );
+	callPushLabelLATT( "THAT" );
 
 	// ARGの指すメモリアドレスの値を変更する
+	// ARG = SP-n-5
 	fprintf( outputfp, "@SP\n" ); // A=0
+	fprintf( outputfp, "A=M\n" ); // <<< 変更点　要確認
 	fprintf( outputfp, "D=M\n" ); // D=M[A]
 	fprintf( outputfp, "@5\n" );  // A=5
 	fprintf( outputfp, "D=D-A\n" ); // D=M[@SP]-5
 	fprintf( outputfp, "@%d\n", numArgs ); // A=numArgs
 	fprintf( outputfp, "D=D-A\n" ); // D=D-A
 	fprintf( outputfp, "@ARG\n" ); // 
-	fprintf( outputfp, "A=M\n" ); // A=M[@ARG]
+	// fprintf( outputfp, "A=M\n" ); // A=M[@ARG]
 	fprintf( outputfp, "M=D\n" ); // M[@ARG]=D
 
 	// LCLの指すメモリアドレスの値を変更する
+	// LCL = SP
 	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "A=M\n" ); // <<< 要確認
 	fprintf( outputfp, "D=M\n" );
 	fprintf( outputfp, "@LCL\n" );
-	fprintf( outputfp, "A=M\n" );
+	// fprintf( outputfp, "A=M\n" );
 	fprintf( outputfp, "M=D\n" );
-	writeGoto( "functionName" );
+	// goto-f
+	writeGoto( functionName );
 
 	// ラベルを宣言する
-	fprintf( outputfp, "(%s)\n", functionName );
+	writeLabel( ret );
+	retval++;
 }
 
 void writeReturn() {
@@ -188,6 +198,7 @@ void writeReturn() {
 	fprintf( outputfp, "@5\n" );
 	fprintf( outputfp, "A=D-A\n" ); // goto RET
 	fprintf( outputfp, "0;JMP\n" );
+	framenum++;
 }
 
 void writeFunction( char * functionName, int numArgs ) {
@@ -201,6 +212,17 @@ void writeFunction( char * functionName, int numArgs ) {
 void callPushLabelValue( char * labelname ) {
 	fprintf( outputfp, "@%s\n", labelname );
 	fprintf( outputfp, "D=A\n" ); // D=A
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "A=M\n" );   // A=M[0]
+	fprintf( outputfp, "M=D\n" );  // M[0]=D
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "M=M+1\n" );
+}
+
+void callPushLabelLATT( char * labelname ) {
+	fprintf( outputfp, "@%s\n", labelname );
+	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "D=M\n" ); // D=M[@labelname]
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "A=M\n" );   // A=M[0]
 	fprintf( outputfp, "M=D\n" );  // M[0]=D
