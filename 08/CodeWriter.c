@@ -95,7 +95,7 @@ void writeInit() {
 	fprintf( outputfp, "D=A\n" );
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "M=D\n" );
-	fprintf( stdout, "Initiallize\n" );
+	// fprintf( stdout, "Initiallize\n" );
 	// call Sys.initを行う
 	writeGoto( "Sys.init" );
 }
@@ -147,12 +147,13 @@ void writeCall( char * functionName, int numArgs ) {
 	// ARGの指すメモリアドレスの値を変更する
 	// ARG = SP-n-5
 	fprintf( outputfp, "@SP\n" ); // A=0
-	fprintf( outputfp, "A=M\n" ); // <<< 変更点　要確認
+	// fprintf( outputfp, "A=M\n" ); // <<< 変更点　要確認
 	fprintf( outputfp, "D=M\n" ); // D=M[A]
-	fprintf( outputfp, "@5\n" );  // A=5
-	fprintf( outputfp, "D=D-A\n" ); // D=M[@SP]-5
-	fprintf( outputfp, "@%d\n", numArgs ); // A=numArgs
-	fprintf( outputfp, "D=D-A\n" ); // D=D-A
+	for ( int i = 0 ; i < numArgs+5 ; i++ ) {
+		fprintf( outputfp, "D=D-1\n" );
+	}
+	// fprintf( outputfp, "@%d\n", numArgs+5 ); // A=numArgs
+	// fprintf( outputfp, "D=D-A\n" ); // D=D-A
 	fprintf( outputfp, "@ARG\n" ); // 
 	// fprintf( outputfp, "A=M\n" ); // A=M[@ARG]
 	fprintf( outputfp, "M=D\n" ); // M[@ARG]=D
@@ -160,7 +161,7 @@ void writeCall( char * functionName, int numArgs ) {
 	// LCLの指すメモリアドレスの値を変更する
 	// LCL = SP
 	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "A=M\n" ); // <<< 要確認
+	// fprintf( outputfp, "A=M\n" ); // <<< 要確認
 	fprintf( outputfp, "D=M\n" );
 	fprintf( outputfp, "@LCL\n" );
 	// fprintf( outputfp, "A=M\n" );
@@ -174,16 +175,38 @@ void writeCall( char * functionName, int numArgs ) {
 }
 
 void writeReturn() {
+
+	char retaddr[256];
+	sprintf( retaddr, "RET_%d", framenum );
 	// LCLのリターンアドレスを取得する
+	// FRAME = LCL
 	fprintf( outputfp, "@LCL\n" );
 	fprintf( outputfp, "D=M\n" );
-	fprintf( outputfp, "@FRAME\n" ); // 一時変数を仕様できるメモリアドレスを設定する
-	// fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "@FRAME$%d\n", framenum ); // 一時変数を仕様できるメモリアドレスを設定する
 	fprintf( outputfp, "M=D\n" ); //M[FRAME]=D
 
+	// RET = *(FRAME-5)
+	fprintf( outputfp, "@FRAME$%d\n", framenum );
+	fprintf( outputfp, "D=M\n" );
+	fprintf( outputfp, "@5\n" );
+	fprintf( outputfp, "A=D-A\n" ); // goto RET
+	fprintf( outputfp, "D=M\n" );
+	fprintf( outputfp, "@%s\n", retaddr );
+	fprintf( outputfp, "M=D\n" );
+
 	// 関数の戻り値を別の場所へ移動する
-	callPopArgumentFunction( 0 ); // *ARG=pop()
-	fprintf( outputfp, "@ARG\n" ); // SP=ARG+1
+	// *ARG = pop()
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "A=M-1\n" );
+	fprintf( outputfp, "D=M\n" );
+	fprintf( outputfp, "@ARG\n" );
+	fprintf( outputfp, "A=M\n" );
+	fprintf( outputfp, "M=D\n" );
+	fprintf( outputfp, "@SP\n" );
+	fprintf( outputfp, "M=M-1\n" );
+
+	// SP=ARG+1
+	fprintf( outputfp, "@ARG\n" ); //
 	fprintf( outputfp, "D=M+1\n" ); // 
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "M=D\n" );
@@ -192,11 +215,10 @@ void writeReturn() {
 	callRestoreMemoryValue( "THIS", 2 ); // THIS=*(FRAME-2)
 	callRestoreMemoryValue( "ARG",  3 ); // ARG =*(FRAME-3)
 	callRestoreMemoryValue( "LCL",  4 ); // LCL =*(FRAME-4)
-
-	fprintf( outputfp, "@FRAME\n" );
-	fprintf( outputfp, "D=M\n" );
-	fprintf( outputfp, "@5\n" );
-	fprintf( outputfp, "A=D-A\n" ); // goto RET
+	
+	// goto RET
+	fprintf( outputfp, "@%s\n", retaddr );
+	fprintf( outputfp, "A=M\n" );
 	fprintf( outputfp, "0;JMP\n" );
 	framenum++;
 }
@@ -221,7 +243,7 @@ void callPushLabelValue( char * labelname ) {
 
 void callPushLabelLATT( char * labelname ) {
 	fprintf( outputfp, "@%s\n", labelname );
-	fprintf( outputfp, "A=M\n" );
+//	fprintf( outputfp, "A=M\n" );
 	fprintf( outputfp, "D=M\n" ); // D=M[@labelname]
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "A=M\n" );   // A=M[0]
@@ -231,7 +253,7 @@ void callPushLabelLATT( char * labelname ) {
 }
 
 void callRestoreMemoryValue( char * label, int num ) {
-	fprintf( outputfp, "@FRAME\n" );
+	fprintf( outputfp, "@FRAME$%d\n", framenum );
 	fprintf( outputfp, "D=M\n" ); // D=M[@FRAME]
 	fprintf( outputfp, "@%d\n", num );
 	// A=D-A ( M[@FRAME] - A ) FRAMEに保存されたメモリアドレス位置から

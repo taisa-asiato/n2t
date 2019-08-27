@@ -47,14 +47,14 @@ int main( int argv, char ** argc ) {
 		while ( ( entp = readdir( dirp ) ) != NULL ) {
 			strcpy( tmpname, entp->d_name );
 			if ( strstr( tmpname, ".vm" ) != NULL ) {
-				fprintf( stdout, "=== >>> %s <<< ===\n", entp->d_name );
 				makeFileName( argc[1], entp->d_name );
+				fprintf( stdout, "=== >>> %s <<< ===\n", entp->d_name );
 				if ( loopcount == 0 ) {
 					makeOutputFilename( argc[1] );
 				}
 				InitAll();	
 				fprintf( stdout, "%s\n", inputfilename );
-				fprintf( stdout, "ParserMain Start\n" );
+				fprintf( stdout, "[ParserMain Start]\n" );
 				VMTransMain( loopcount );
 				loopcount++;
 			}
@@ -76,8 +76,8 @@ void VMTransMain( int count ) {
 
 	if ( count == 0 ) {
 		// 初回だけブートストラップコードを挿入する
-		fprintf( outputfp, "//This is BootStrap Code\n" );
-		fprintf( stdout, "//This is BootStrap Code\n" );
+		// fprintf( outputfp, "//This is BootStrap Code\n" );
+		// fprintf( stdout, "//This is BootStrap Code\n" );
 		writeInit();
 	}
 
@@ -260,13 +260,13 @@ void makeOutputFilename( char * str ) {
 	while ( cp != NULL ) {
 		strcpy( tmpfname, cp );
 		cp = strtok( NULL, "/" );
-		fprintf( stdout, "%s\n", cp );
+		// fprintf( stdout, "%s\n", cp );
 	}
 	snprintf( outputfilename, 256, "%s%s.asm", str, tmpfname );
-	fprintf( stdout, "%s\n", outputfilename );
+	// fprintf( stdout, "%s\n", outputfilename );
 }
 
 void makeFileName( char * d_name, char * f_name ) {
 	sprintf( inputfilename, "%s%s", d_name, f_name );
-	fprintf( stdout, "%s\n", inputfilename  );
+	// fprintf( stdout, "%s\n", inputfilename  );
 }

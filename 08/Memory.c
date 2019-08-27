@@ -208,8 +208,7 @@ void callPopArgumentFunction( int index ) {
 
 	//pop後@SPの指すアドレスを1減らす
 	fprintf( outputfp, "@SP\n" );
-	fprintf( outputfp, "D=M-1\n" );
-	fprintf( outputfp, "M=D\n" );
+	fprintf( outputfp, "M=M-1\n" );
 }
 
 void callPopThisFunction( int index ) {
