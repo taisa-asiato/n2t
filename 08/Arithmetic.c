@@ -68,8 +68,6 @@ void callEqFunction() {
 	// 次回登録できるメモリアドレスの位置を再計算する
 	fprintf( outputfp, "@SP\n" );
 	fprintf( outputfp, "M=M+1\n" );
-
-
 	eqnum++;
 }
 

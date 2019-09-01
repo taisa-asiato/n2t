@@ -34,6 +34,7 @@ int main( int argv, char ** argc ) {
 	struct dirent * entp;
 	int loopcount = 0;
 	char tmpname[256];
+	char * cp;
 
 	// 入力ディレクトリが無かった場合の動作
 	if ( argv != 2 ) {
@@ -46,7 +47,7 @@ int main( int argv, char ** argc ) {
 		fprintf( stdout, "Open Directory\n" );
 		while ( ( entp = readdir( dirp ) ) != NULL ) {
 			strcpy( tmpname, entp->d_name );
-			if ( strstr( tmpname, ".vm" ) != NULL ) {
+			if ( ( cp = strstr( tmpname, ".vm" ) ) != NULL ) {
 				makeFileName( argc[1], entp->d_name );
 				fprintf( stdout, "=== >>> %s <<< ===\n", entp->d_name );
 				if ( loopcount == 0 ) {
@@ -55,6 +56,11 @@ int main( int argv, char ** argc ) {
 				InitAll();	
 				fprintf( stdout, "%s\n", inputfilename );
 				fprintf( stdout, "[ParserMain Start]\n" );
+				
+				// Xxx.vm中のスタティック変数jはXxx.jと表す
+				// 下記コードで, ファイルの拡張子を取り除いた文字列を作成しておく
+				*cp = '\0';
+				strcpy( fnameex2, tmpname );
 				VMTransMain( loopcount );
 				loopcount++;
 			}
@@ -242,11 +248,11 @@ void InitCommand() {
 void PrintAscii( char ** str ) {
 	int length = strlen( line );
 
-	fprintf( stdout, "NO:%3d ", length );
-	for ( int i = 0 ; i < length ; i++ ) {
-		fprintf( stdout, "[%2d]", line[i] );
-	}
-	fprintf( stdout, "\n" );
+	fprintf( stdout, "NO:%3d %s", length, line );
+	// for ( int i = 0 ; i < length ; i++ ) {
+	//	fprintf( stdout, "[%2d]", line[i] );
+	// }
+	// fprintf( stdout, "\n" );
 }
 
 void makeOutputFilename( char * str ) {

@@ -97,7 +97,7 @@ void writeInit() {
 	fprintf( outputfp, "M=D\n" );
 	// fprintf( stdout, "Initiallize\n" );
 	// call Sys.initを行う
-	writeGoto( "Sys.init" );
+	writeCall( "Sys.init", 0 );
 }
 
 ////////////////////////////////////////////////////
@@ -149,11 +149,11 @@ void writeCall( char * functionName, int numArgs ) {
 	fprintf( outputfp, "@SP\n" ); // A=0
 	// fprintf( outputfp, "A=M\n" ); // <<< 変更点　要確認
 	fprintf( outputfp, "D=M\n" ); // D=M[A]
-	for ( int i = 0 ; i < numArgs+5 ; i++ ) {
-		fprintf( outputfp, "D=D-1\n" );
-	}
-	// fprintf( outputfp, "@%d\n", numArgs+5 ); // A=numArgs
-	// fprintf( outputfp, "D=D-A\n" ); // D=D-A
+	// for ( int i = 0 ; i < numArgs+5 ; i++ ) {
+	// 	fprintf( outputfp, "D=D-1\n" );
+	// }
+	fprintf( outputfp, "@%d\n", numArgs+5 ); // A=numArgs
+	fprintf( outputfp, "D=D-A\n" ); // D=D-A
 	fprintf( outputfp, "@ARG\n" ); // 
 	// fprintf( outputfp, "A=M\n" ); // A=M[@ARG]
 	fprintf( outputfp, "M=D\n" ); // M[@ARG]=D
