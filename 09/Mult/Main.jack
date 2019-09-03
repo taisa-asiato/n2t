@@ -1,0 +1,18 @@
+class Main {
+	function void main() {
+		var int a, b;
+		var int i;
+		let i = 10;
+		
+		while ( i > 0 ) {
+			let a = Keyboard.readInt( "Enter a value:" );
+			let b = Keyboard.readInt( "Enter b value:" );
+
+			let a = a * b;
+			do Output.printString( "The multiple value is " );
+			do Output.printInt( a );
+			let i = i - 1;
+		}
+		return;
+	}
+}
