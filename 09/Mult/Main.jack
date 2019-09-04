@@ -11,6 +11,7 @@ class Main {
 			let a = a * b;
 			do Output.printString( "The multiple value is " );
 			do Output.printInt( a );
+			do Output.println();
 			let i = i - 1;
 		}
 		return;

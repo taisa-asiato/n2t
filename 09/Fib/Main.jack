@@ -1,0 +1,36 @@
+class Main {
+	function void main() {
+		var Dot dot;
+		var Dot goal;
+		var int ct; let ct = 10;
+	
+		let dot  = Dot.new( 256, 128 );
+		let goal = Dot.new( 257, 100 );
+	
+		while ( ct > 0 ) {
+			if ( 106 = Keyboard.keyPressed() ) {
+				dot.moveYplus();
+			}
+			if ( 107 = Keyboard.keyPressed() ) {
+				dot.moveYminus();
+			}
+			if ( 104 = Keyboard.keyPressed() ) {
+				dot.moveXminus();
+			}
+			if ( 108 = Keyboard.keyPressed() ) {
+				dot.moveXplus();
+			}
+			dot.moveXplus();
+			do Screen.clearScreen();
+			do Screen.setColor( true );
+			do Screen.drawPixel( dot.retXValue(), dot.retYValue() );
+			let ct = ct - 1;
+		}
+
+		do Screen.clearScreen();
+		do Screen.setColor( true );
+		do Screen.drawPixel( dot.retXValue(), dot.retYValue() );
+		do Screen.drawPixel( goal.retXValue(), goal.retYValue() );
+		return;
+	}
+}

@@ -1,0 +1,46 @@
+class Dot {
+	field int x, y;
+
+	constructor Dot new( int x_pt, int y_pt ) {
+		let x = x_pt;
+		let y = y_pt;
+		return this;
+	}
+
+	method int retXValue() {
+		return x;
+	}
+
+	method int retYValue() {
+		return y;
+	}
+
+	method void moveXplus() {
+		if ( x < 512 ) {
+			let x = x + 1;
+		}
+		return;
+	} 
+
+	method void moveXminus() {
+		if ( x > 0 ) {
+			let x = x - 1;
+		}
+		return;
+	}
+	
+	method void moveYplus() {
+		if ( y < 256 ) {
+			let y = y + 1;
+		}
+		return;
+	} 
+
+	method void moveYminus() {
+		if ( y > 0 ) {
+			let y = y - 1;
+		}
+		return;
+	}
+
+}
