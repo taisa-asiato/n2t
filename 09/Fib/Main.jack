@@ -2,35 +2,49 @@ class Main {
 	function void main() {
 		var Dot dot;
 		var Dot goal;
-		var int ct; let ct = 10;
-	
-		let dot  = Dot.new( 256, 128 );
-		let goal = Dot.new( 257, 100 );
-	
-		while ( ct > 0 ) {
-			if ( 106 = Keyboard.keyPressed() ) {
-				dot.moveYplus();
-			}
-			if ( 107 = Keyboard.keyPressed() ) {
-				dot.moveYminus();
-			}
-			if ( 104 = Keyboard.keyPressed() ) {
-				dot.moveXminus();
-			}
-			if ( 108 = Keyboard.keyPressed() ) {
-				dot.moveXplus();
-			}
-			dot.moveXplus();
-			do Screen.clearScreen();
-			do Screen.setColor( true );
-			do Screen.drawPixel( dot.retXValue(), dot.retYValue() );
-			let ct = ct - 1;
-		}
 
-		do Screen.clearScreen();
-		do Screen.setColor( true );
+		var boolean ct;
+		var int key;
+		let ct = true;
+		let key = 0;
+	
+		let dot = Dot.new( 256, 128 );
+		let goal = Dot.new( 256, 0 );
+
 		do Screen.drawPixel( dot.retXValue(), dot.retYValue() );
 		do Screen.drawPixel( goal.retXValue(), goal.retYValue() );
+
+		while ( ct ) {
+			let key = Keyboard.keyPressed();
+			if ( key = 74 ) {
+				do dot.moveYplus();
+			}
+			if ( key = 75 ) {
+				do dot.moveYminus();
+			} 
+			if ( key = 72 ) {
+				do dot.moveXminus();
+			}
+			if ( key = 76 ) {
+				do dot.moveXplus();
+			}
+
+			if ( ~( key = 0 ) ) {
+				do Screen.clearScreen();
+				do Screen.setColor( true );
+				do Screen.drawPixel( dot.retXValue(), dot.retYValue() );
+				do Screen.drawPixel( goal.retXValue(), goal.retYValue() );
+				// do Output.printInt( key );
+			}
+
+			if ( ( dot.retXValue() = goal.retXValue() ) ) {
+				if ( ( dot.retYValue() = goal.retYValue() )  ){
+					let ct = false;
+				}
+			}
+
+		}
+		do Output.printString( "Goal" );
 		return;
 	}
 }

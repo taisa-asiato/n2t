@@ -30,7 +30,7 @@ class Dot {
 	}
 	
 	method void moveYplus() {
-		if ( y < 256 ) {
+		if ( y < 256 ) { 
 			let y = y + 1;
 		}
 		return;
