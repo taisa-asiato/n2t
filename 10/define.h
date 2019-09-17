@@ -3,6 +3,10 @@
 #include <string.h>
 #include <dirent.h>
 #include <sys/types.h>
+#include <stdbool.h>
+
+#define NOTDIR	0
+#define ISDIR	1
 
 // コマンドライン引数として入力されるファイル名を保持する
 extern char inputfilename[256];
@@ -18,9 +22,11 @@ extern FILE * outputfp;
 extern char streamline[256];
 
 /* JackAnalyzer.c */
-int gen_inputfilename( struct dirent * dp );
-void jack_analyze_main( char ** fname );
-void gen_outputfilename( char * dirname, char * filename );
+int gen_inputfilename( struct dirent * dp, char * dirname );
+void jack_analyze_main( char *fname );
+void gen_outputfilename( char * filename );
 
 /* JackTokenizer.c */
-void jack_tokenizer_main();
+void jack_tokenizer_main( FILE * ifp, FILE * ofp );
+bool has_more_commands( FILE * fp );
+void advance();

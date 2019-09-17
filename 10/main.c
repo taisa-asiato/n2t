@@ -2,7 +2,7 @@
 
 char inputfilename[256];
 char streamfilename[256];
-FILE * fp;
+FILE * inputfp;
 char outputfilename[256];
 FILE * outputfp;
 char streamline[256];

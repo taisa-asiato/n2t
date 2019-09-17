@@ -3,12 +3,14 @@
 void jack_tokenizer_main( FILE * ifp, FILE * ofp  ) {
 	char current_line[256];
 
+	/*
 	if ( has_more_commands( ifp ) == true ) {
 		// 
 		advance();
 	} else {
 	
-	}   
+	} 
+	*/
 }
 
 bool has_more_commands( FILE * fp ) {
@@ -19,7 +21,7 @@ bool has_more_commands( FILE * fp ) {
 	}
 }
 
-void advace() {
+void advance() {
 	char * cp;
 
 	if ( cp = strtok( streamline, "//" ) ) {
@@ -27,6 +29,6 @@ void advace() {
 		*cp = '\0';
 	}
 
-	if ( streamline[0] )
+	// if ( streamline[0] )
 
 }
