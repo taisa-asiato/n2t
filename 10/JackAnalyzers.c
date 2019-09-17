@@ -37,7 +37,7 @@ void jack_analyze_main( char * fname ) {
 					gen_outputfilename( streamfilename );
 					fprintf( stdout, "=> output is %s\n", outputfilename );
 					// outputfp = fopen( outputfilename, "w" );
-					// jack_tokenizer_main( outputfilename );
+					// jack_tokenizer_main( inputfp, outputfp );
 					// fclose( outputfp );
 					fclose( inputfp );
 				}
@@ -51,9 +51,9 @@ void jack_analyze_main( char * fname ) {
 		if ( ( inputfp = fopen( streamfilename, "r"  ) ) ) {
 			gen_outputfilename( streamfilename );
 			fprintf( stdout, "=> output is %s\n", outputfilename );
-			// outputfp = fopen( outputfilename, "w" );
-			// jack_tokenizer_main_main( outputfilename ); 
-			// fclose( outputfp );
+			outputfp = fopen( outputfilename, "w" );
+			jack_tokenizer_main( inputfp, outputfp ); 
+			fclose( outputfp );
 			fclose( inputfp );
 		}
 	}

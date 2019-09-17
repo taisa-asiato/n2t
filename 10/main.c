@@ -6,6 +6,7 @@ FILE * inputfp;
 char outputfilename[256];
 FILE * outputfp;
 char streamline[256];
+char token[256];
 
 
 int main( int argc, char ** argv ) {
