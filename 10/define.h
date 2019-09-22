@@ -8,11 +8,35 @@
 #define NOTDIR		0
 #define ISDIR		1
 
+// 
 #define KEYWORD 	1
 #define SYMBOL		2
 #define IDENTIFIER	3
 #define INT_CONST	4
 #define STRING_CONST	5
+
+//
+#define CLASS		0
+#define METHOD		1
+#define FUNCTION	2
+#define CONSTRUCTOR	3
+#define INT		4
+#define BOOLEAN		5
+#define CHAR		6
+#define VOID		7
+#define VAR		8
+#define	STATIC		9
+#define	FIELD		10
+#define	LET		11
+#define	DO		12
+#define	IF		13
+#define	ELSE		14
+#define	WHILE		15
+#define	RETURN		16
+#define	TRUE		17
+#define	FALSE		18
+#define	exNULL		19
+#define THIS		20
 
 // コマンドライン引数として入力されるファイル名を保持する
 extern char inputfilename[256];
@@ -39,3 +63,8 @@ void gen_outputfilename( char * filename );
 void jack_tokenizer_main( FILE * ifp, FILE * ofp );
 bool has_more_tokens( char * istoken );
 void advance();
+int kyeword( char current[256] );
+char * symbol( char symbol_string[256] );
+void identifier( char identifier_string[256] );
+int int_val( char intval_string[256] );
+void string_val( char val_string[256] );
