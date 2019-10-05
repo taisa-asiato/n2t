@@ -64,7 +64,15 @@ void jack_tokenizer_main( FILE * ifp, FILE * ofp );
 bool has_more_tokens( char * istoken );
 void advance();
 int kyeword( char current[256] );
-char * symbol( char symbol_string[256] );
+bool is_keyword( char c_token[256] );
+void symbol( char symbol_string[256] );
 void identifier( char identifier_string[256] );
 int int_val( char intval_string[256] );
 void string_val( char val_string[256] );
+int token_type( char current[256] );
+bool is_symbol( char c_token[256] );
+int keyword( char c_token[256] );
+
+bool is_identifier( char val_string[256] );
+bool is_string_constant( char c_token[256] );
+bool is_integer_constant( char c_token[256] );
