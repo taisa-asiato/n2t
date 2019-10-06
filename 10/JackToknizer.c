@@ -11,37 +11,43 @@ void jack_tokenizer_main( FILE * ifp, FILE * ofp  ) {
 	while ( fgets( streamline, ( sizeof( streamline )/sizeof( char ) ), ifp ) ) {
 		strcpy( current_line, streamline );
 
-		fprintf( stdout, "%s", current_line );
-		cp = strtok( current_line, " " );
+		// fprintf( stdout, "%s", current_line );
+		cp = strtok( current_line, " \t" );
+		if ( cp != NULL && strcmp( cp, "\r\n" ) != 0 ) {
+			while ( has_more_tokens( cp ) ) {
+				fprintf( stdout, "%s\n", cp  );
+				advance( cp );
 
-		while ( has_more_tokens( cp ) ) {
-			fprintf( stdout, "%s\n", cp  );
-			advance( cp );
-
-			type_of_token = token_type( token );
-
-			if ( type_of_token == KEYWORD ) {
-				type_of_keyword = keyword( token );
-			} else if ( type_of_token == SYMBOL ) {
-				symbol( symbol_string );
-			} else if ( type_of_token == IDENTIFIER ) {
-				identifier( identifier_string );
-			} else if ( type_of_token == INT_CONST ) {
-				int_val( token );
-			} else if ( type_of_token == STRING_CONST ) {
-				string_val( token );
+				type_of_token = token_type( token );
+				   if ( type_of_token == KEYWORD ) {
+				   fprintf( stdout, "calling keyword function\n" );
+				   type_of_keyword = keyword( token );
+				   } else if ( type_of_token == SYMBOL ) {
+				   fprintf( stdout, "calling symbol function\n" );
+				   symbol( symbol_string );
+				   } else if ( type_of_token == IDENTIFIER ) {
+				   fprintf( stdout, "calling identifier function\n" );
+				   identifier( identifier_string );
+				   } else if ( type_of_token == INT_CONST ) {
+				   fprintf( stdout, "calling int_const function\n" );
+				   int_val( token );
+				   } else if ( type_of_token == STRING_CONST ) {
+				   fprintf( stdout, "calling string_const function\n" );
+				   string_val( token );
+				   } else 
+				if ( strcmp( cp, "//" ) == 0 || strcmp( cp, "/*" ) == 0 || strcmp( cp, "/**" ) == 0 ) {
+					break;
+				}
+				cp = strtok( NULL, " " );
 			}
-			cp = strtok( NULL, " " );
 		}
 	} 
 }
 
 bool has_more_tokens( char * istoken ) {
-
 	if ( istoken != NULL ) {
 		return true;
 	}
-
 	return false;
 }
 
@@ -51,19 +57,22 @@ void advance( char * cp ) {
 }
 
 int token_type( char current[256] ) {
-	
 	if ( is_keyword( current ) ) {
+		fprintf( stdout, "keyword\n" );
 		return KEYWORD;
 	} else if ( is_symbol( current ) ) {
+		fprintf( stdout, "symbol\n" );
 		return SYMBOL;
 	} else if ( is_integer_constant( current ) ) {
+		fprintf( stdout, "int_const\n" );
 		return INT_CONST;
 	} else if ( is_string_constant( current ) ) {
+		fprintf( stdout, "string_const\n" );
 		return STRING_CONST;
 	} else if ( is_identifier( current ) )  {
+		fprintf( stdout, "identifier\n" );
 		return IDENTIFIER;
 	}
-	
 	return -1;
 }
 
@@ -87,13 +96,13 @@ bool is_keyword( char c_token[256] ) {
 
 bool is_symbol( char c_token[256] ) {
 	if (
-		strcmp( c_token, "{" ) || strcmp( c_token, "}" ) || strcmp( c_token, "(" ) ||
-		strcmp( c_token, ")" ) || strcmp( c_token, "[" ) || strcmp( c_token, "]" ) ||
-		strcmp( c_token, "." ) || strcmp( c_token, "," ) || strcmp( c_token, ";" ) || 
-		strcmp( c_token, "+" ) || strcmp( c_token, "-" ) || strcmp( c_token, "*" ) || 
-		strcmp( c_token, "/" ) || strcmp( c_token, "&" ) || strcmp( c_token, "|" ) ||
-		strcmp( c_token, "<" ) || strcmp( c_token, ">" ) || strcmp( c_token, "=" ) ||
-		strcmp( c_token, "~" ) ) {
+		strcmp( c_token, "{" ) == 0 || strcmp( c_token, "}" ) == 0 || strcmp( c_token, "(" ) == 0 ||
+		strcmp( c_token, ")" ) == 0 || strcmp( c_token, "[" ) == 0 || strcmp( c_token, "]" ) == 0 ||
+		strcmp( c_token, "." ) == 0 || strcmp( c_token, "," ) == 0 || strcmp( c_token, ";" ) == 0 || 
+		strcmp( c_token, "+" ) == 0 || strcmp( c_token, "-" ) == 0 || strcmp( c_token, "*" ) == 0 || 
+		strcmp( c_token, "/" ) == 0 || strcmp( c_token, "&" ) == 0 || strcmp( c_token, "|" ) == 0 ||
+		strcmp( c_token, "<" ) == 0 || strcmp( c_token, ">" ) == 0 || strcmp( c_token, "=" ) == 0 ||
+		strcmp( c_token, "~" ) == 0 ) {
 		return true;
 	}
 	return false;
@@ -111,10 +120,17 @@ bool is_integer_constant( char c_token[256] ) {
 
 bool is_string_constant( char c_token[256] ) {
 	int length = strlen( c_token );
-	if ( length ) {
-		return true;	
+	int i = 0;
+	
+	while ( c_token[i] != 0 ) {
+		if ( isalpha( c_token[i] ) ) {
+			i++;
+		} else {
+			return false;
+		}
 	}
-	return false;
+
+	return true;
 }
 
 int keyword( char c_token[256] ) {
@@ -165,7 +181,8 @@ int keyword( char c_token[256] ) {
 	return -1;
 }
 
-void symbol( char symbol_string[256] ) {
+void symbol( char * symbol_string ) {
+	fprintf( stdout, "calling symbol function\n" );
 	strcpy( symbol_string, token );
 }
 
@@ -182,8 +199,19 @@ void string_val( char val_string[256] ) {
 }
 
 bool is_identifier( char val_string[256] ) {
-	if ( strlen( val_string ) > 0  ) {
-		return true;
+	int length = strlen( val_string );
+	int i = 0;
+
+	if ( val_string[0] >= '0' && val_string[0] <= '9' ) {
+		return false;
 	}
-	return false;
+
+	while ( i < length  ) {
+		if ( isalpha( val_string[i] ) || val_string[i] == '_' || ( val_string[i] >= '0' && val_string[i] <= '9' ) ) {
+			i++;
+		} else {
+			return false;
+		}
+	}
+	return true;
 }

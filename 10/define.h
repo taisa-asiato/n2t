@@ -4,6 +4,7 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #define NOTDIR		0
 #define ISDIR		1
