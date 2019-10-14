@@ -7,6 +7,7 @@ void jack_tokenizer_main( FILE * ifp, FILE * ofp  ) {
 	int type_of_keyword;
 	char symbol_string[256];
 	char identifier_string[256];
+	char string_const[256];
 
 	while ( fgets( streamline, ( sizeof( streamline )/sizeof( char ) ), ifp ) ) {
 		strcpy( current_line, streamline );
@@ -15,39 +16,49 @@ void jack_tokenizer_main( FILE * ifp, FILE * ofp  ) {
 		cp = strtok( current_line, " \t" );
 		if ( cp != NULL && strcmp( cp, "\r\n" ) != 0 ) {
 			while ( has_more_tokens( cp ) ) {
-				fprintf( stdout, "%s\n", cp  );
 				advance( cp );
-
 				type_of_token = token_type( token );
-				   if ( type_of_token == KEYWORD ) {
-				   fprintf( stdout, "calling keyword function\n" );
-				   type_of_keyword = keyword( token );
-				   } else if ( type_of_token == SYMBOL ) {
-				   fprintf( stdout, "calling symbol function\n" );
-				   symbol( symbol_string );
-				   } else if ( type_of_token == IDENTIFIER ) {
-				   fprintf( stdout, "calling identifier function\n" );
-				   identifier( identifier_string );
-				   } else if ( type_of_token == INT_CONST ) {
-				   fprintf( stdout, "calling int_const function\n" );
-				   int_val( token );
-				   } else if ( type_of_token == STRING_CONST ) {
-				   fprintf( stdout, "calling string_const function\n" );
-				   string_val( token );
-				   } else 
-				if ( strcmp( cp, "//" ) == 0 || strcmp( cp, "/*" ) == 0 || strcmp( cp, "/**" ) == 0 ) {
+
+				if ( strcmp( cp, "//" ) != 0 && strcmp( cp, "/*" ) != 0 && strcmp( cp, "/**" ) != 0 ) {
+					fprintf( stdout, "[%s]\n", cp  );
+					if ( type_of_token == KEYWORD ) {
+						fprintf( stdout, "\tcalling keyword function\n" );
+						type_of_keyword = keyword( token );
+					} else if ( type_of_token == SYMBOL ) {
+						fprintf( stdout, "\tcalling symbol function\n" );
+						symbol( symbol_string );
+					} else if ( type_of_token == IDENTIFIER ) {
+						fprintf( stdout, "\tcalling identifier function\n" );
+						identifier( identifier_string );
+					} else if ( type_of_token == INT_CONST ) {
+						fprintf( stdout, "\tcalling int_const function\n" );
+						int_val( token );
+					} else if ( type_of_token == STRING_CONST ) {
+						fprintf( stdout, "\tcalling string_const function\n" );
+						string_val( string_const );
+					} else {
+						fprintf( stdout, "No token, if reach here, this means error\n" );
+					}
+				} else {
 					break;
 				}
-				cp = strtok( NULL, " " );
+
+				fprintf( stdout, "\t\t\tNext Round\n" ); 
+				cp = strtok( NULL, " \t\r\n" );
+				fprintf( stdout, "\t\t\tCheck\n" );
 			}
 		}
 	} 
 }
 
 bool has_more_tokens( char * istoken ) {
-	if ( istoken != NULL ) {
+	if ( istoken == NULL ) {
+		return false;
+	}
+	if ( istoken[0] != '\0' ) {
 		return true;
 	}
+	fprintf( stdout, "target pointer is null value\n" );
 	return false;
 }
 
@@ -78,16 +89,16 @@ int token_type( char current[256] ) {
 
 bool is_keyword( char c_token[256] ) {
 	if ( 
-		strcmp( c_token, "class" ) == 0 || strcmp( c_token, "constructor" ) == 0 || 
-		strcmp( c_token, "function" ) == 0 || strcmp( c_token, "method" ) == 0  || 
-		strcmp( c_token, "field" ) == 0 || strcmp( c_token, "static" ) == 0 || 
-		strcmp( c_token, "var" ) == 0 || strcmp( c_token, "int" ) == 0 || 
-		strcmp( c_token, "char" ) == 0 || strcmp( c_token, "boolean" ) == 0 || 
-		strcmp( c_token, "void" ) == 0 || strcmp( c_token, "true" ) == 0 || 
-		strcmp( c_token, "false" ) == 0 || strcmp( c_token, "null") == 0 || 
-		strcmp( c_token, "this" ) == 0 || strcmp( c_token, "let" ) == 0  || 
-		strcmp( c_token, "do" ) == 0 || strcmp( c_token, "if" ) == 0 || 
-		strcmp( c_token, "else" ) == 0 || strcmp( c_token, "while" ) == 0 || 
+		strcmp( c_token, "class" ) == 0 	|| strcmp( c_token, "constructor" ) == 0 || 
+		strcmp( c_token, "function" ) == 0 	|| strcmp( c_token, "method" ) == 0  || 
+		strcmp( c_token, "field" ) == 0 	|| strcmp( c_token, "static" ) == 0 || 
+		strcmp( c_token, "var" ) == 0		|| strcmp( c_token, "int" ) == 0 || 
+		strcmp( c_token, "char" ) == 0 		|| strcmp( c_token, "boolean" ) == 0 || 
+		strcmp( c_token, "void" ) == 0 		|| strcmp( c_token, "true" ) == 0 || 
+		strcmp( c_token, "false" ) == 0 	|| strcmp( c_token, "null") == 0 || 
+		strcmp( c_token, "this" ) == 0 		|| strcmp( c_token, "let" ) == 0  || 
+		strcmp( c_token, "do" ) == 0 		|| strcmp( c_token, "if" ) == 0 || 
+		strcmp( c_token, "else" ) == 0 		|| strcmp( c_token, "while" ) == 0 || 
 		strcmp( c_token, "return" ) == 0 ) {
 		return true;
 	}
@@ -121,13 +132,20 @@ bool is_integer_constant( char c_token[256] ) {
 bool is_string_constant( char c_token[256] ) {
 	int length = strlen( c_token );
 	int i = 0;
+	int str_flag = 0;
 	
-	while ( c_token[i] != 0 ) {
+	while ( c_token[i] != '\0' ) {
 		if ( isalpha( c_token[i] ) ) {
 			i++;
 		} else {
-			return false;
+			c_token[i] = '\0';
+			str_flag = 1;
+			break;
 		}
+	}
+
+	if ( str_flag == 1 ) {
+		return false;
 	}
 
 	return true;
@@ -182,12 +200,21 @@ int keyword( char c_token[256] ) {
 }
 
 void symbol( char * symbol_string ) {
-	fprintf( stdout, "calling symbol function\n" );
 	strcpy( symbol_string, token );
 }
 
 void identifier( char identifier_string[256] ) {
-	strcpy( identifier_string, token );
+	int i = 0;
+
+	while ( token[i] != '\0' )  {
+		if ( isalpha( token[i] ) ) {
+			identifier_string[i] = token[i];
+			i++;
+		} else {
+			identifier_string[i] = '\0';
+			break;
+		}
+	}
 }
 
 int int_val( char intval_string[256] ) {
