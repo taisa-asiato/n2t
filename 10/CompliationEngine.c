@@ -1,6 +1,6 @@
 #include "define.h"
 
-/*
+
 void compile_Class( char * token_pointer ) {
 	char * cp;
 
@@ -51,4 +51,3 @@ void type( char * cp ) {
 		
 	}
 }
-*/

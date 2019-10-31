@@ -6,3 +6,6 @@ build:
 
 clean:
 	rm *.o
+
+run:
+	./JackAnalyzer ./ArrayTest/Main.jack

@@ -4,62 +4,81 @@ void jack_tokenizer_main( FILE * ifp, FILE * ofp  ) {
 	char current_line[256];
 	char * cp;
 	int type_of_token;
+	int int_num;
 	int type_of_keyword;
 	char symbol_string[256];
 	char identifier_string[256];
 	char string_const[256];
+	char str_c;
 
+	// 入力ストリームから一行読み取り, 構文解析を行う
 	while ( fgets( streamline, ( sizeof( streamline )/sizeof( char ) ), ifp ) ) {
+		// 入力ストリームから読み込んだ一行をバッファリングする
 		strcpy( current_line, streamline );
+		cp = strstr( current_line, "\r\n" );
+		*cp = '\0'; // cpを入力文字列の先頭行を指すよう設定する
 
 		// fprintf( stdout, "%s", current_line );
-		cp = strtok( current_line, " \t" );
-		if ( cp != NULL && strcmp( cp, "\r\n" ) != 0 ) {
-			while ( has_more_tokens( cp ) ) {
-				advance( cp );
-				type_of_token = token_type( token );
+		cp = current_line;
+		while ( has_more_tokens( cp ) ) {
+			// fprintf( stdout, "%c\n", *cp );
+			// cp++;
+			advance( cp );
+			/*
+			type_of_token = token_type( token );
 
-				if ( strcmp( cp, "//" ) != 0 && strcmp( cp, "/*" ) != 0 && strcmp( cp, "/**" ) != 0 ) {
-					fprintf( stdout, "[%s]\n", cp  );
-					if ( type_of_token == KEYWORD ) {
-						fprintf( stdout, "\tcalling keyword function\n" );
-						type_of_keyword = keyword( token );
-					} else if ( type_of_token == SYMBOL ) {
-						fprintf( stdout, "\tcalling symbol function\n" );
-						symbol( symbol_string );
-					} else if ( type_of_token == IDENTIFIER ) {
-						fprintf( stdout, "\tcalling identifier function\n" );
-						identifier( identifier_string );
-					} else if ( type_of_token == INT_CONST ) {
-						fprintf( stdout, "\tcalling int_const function\n" );
-						int_val( token );
-					} else if ( type_of_token == STRING_CONST ) {
-						fprintf( stdout, "\tcalling string_const function\n" );
-						string_val( string_const );
-					} else {
-						fprintf( stdout, "No token, if reach here, this means error\n" );
-					}
+			if ( strcmp( cp, "//" ) != 0 && strcmp( cp, "*" ) != 0 && strcmp( cp, "**" ) != 0 ) {
+				if ( type_of_token == KEYWORD ) {
+					type_of_keyword= keyword( token );
+					fprintf( stdout, "[KEYWORD]:%s\n", keyword_str[type_of_token] );
+					fprintf( stdout, "\tcalling keyword function\n" );
+				} else if ( type_of_token == SYMBOL ) {
+					symbol( symbol_string );
+					fprintf( stdout, "[SYMBOL]:%s\n", symbol_string );
+					fprintf( stdout, "\tcalling symbol function\n" );
+				} else if ( type_of_token == INT_CONST ) {
+					int_num = int_val( token );
+					fprintf( stdout, "[INT_CONST]:%d\n", int_num );
+					fprintf( stdout, "\tcalling int_const function\n" );
+				} else if ( type_of_token == STRING_CONST ) {
+					string_val( string_const );
+					fprintf( stdout, "[STRING_CONST]:%s\n", string_const );
+					fprintf( stdout, "\tcalling string_const function\n" );
+				} else if ( type_of_token == IDENTIFIER ) {
+					identifier( identifier_string ); 
+					fprintf( stdout, "[IDENTIFIER]:%s\n", identifier_string );
+					fprintf( stdout, "\tcalling identifier function\n" );
 				} else {
-					break;
+					fprintf( stdout, "No token, if reach here, this means error\n" );
 				}
-
-				fprintf( stdout, "\t\t\tNext Round\n" ); 
-				cp = strtok( NULL, " \t\r\n" );
-				fprintf( stdout, "\t\t\tCheck\n" );
+			} else {
+				break;
 			}
+
+			fprintf( stdout, "\t\t\tNext Round\n" ); 
+			cp = strtok( NULL, " \t\r\n\0" );
+			fprintf( stdout, "\t\t\tCheck\n" );
+			*/
 		}
-	} 
+	}
 }
 
 bool has_more_tokens( char * istoken ) {
-	if ( istoken == NULL ) {
-		return false;
-	}
-	if ( istoken[0] != '\0' ) {
-		return true;
-	}
-	fprintf( stdout, "target pointer is null value\n" );
-	return false;
+
+	while ( *cp != '\0' ) {
+		// cpが示す最終文字まで１文字づつ読んでいく
+		if ( *cp == ' ' || *cp == '\t' ) {
+			cp++;
+		} else if ( *cp == '/' ) {
+			cp++;
+			if ( *cp == '/' ) {
+				while ( *cp != '\0' ) { ; }
+			} else if ( *cp == '*' ) {
+				while ( )
+			}
+		}
+
+	} 
 }
 
 void advance( char * cp ) {
@@ -134,7 +153,7 @@ bool is_string_constant( char c_token[256] ) {
 	int i = 0;
 	int str_flag = 0;
 	
-	while ( c_token[i] != '\0' ) {
+	while ( c_token[i] != '\0' && c_token[i] != '"' ) {
 		if ( isalpha( c_token[i] ) ) {
 			i++;
 		} else {
@@ -212,6 +231,9 @@ void identifier( char identifier_string[256] ) {
 			i++;
 		} else {
 			identifier_string[i] = '\0';
+			if ( i >= 1 ) {
+				token[i-1] = '\0';
+			}
 			break;
 		}
 	}
@@ -237,6 +259,7 @@ bool is_identifier( char val_string[256] ) {
 		if ( isalpha( val_string[i] ) || val_string[i] == '_' || ( val_string[i] >= '0' && val_string[i] <= '9' ) ) {
 			i++;
 		} else {
+			val_string[i] = '\0';
 			return false;
 		}
 	}

@@ -7,6 +7,13 @@ char outputfilename[256];
 FILE * outputfp;
 char streamline[256];
 char token[256];
+char keyword_str[21][20] = {
+	"class", "method", "function", "constructor",
+	"int", "boolean", "char", "void", 
+	"var", "static", "field", "let",
+	"do", "if", "else", "while", 
+	"return", "true", "false", "null", "this"
+};
 
 
 int main( int argc, char ** argv ) {

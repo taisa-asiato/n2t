@@ -54,6 +54,7 @@ extern char streamline[256];
 // 現在のトークン
 extern char token[256];
 
+extern char keyword_str[21][20];
 
 /* JackAnalyzer.c */
 int gen_inputfilename( struct dirent * dp, char * dirname );
