@@ -11,16 +11,10 @@ void jack_tokenizer_main( FILE * ifp, FILE * ofp  ) {
 	char string_const[256];
 	char str_c;
 
-	// 入力ストリームから一行読み取り, 構文解析を行う
-	while ( fgets( streamline, ( sizeof( streamline )/sizeof( char ) ), ifp ) ) {
-		// 入力ストリームから読み込んだ一行をバッファリングする
-		strcpy( current_line, streamline );
-		cp = strstr( current_line, "\r\n" );
-		*cp = '\0'; // cpを入力文字列の先頭行を指すよう設定する
 
 		// fprintf( stdout, "%s", current_line );
 		cp = current_line;
-		while ( has_more_tokens( cp ) ) {
+		while ( has_more_tokens( fp ) ) {
 			// fprintf( stdout, "%c\n", *cp );
 			// cp++;
 			advance( cp );
@@ -63,18 +57,27 @@ void jack_tokenizer_main( FILE * ifp, FILE * ofp  ) {
 	}
 }
 
-bool has_more_tokens( char * istoken ) {
+bool has_more_tokens( FILE * filepointer ) {
 
-	while ( *cp != '\0' ) {
-		// cpが示す最終文字まで１文字づつ読んでいく
-		if ( *cp == ' ' || *cp == '\t' ) {
-			cp++;
-		} else if ( *cp == '/' ) {
-			cp++;
-			if ( *cp == '/' ) {
-				while ( *cp != '\0' ) { ; }
-			} else if ( *cp == '*' ) {
-				while ( )
+	char c;
+	char tmp_c;
+
+	// 入力ストリームの最終文字列まで読み込む
+	while ( c = fgetc( filepointer ) ) {
+		if ( c == ' ' || c == '\t' || c ++ '\n' ) {
+			; // do nothing, goto next round
+		} else if ( c == '/' ) {
+			c = fgetc( fp );
+
+			// 現在のストリームの位置を進める
+			if ( c == '/' ) {
+				// 1行コメント行の場合, 改行までストリームから読み出し
+				while ( ( c = fgetc( fp ) ) != '\n' ) { ; }
+			} else if ( c == '*' ) {
+				// 複数行に跨るコメント行の場合, 最後の*/まで読み出し
+				while ( ) {
+					if ( c = fgetc( fp ) )	
+				}
 			}
 		}
 
