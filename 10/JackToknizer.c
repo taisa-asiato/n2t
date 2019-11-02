@@ -13,11 +13,10 @@ void jack_tokenizer_main( FILE * ifp, FILE * ofp  ) {
 
 
 		// fprintf( stdout, "%s", current_line );
-		cp = current_line;
 		while ( has_more_tokens( fp ) ) {
 			// fprintf( stdout, "%c\n", *cp );
 			// cp++;
-			advance( cp );
+			advance( fp );
 			/*
 			type_of_token = token_type( token );
 
@@ -64,29 +63,69 @@ bool has_more_tokens( FILE * filepointer ) {
 
 	// 入力ストリームの最終文字列まで読み込む
 	while ( c = fgetc( filepointer ) ) {
-		if ( c == ' ' || c == '\t' || c ++ '\n' ) {
+		if ( c == ' ' || c == '\t' || c == '\n' ) {
 			; // do nothing, goto next round
 		} else if ( c == '/' ) {
-			c = fgetc( fp );
-
-			// 現在のストリームの位置を進める
+			c = fgetc( fp ); // 現在のストリームの位置を進める
 			if ( c == '/' ) {
 				// 1行コメント行の場合, 改行までストリームから読み出し
 				while ( ( c = fgetc( fp ) ) != '\n' ) { ; }
 			} else if ( c == '*' ) {
 				// 複数行に跨るコメント行の場合, 最後の*/まで読み出し
-				while ( ) {
-					if ( c = fgetc( fp ) )	
+				tmp_c = '';
+				while ( tmp_c != '*' && ( c = fgetc( fp ) ) != '/' ) {
+					tmp_c = c;
 				}
 			}
+		} else {
+			// コメント行ではないため，入力ストリームに書き直す
+			ungetc( c, fp );
+			return true;
 		}
-
 	} 
+
+	// cの値がアルファベットか演算子の場合, トークンが存在するため
+	// trueを返す
+	if ( isalpha( c ) || ispunct( c ) ) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
-void advance( char * cp ) {
-	// 次のトークンに進める
-	strcpy( token, cp );
+void advance( FILE * fp ) {
+
+	char c;
+	int number = 0;
+
+	c = fgetc( fp );
+
+	if ( isalpha( c ) ) {
+		// 文字列の場合
+		token[number] = c;
+		while ( isplha( ( c = fgetc( fp ) ) ) ) {
+			number++;
+			token[number] = c;
+		}
+		number++;
+		token[number] = '\0';
+		return;
+	} else if ( isdigit( c ) ) {
+		// intergerConst
+		// 整数の場合
+		token[number] = c;
+		while ( isdigit( ( c = fgetc( fp ) ) ) ) {
+			number++;
+			token[number] = c;
+		}
+		number++;
+		token[number] = '\0';
+		return;
+	} else if ( ispunct( c ) ) {
+		// symbol文字列
+		token[number] = c;
+		return;
+	}
 }
 
 int token_type( char current[256] ) {
