@@ -63,7 +63,7 @@ void gen_outputfilename( char * filename );
 
 /* JackTokenizer.c */
 void jack_tokenizer_main( FILE * ifp, FILE * ofp );
-bool has_more_tokens( char * istoken );
+bool has_more_tokens( FILE * fp );
 void advance();
 int kyeword( char current[256] );
 bool is_keyword( char c_token[256] );

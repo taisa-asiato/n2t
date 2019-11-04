@@ -10,49 +10,54 @@ void jack_tokenizer_main( FILE * ifp, FILE * ofp  ) {
 	char identifier_string[256];
 	char string_const[256];
 	char str_c;
+	int loopcounter = 0;
 
 
-		// fprintf( stdout, "%s", current_line );
-		while ( has_more_tokens( fp ) ) {
-			// fprintf( stdout, "%c\n", *cp );
-			// cp++;
-			advance( fp );
-			/*
-			type_of_token = token_type( token );
+	// fprintf( stdout, "%s", current_line );
+	while ( has_more_tokens( ifp ) ) {
+		// fprintf( stdout, "input file\n" );
+		// fprintf( stdout, "%c\n", *cp );
+		// cp++;
+		advance( ifp );
+		loopcounter++;
+		//fprintf( stdout, "round%d\n", loopcounter );
+		// if ( loopcounter > 1000 ) { break; }
+		//fprintf( stdout, "token word is %s\n", token );
+		/*
+		   type_of_token = token_type( token );
 
-			if ( strcmp( cp, "//" ) != 0 && strcmp( cp, "*" ) != 0 && strcmp( cp, "**" ) != 0 ) {
-				if ( type_of_token == KEYWORD ) {
-					type_of_keyword= keyword( token );
-					fprintf( stdout, "[KEYWORD]:%s\n", keyword_str[type_of_token] );
-					fprintf( stdout, "\tcalling keyword function\n" );
-				} else if ( type_of_token == SYMBOL ) {
-					symbol( symbol_string );
-					fprintf( stdout, "[SYMBOL]:%s\n", symbol_string );
-					fprintf( stdout, "\tcalling symbol function\n" );
-				} else if ( type_of_token == INT_CONST ) {
-					int_num = int_val( token );
-					fprintf( stdout, "[INT_CONST]:%d\n", int_num );
-					fprintf( stdout, "\tcalling int_const function\n" );
-				} else if ( type_of_token == STRING_CONST ) {
-					string_val( string_const );
-					fprintf( stdout, "[STRING_CONST]:%s\n", string_const );
-					fprintf( stdout, "\tcalling string_const function\n" );
-				} else if ( type_of_token == IDENTIFIER ) {
-					identifier( identifier_string ); 
-					fprintf( stdout, "[IDENTIFIER]:%s\n", identifier_string );
-					fprintf( stdout, "\tcalling identifier function\n" );
-				} else {
-					fprintf( stdout, "No token, if reach here, this means error\n" );
-				}
-			} else {
-				break;
-			}
+		   if ( strcmp( cp, "//" ) != 0 && strcmp( cp, "*" ) != 0 && strcmp( cp, "**" ) != 0 ) {
+		   if ( type_of_token == KEYWORD ) {
+		   type_of_keyword= keyword( token );
+		   fprintf( stdout, "[KEYWORD]:%s\n", keyword_str[type_of_token] );
+		   fprintf( stdout, "\tcalling keyword function\n" );
+		   } else if ( type_of_token == SYMBOL ) {
+		   symbol( symbol_string );
+		   fprintf( stdout, "[SYMBOL]:%s\n", symbol_string );
+		   fprintf( stdout, "\tcalling symbol function\n" );
+		   } else if ( type_of_token == INT_CONST ) {
+		   int_num = int_val( token );
+		   fprintf( stdout, "[INT_CONST]:%d\n", int_num );
+		   fprintf( stdout, "\tcalling int_const function\n" );
+		   } else if ( type_of_token == STRING_CONST ) {
+		   string_val( string_const );
+		   fprintf( stdout, "[STRING_CONST]:%s\n", string_const );
+		   fprintf( stdout, "\tcalling string_const function\n" );
+		   } else if ( type_of_token == IDENTIFIER ) {
+		   identifier( identifier_string ); 
+		   fprintf( stdout, "[IDENTIFIER]:%s\n", identifier_string );
+		   fprintf( stdout, "\tcalling identifier function\n" );
+		   } else {
+		   fprintf( stdout, "No token, if reach here, this means error\n" );
+		   }
+		   } else {
+		   break;
+		   }
 
-			fprintf( stdout, "\t\t\tNext Round\n" ); 
-			cp = strtok( NULL, " \t\r\n\0" );
-			fprintf( stdout, "\t\t\tCheck\n" );
-			*/
-		}
+		   fprintf( stdout, "\t\t\tNext Round\n" ); 
+		   cp = strtok( NULL, " \t\r\n\0" );
+		   fprintf( stdout, "\t\t\tCheck\n" );
+		   */
 	}
 }
 
@@ -62,33 +67,44 @@ bool has_more_tokens( FILE * filepointer ) {
 	char tmp_c;
 
 	// 入力ストリームの最終文字列まで読み込む
-	while ( c = fgetc( filepointer ) ) {
-		if ( c == ' ' || c == '\t' || c == '\n' ) {
-			; // do nothing, goto next round
-		} else if ( c == '/' ) {
-			c = fgetc( fp ); // 現在のストリームの位置を進める
+	// macでは\r\nなので，条件分岐でヒットするようにしておく
+	while ( ( c = fgetc( filepointer ) ) == ' ' || c == '\t' || c == '\n' || c == '/' || c == '\r' ) {
+		// fprintf( stdout, "space, tab, newline line code\n" ); // do nothing, goto next round
+		if ( c == '/' ) {
+			c = fgetc( filepointer ); // 現在のストリームの位置を進める
 			if ( c == '/' ) {
 				// 1行コメント行の場合, 改行までストリームから読み出し
-				while ( ( c = fgetc( fp ) ) != '\n' ) { ; }
+				// fprintf( stdout, "1line comment out\n" );
+				while ( ( c = fgetc( filepointer ) ) != '\r' ) {
+					fprintf( stdout, "%c", c );
+				}
+				fprintf( stdout, "\n" );
 			} else if ( c == '*' ) {
 				// 複数行に跨るコメント行の場合, 最後の*/まで読み出し
-				tmp_c = '';
-				while ( tmp_c != '*' && ( c = fgetc( fp ) ) != '/' ) {
+				tmp_c = ' '; // empty char set 対策
+				while ( tmp_c != '*' && ( c = fgetc( filepointer ) ) != '/' ) {
+					fprintf( stdout, "%c", c );
 					tmp_c = c;
 				}
+				fprintf( stdout, "\n" );
+				// fprintf( stdout, "multiple comment out line?\n" );
+			} else {
+				// /１個の場合は演算子なため入力ストリームに書き戻す
+				ungetc( c, filepointer );
+				return true;
 			}
-		} else {
-			// コメント行ではないため，入力ストリームに書き直す
-			ungetc( c, fp );
-			return true;
-		}
+		} 
 	} 
+	fprintf( stdout, "word is %c\n", c );
+	ungetc( c, filepointer ); // 入力ストリームから読み取った値を再度入寮ストリームへ書き戻す
 
 	// cの値がアルファベットか演算子の場合, トークンが存在するため
 	// trueを返す
-	if ( isalpha( c ) || ispunct( c ) ) {
+	if ( isalpha( c ) || ispunct( c ) || isalnum( c ) ) {
+		// fprintf( stdout, "%c", c );
 		return true;
 	} else {
+		fprintf( stdout, "not string, ignore this word\n" );
 		return false;
 	}
 }
@@ -103,12 +119,16 @@ void advance( FILE * fp ) {
 	if ( isalpha( c ) ) {
 		// 文字列の場合
 		token[number] = c;
-		while ( isplha( ( c = fgetc( fp ) ) ) ) {
+		while ( isalpha( ( c = fgetc( fp ) ) ) ) {
 			number++;
 			token[number] = c;
 		}
+		ungetc( c, fp ); 
+		// ループを抜けた際の文字は区切り文字等なので，
+		// 入力文字列をストリーム\に書き直す必要がある
 		number++;
 		token[number] = '\0';
+		fprintf( stdout, "token : %s\n", token );
 		return;
 	} else if ( isdigit( c ) ) {
 		// intergerConst
@@ -118,12 +138,15 @@ void advance( FILE * fp ) {
 			number++;
 			token[number] = c;
 		}
+		ungetc( c, fp );
 		number++;
 		token[number] = '\0';
+		fprintf( stdout, "int : %s\n", token  );
 		return;
 	} else if ( ispunct( c ) ) {
 		// symbol文字列
 		token[number] = c;
+		fprintf( stdout, "punct : %c\n", c );
 		return;
 	}
 }
