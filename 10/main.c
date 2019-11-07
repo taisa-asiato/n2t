@@ -14,7 +14,7 @@ char keyword_str[21][20] = {
 	"do", "if", "else", "while", 
 	"return", "true", "false", "null", "this"
 };
-
+char t_type[256];
 
 int main( int argc, char ** argv ) {
 	/* エラー時の処理 */

@@ -19,45 +19,35 @@ void jack_tokenizer_main( FILE * ifp, FILE * ofp  ) {
 		// fprintf( stdout, "%c\n", *cp );
 		// cp++;
 		advance( ifp );
-		loopcounter++;
 		//fprintf( stdout, "round%d\n", loopcounter );
 		// if ( loopcounter > 1000 ) { break; }
-		//fprintf( stdout, "token word is %s\n", token );
+		fprintf( stdout, "token word is %s\n", token );
+		// type_of_token = token_type( token );
+		// fprintf( stdout, "[%s\t]\t:%s\n", t_type, token );
 		/*
-		   type_of_token = token_type( token );
-
-		   if ( strcmp( cp, "//" ) != 0 && strcmp( cp, "*" ) != 0 && strcmp( cp, "**" ) != 0 ) {
-		   if ( type_of_token == KEYWORD ) {
-		   type_of_keyword= keyword( token );
-		   fprintf( stdout, "[KEYWORD]:%s\n", keyword_str[type_of_token] );
-		   fprintf( stdout, "\tcalling keyword function\n" );
-		   } else if ( type_of_token == SYMBOL ) {
-		   symbol( symbol_string );
-		   fprintf( stdout, "[SYMBOL]:%s\n", symbol_string );
-		   fprintf( stdout, "\tcalling symbol function\n" );
-		   } else if ( type_of_token == INT_CONST ) {
-		   int_num = int_val( token );
-		   fprintf( stdout, "[INT_CONST]:%d\n", int_num );
-		   fprintf( stdout, "\tcalling int_const function\n" );
-		   } else if ( type_of_token == STRING_CONST ) {
-		   string_val( string_const );
-		   fprintf( stdout, "[STRING_CONST]:%s\n", string_const );
-		   fprintf( stdout, "\tcalling string_const function\n" );
-		   } else if ( type_of_token == IDENTIFIER ) {
-		   identifier( identifier_string ); 
-		   fprintf( stdout, "[IDENTIFIER]:%s\n", identifier_string );
-		   fprintf( stdout, "\tcalling identifier function\n" );
-		   } else {
-		   fprintf( stdout, "No token, if reach here, this means error\n" );
-		   }
-		   } else {
-		   break;
-		   }
-
-		   fprintf( stdout, "\t\t\tNext Round\n" ); 
-		   cp = strtok( NULL, " \t\r\n\0" );
-		   fprintf( stdout, "\t\t\tCheck\n" );
-		   */
+		if ( type_of_token == KEYWORD ) {
+			type_of_keyword= keyword( token );
+			fprintf( stdout, "[KEYWORD]:%s\n", keyword_str[type_of_token] );
+			fprintf( stdout, "\tcalling keyword function\n" );
+		} else if ( type_of_token == SYMBOL ) {
+			symbol( symbol_string );
+			fprintf( stdout, "[SYMBOL]:%s\n", symbol_string );
+			fprintf( stdout, "\tcalling symbol function\n" );
+		} else if ( type_of_token == INT_CONST ) {
+			int_num = int_val( token );
+			fprintf( stdout, "[INT_CONST]:%d\n", int_num );
+			fprintf( stdout, "\tcalling int_const function\n" );
+		} else if ( type_of_token == STRING_CONST ) {
+			string_val( string_const );
+			fprintf( stdout, "[STRING_CONST]:%s\n", string_const );
+			fprintf( stdout, "\tcalling string_const function\n" );
+		} else if ( type_of_token == IDENTIFIER ) {
+			identifier( identifier_string ); 
+			fprintf( stdout, "[IDENTIFIER]:%s\n", identifier_string );
+			fprintf( stdout, "\tcalling identifier function\n" );
+		} else {
+			fprintf( stdout, "No token, if reach here, this means error\n" );
+		}*/
 	}
 }
 
@@ -65,6 +55,7 @@ bool has_more_tokens( FILE * filepointer ) {
 
 	char c;
 	char tmp_c;
+	int i = 0;
 
 	// 入力ストリームの最終文字列まで読み込む
 	// macでは\r\nなので，条件分岐でヒットするようにしておく
@@ -75,19 +66,20 @@ bool has_more_tokens( FILE * filepointer ) {
 			if ( c == '/' ) {
 				// 1行コメント行の場合, 改行までストリームから読み出し
 				// fprintf( stdout, "1line comment out\n" );
-				while ( ( c = fgetc( filepointer ) ) != '\r' ) {
-					fprintf( stdout, "%c", c );
+				//
+				while ( ( c = fgetc( filepointer ) ) != '\r' && c != '\n' ) {
+					// fprintf( stdout, "one line comment out %c\n", c );
 				}
-				fprintf( stdout, "\n" );
 			} else if ( c == '*' ) {
 				// 複数行に跨るコメント行の場合, 最後の*/まで読み出し
 				tmp_c = ' '; // empty char set 対策
-				while ( tmp_c != '*' && ( c = fgetc( filepointer ) ) != '/' ) {
-					fprintf( stdout, "%c", c );
+				while ( !( ( c = fgetc( filepointer ) ) == '/' && tmp_c == '*' ) ) {
+					// fprintf( stdout, "multiple line comment out %c\n", c );
 					tmp_c = c;
+					i++;
+					// if ( i > 100 ) {}
 				}
-				fprintf( stdout, "\n" );
-				// fprintf( stdout, "multiple comment out line?\n" );
+				// fprintf( stdout, "last line is [tmp_c]:%d and [c]:%d\n", tmp_c, c );
 			} else {
 				// /１個の場合は演算子なため入力ストリームに書き戻す
 				ungetc( c, filepointer );
@@ -95,7 +87,7 @@ bool has_more_tokens( FILE * filepointer ) {
 			}
 		} 
 	} 
-	fprintf( stdout, "word is %c\n", c );
+	// fprintf( stdout, "word is %c\n", c );
 	ungetc( c, filepointer ); // 入力ストリームから読み取った値を再度入寮ストリームへ書き戻す
 
 	// cの値がアルファベットか演算子の場合, トークンが存在するため
@@ -116,7 +108,7 @@ void advance( FILE * fp ) {
 
 	c = fgetc( fp );
 
-	if ( isalpha( c ) ) {
+	if ( isalnum( c ) ) {
 		// 文字列の場合
 		token[number] = c;
 		while ( isalpha( ( c = fgetc( fp ) ) ) ) {
@@ -128,7 +120,6 @@ void advance( FILE * fp ) {
 		// 入力文字列をストリーム\に書き直す必要がある
 		number++;
 		token[number] = '\0';
-		fprintf( stdout, "token : %s\n", token );
 		return;
 	} else if ( isdigit( c ) ) {
 		// intergerConst
@@ -141,12 +132,12 @@ void advance( FILE * fp ) {
 		ungetc( c, fp );
 		number++;
 		token[number] = '\0';
-		fprintf( stdout, "int : %s\n", token  );
 		return;
 	} else if ( ispunct( c ) ) {
 		// symbol文字列
 		token[number] = c;
-		fprintf( stdout, "punct : %c\n", c );
+		number++;
+		token[number] = '\0';
 		return;
 	}
 }
@@ -154,18 +145,23 @@ void advance( FILE * fp ) {
 int token_type( char current[256] ) {
 	if ( is_keyword( current ) ) {
 		fprintf( stdout, "keyword\n" );
+		strcpy( t_type, "keyword" );
 		return KEYWORD;
 	} else if ( is_symbol( current ) ) {
 		fprintf( stdout, "symbol\n" );
+		strcpy( t_type, "symbol" );
 		return SYMBOL;
 	} else if ( is_integer_constant( current ) ) {
 		fprintf( stdout, "int_const\n" );
+		strcpy( t_type, "int_const" );
 		return INT_CONST;
 	} else if ( is_string_constant( current ) ) {
 		fprintf( stdout, "string_const\n" );
+		strcpy( t_type, "string_const" );
 		return STRING_CONST;
 	} else if ( is_identifier( current ) )  {
 		fprintf( stdout, "identifier\n" );
+		strcpy( t_type, "is_identifier" );
 		return IDENTIFIER;
 	}
 	return -1;
