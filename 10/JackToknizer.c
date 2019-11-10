@@ -65,8 +65,6 @@ bool has_more_tokens( FILE * filepointer ) {
 			c = fgetc( filepointer ); // 現在のストリームの位置を進める
 			if ( c == '/' ) {
 				// 1行コメント行の場合, 改行までストリームから読み出し
-				// fprintf( stdout, "1line comment out\n" );
-				//
 				while ( ( c = fgetc( filepointer ) ) != '\r' && c != '\n' ) {
 					// fprintf( stdout, "one line comment out %c\n", c );
 				}
@@ -74,10 +72,8 @@ bool has_more_tokens( FILE * filepointer ) {
 				// 複数行に跨るコメント行の場合, 最後の*/まで読み出し
 				tmp_c = ' '; // empty char set 対策
 				while ( !( ( c = fgetc( filepointer ) ) == '/' && tmp_c == '*' ) ) {
-					// fprintf( stdout, "multiple line comment out %c\n", c );
 					tmp_c = c;
 					i++;
-					// if ( i > 100 ) {}
 				}
 				// fprintf( stdout, "last line is [tmp_c]:%d and [c]:%d\n", tmp_c, c );
 			} else {

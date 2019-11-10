@@ -83,4 +83,5 @@ bool is_string_constant( char c_token[256] );
 bool is_integer_constant( char c_token[256] );
 
 /* CompliationEngine.c */
+void compile_main( FILE * ifp, FILE * ofp );
 void compile_Class();

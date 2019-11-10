@@ -48,11 +48,14 @@ void jack_analyze_main( char * fname ) {
 		// 入力ファイルがディレクトリでない場合
 		strcpy( streamfilename, fname );
 		fprintf( stdout, "<= %s\n", streamfilename );
+
 		if ( ( inputfp = fopen( streamfilename, "r"  ) ) ) {
+			// 入力がファイルのため，入力ストリームから値をそのまま受け取る
 			gen_outputfilename( streamfilename );
 			fprintf( stdout, "=> output is %s\n", outputfilename );
 			outputfp = fopen( outputfilename, "w" );
-			jack_tokenizer_main( inputfp, outputfp ); 
+			//jack_tokenizer_main( inputfp, outputfp ); 
+			compile_main( inputfp, outputfp );
 			fclose( outputfp );
 			fclose( inputfp );
 		}
