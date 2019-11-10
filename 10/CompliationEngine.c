@@ -115,27 +115,43 @@ int compile_symbol( FILE * ifp, char symbol_char ) {
 				return 1;
 			} else {
 				fprintf( stdout, "[ERROR]: Syntax error, %c is expected\n", symbol_char );
+				ungets( ifp );
+				return 0;
 			}
 		} 
 	} else {
 		fprintf( stdout, "[ERROR]: No any input, %s\n", __func__ );
+		ungets( ifp );
 	}
 
 	return 0;
 }
 
+
+// class_var_decをコンパイルする
 int compile_class_var_dec( ifp )  {
 
-	while ( has_more_tokens( ifp ) ) {
+	if ( has_more_tokens( ifp ) ) {
 		advance();
 		if ( strcmp( token, "static" ) == 0 || strcmp( token, "field" ) == 0 ) {
 			fprintf( stdout, "<keyword> %s </keyword>\n", token );
 			compile_var_type( ifp );
 
-		} else {
-			for ( int i = 0 ; token[i] != '\0' ; i++ ) {
-				unfgetc( token[i], ifp );
+			while ( has_more_tokens( ifp ) ) { 
+				compile_var_name( ifp );
+				if ( has_more_tokens( ifp ) ) {
+					advance( ifp );
+
+					if ( token[i] == ';' ) {
+						compile_symbol( ifp, ';' );
+						break;
+					} else if ( token[i] == ',' ) { 
+						compile_symbol( ifp, "," );
+					}
+				}
 			}
+		} else {
+			ungets( ifp );
 			break;
 		}
 	}
@@ -151,8 +167,6 @@ int compile_var_type( FILE * ifp ) {
 		if ( token_of_number = token_type( token ) == KEYWORD ) {
 			if ( strcmp( token, "int" ) == 0 || strcmp( token, "char" ) == 0 || strcmp( token, "boolean" ) == 0 || strcmp( token, "void") == 0 ) {
 				fprintf( stdout, "<keyword> %s </keyword>\n" );
-				compile_var_name( ifp );
-				compile_symbol( ';' );
 				return 1;
 			} else {
 				fprintf( stdout, "[ERROR]: Next token is must be type( int, char, boolean, void), %s\n", __func__ );
@@ -163,9 +177,7 @@ int compile_var_type( FILE * ifp ) {
 	}
 
 	// typeでなかった場合はトークンを入力ストリームに書き戻す
-	for ( int i = 0 ; token[i] != '\0' ; i++ ) {
-		unfgetc( token[i], ifp );
-	}
+	ungets( ifp );
 
 	return 0;
 }	
@@ -180,7 +192,10 @@ void compile_subroutine_dec() {
 		if ( token_of_number == KEYWORD ) {
 			if ( strcmp( token, "constructor" ) == 0 || strcmp( token, "function" ) == 0 || strcmp( token, "method" ) == 0 ) { 
 				fprintf( stdout, "<keyword> %s </keyword>\n" );
-				
+				compile_var_type( ifp );
+				compile_subroutine_name( ifp );
+				compile_symbol( ifp, '(' );
+				compile_parameterlist( ifp );
 			}  else {
 				fprintf( stdout, "[ERROR]: Next token is keyword( constructor, function, mehtod) is expected\n" );
 			}
@@ -209,8 +224,52 @@ int compile_var_name( FILE * ifp ) {
 			fprintf( stdout, "<identifier> %s </identifier>\n", token );
 			return 1;
 		} else {
-			fprintf( stdout, "[ERROR]: Var name is identifier\n" );
+			fprintf( stdout, "[ERROR]: Var name is identifier, %s\n", __func__ );
 		}
 	}
+	return 0;
+}
+
+
+void unegets( FILE * ifp ) {
+	for ( int i = 0 ; token[i] != '\0' ; i++ ) {
+		ungetc( token[i], ifp );
+	}
+}
+
+int compile_subroutine_name( FILE * ifp ) {
+	int type_of_keyword;
+
+	if ( has_more_tokens( ifp ) ) {
+		advance( ifp );
+		
+		type_of_keyword = token_type( token );
+		if ( type_of_keyword == IDENTIFIER ) {
+ 			fprintf( stdout, "<identifier> %s </identifier>\n", token );
+			return 1;
+		} else {
+			fprintf( stdout, "[ERROR]: Next token must be identifier, subroutine name\n" );
+		}
+	}
+
+	ungets( ifp );
+	return 0;
+}
+
+int compile_parameterlist( FILE * ifp ) {
+
+	int token_of_number;
+
+	while ( 1 ) {
+		compile_var_type( ifp );
+		compile_var_name( ifp );
+		if ( compile_symbol( ifp, ',') ) {
+			
+		} else if ( compile_symbol( ifp, ';' ) ) {
+			break;
+		}
+
+	}
+
 	return 0;
 }
