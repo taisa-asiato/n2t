@@ -13,38 +13,7 @@ void compile_main( FILE * ifp, FILE * ofp ) {
 	int loopcounter = 0;
 
 	while ( has_more_tokens( ifp ) ) {
-
-		advance( ifp );
-		type_of_token = token_type( token );
-		if ( type_of_token == KEYWORD ) {
-			type_of_keyword = keyword( token );
-
-			switch ( type_of_token ) {
-				case CALSS: 
-					compile_Class();
-
-				case METHOD:
-
-			}
-			fprintf( stdout, "[KEYWORD]:%s\n", token );
-			fprintf( stdout, "\tcalling keyword function\n" );
-		} else if ( type_of_token == SYMBOL ) {
-			symbol( symbol_string );
-			fprintf( stdout, "[SYMBOL]:%s\n", token );
-			fprintf( stdout, "\tcalling symbol function\n" );
-		} else if ( type_of_token == INT_CONST ) {
-			int_num = int_val( token );
-			fprintf( stdout, "[INT_CONST]:%d\n", atoi( token ) );
-			fprintf( stdout, "\tcalling int_const function\n" );
-		} else if ( type_of_token == STRING_CONST ) {
-			string_val( string_const );
-			fprintf( stdout, "[STRING_CONST]:%s\n", token );
-			fprintf( stdout, "\tcalling string_const function\n" );
-		} else if ( type_of_token == IDENTIFIER ) {
-			identifier( identifier_string ); 
-			fprintf( stdout, "[IDENTIFIER]:%s\n", token );
-			fprintf( stdout, "\tcalling identifier function\n" );
-		}
+		compile_class( ifp );
 	}
 }
 
@@ -196,6 +165,7 @@ void compile_subroutine_dec() {
 				compile_subroutine_name( ifp );
 				compile_symbol( ifp, '(' );
 				compile_parameterlist( ifp );
+				compile_symbol( ')' );
 			}  else {
 				fprintf( stdout, "[ERROR]: Next token is keyword( constructor, function, mehtod) is expected\n" );
 			}
@@ -264,11 +234,10 @@ int compile_parameterlist( FILE * ifp ) {
 		compile_var_type( ifp );
 		compile_var_name( ifp );
 		if ( compile_symbol( ifp, ',') ) {
-			
+			// goto next parameter		
 		} else if ( compile_symbol( ifp, ';' ) ) {
 			break;
 		}
-
 	}
 
 	return 0;
