@@ -126,7 +126,7 @@ int compile_class_var_dec( ifp )  {
 	}
 }
 
-int compile_var_type( FILE * ifp ) {
+int compile_var_dec ( FILE * ifp ) {
 	int token_of_number;
 	int flag = 0;
 
@@ -151,7 +151,7 @@ int compile_var_type( FILE * ifp ) {
 	return 0;
 }	
 
-void compile_subroutine_dec() {
+void compile_subroutine () {
 	int type_of_keyword;
 
 	if ( has_more_tokens( ifp ) ) {
@@ -172,16 +172,6 @@ void compile_subroutine_dec() {
 		} 
 	} 
 }	
-/*
-void type( char * cp ) {
-	
-	if ( 
-		strcmp( cp, "int" ) == 0 || strcmp( cp, "char" ) == 0 || 
-		strcmp( cp, "boolean" ) == 0 || cp == identifier ) {
-		
-	}
-}
-*/
 
 int compile_var_name( FILE * ifp ) {
 	int type_of_keyword;
@@ -241,4 +231,55 @@ int compile_parameterlist( FILE * ifp ) {
 	}
 
 	return 0;
+}
+
+int compile_statements( FILE * ifp ) {
+	
+	if ( has_more_token ( ifp ) ) {
+		advance( ifp );
+
+		if ( strcmp( token, "do" ) == 0 ) { 
+			compile_do( ifp );
+		} else if ( strcmp( token, "let" ) == 0 ) {
+			compile_let( ifp );
+		} else if ( strcmp( token, "while" ) == 0 ) {
+			compile_while( ifp );
+		} else if ( strcmp( token, "return" ) == 0 ) {
+			compile_return( ifp );
+		} else if ( strcmp( token, "if" ) == 0 ) {
+			compile_if( ifp );
+		}
+		return 1;
+	}
+	return 0;
+}
+
+int compile_do( FILE * ifp ) {
+
+	int type_of_token;
+
+	// subroutinename
+	if ( has_more_token( ifp ) ) {
+		advance();
+		
+		// next token is subroutinename, identifier 
+		type_of_token = token_type( token );
+		if ( type_of_token == IDENTIFIER ) {
+			fprintf( stdout, "<identifier> %s </identifier>\n", token );
+		}
+	}
+
+	// symbol
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == SYMBOL ) {
+			if ( token[i] == '(' ) {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[i] );
+			}
+		}
+	}
+
+	//
 }
