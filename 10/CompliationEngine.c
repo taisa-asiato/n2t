@@ -269,6 +269,21 @@ int compile_do( FILE * ifp ) {
 		}
 	}
 
+}
+
+int compile_subroutine( FILE * ifp ) {
+	int type_of_token;
+
+	// subroutinename 
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == IDENTIFIER ) {
+			fprintf( stdout, "<identifier> %s </identifier>\n", token );
+		}
+	}
+
 	// symbol
 	if ( has_more_tokens( ifp ) ) {
 		advance();
@@ -281,5 +296,18 @@ int compile_do( FILE * ifp ) {
 		}
 	}
 
-	//
+	compile_expressionlist( ifp );
+}
+
+int compile_expreassionlist( FILE * ifp ) {
+	int type_of_token;
+
+
+	while ( 1 ) {
+		if ( has_more_tokens( ifp ) ) {
+		
+			compile_expression( ifp );
+		}
+	}
+
 }
