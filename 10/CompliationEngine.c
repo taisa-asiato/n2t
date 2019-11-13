@@ -18,29 +18,50 @@ void compile_main( FILE * ifp, FILE * ofp ) {
 }
 
 int compile_Class( FILE * ifp ) {
-	fprintf( stdout, "<class>\n" );
 
+	int type_of_token;
+	fprintf( stdout, "<class>\n" );
 	if ( has_more_tokens( ifp ) ) {
 		advance();
-		if ( strcmp( token, "Class" ) == 0 ) {
+
+		type_of_token = token_type( token ); 
+		if ( strcmp( token, "Class" ) == 0 && type_of_token == KEYWORD ) {
 			fprintf( stdout, "\t<keyword> %s </keyword>\n", token );
 		} else {
 			fprintf( stdout, "[ERROR]: Program must starts \"Class\", compile canceled\n" );
 			return;
 		}
+	} 
 
+	// クラス名をコンパイル
+	if ( has_more_tokens( ifp ) ) {
+		advance();
 
-		// 次のトークンはクラス名を表す文字列( identifier )
-		compile_class_name( ifp );
+		type_of_token = token_type( token );
+		if ( type_of_token == IDENTIFIER ) {
+			fprintf( stdout, "<identifier> %s </identifier>\n", token );
+		} else {
+			fprintf( stdout, "[ERROR]: Class name must be identifier\n" );
+			return;
+		}
+	}
 
-		// クラス名の次はシンボル"{"が来る
-		compile_symbol( ifp, '{' );
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == SYMBOL && token[0] == '{' ) {
+			fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+		} else {
+			fprintf( stdout, "[ERROR]: After class name, { was expected\n" );
+		}
+	}
 
 
 		// 大きめおサブルーチンを作成してそちらに処理を
 		// すべて書いた方が可読性が上がる気がする
 		fprintf( stdout, "<classVarDec>\n" );
-		compile_class_ver_dec();
+		compile_Class_Var_Dec();
 		fprintf( stdout, "</subroutineDec>\n" );
 
 
@@ -98,58 +119,155 @@ int compile_symbol( FILE * ifp, char symbol_char ) {
 
 
 // class_var_decをコンパイルする
-int compile_class_var_dec( ifp )  {
+int compile_Class_Var_Dec( ifp )  {
 
+	int type_of_token;
+
+	// static or field
 	if ( has_more_tokens( ifp ) ) {
+		
 		advance();
-		if ( strcmp( token, "static" ) == 0 || strcmp( token, "field" ) == 0 ) {
+		type_of_token = token_type( token );
+		if ( type_of_token == KEYWORD && ( strcmp( token, "static" ) == 0 || strcmp( token, "field" ) == 0 ) ) {
 			fprintf( stdout, "<keyword> %s </keyword>\n", token );
-			compile_var_type( ifp );
+		} else {
+			fprintf( stdout, "[ERROR]: Class var declaration must start static of field\n" );
+		}
+	}
 
-			while ( has_more_tokens( ifp ) ) { 
-				compile_var_name( ifp );
-				if ( has_more_tokens( ifp ) ) {
-					advance( ifp );
+	// 型のコンパイル
+	if ( has_more_tokens( ifp ) ) {
+		
+		advance();
 
-					if ( token[i] == ';' ) {
-						compile_symbol( ifp, ';' );
-						break;
-					} else if ( token[i] == ',' ) { 
-						compile_symbol( ifp, "," );
-					}
-				}
+		type_of_token = token_type( token );
+		if ( type_of_token == KEYWORD ) {
+			if ( strcmp( token, "int" ) == 0 || strcmp( token, "char" ) == 0 || strcmp( token, "boolean" ) == 0 ) {
+				fprintf( stdout, "<keyword> %s </keyword>\n", token );
+			} else {
+				fprintf( stdout, "[ERROR]: Variable type must be int, char or boolean\n" );
 			}
 		} else {
-			ungets( ifp );
-			break;
+			fprintf( stdout, "[ERROR]: Var type must be int, char or boolean\n" );
+		}
+	}
+
+	// 区切り文字が, である限り変数名のコンパイルを続ける
+	while ( 1 ) {
+		if ( has_more_tokens( ifp ) ) {
+			// 変数名をコンパイル
+			advance();
+
+			type_of_token = token_type( token );
+			if ( type_of_token == IDENTIFIER ) {
+				fprintf( stdout, "<identifier> %s </identifier>\n", token );
+			} else {
+				fprintf( stdout, "[ERROR]: Variable name must be identifier\n" );
+			}
+		}
+
+		if ( has_more_tokens( ifp ) ) {
+			// 区切り文字をコンパイル
+			// 区切り文字が;の場合ループを抜ける
+			advance();
+
+			type_of_token = token_type( token );
+			if ( type_of_token == SYMBOL && token[0] == ',' ) {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+			} else if ( type_of_token == SYMBOL && token[0] == ';' ) {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+				break;
+			} else {
+				fprintf( stdout, "[ERROR]: Var name next token is ; or , \n" );
+				break;
+			}
 		}
 	}
 }
 
-int compile_var_dec ( FILE * ifp ) {
-	int token_of_number;
-	int flag = 0;
+int compile_Subroutine_Dec( FILE * ifp ) {
+	int type_of_token;
 
+
+	// サブルーチンの最初のトークンはconstructor, function, methodのいづれかで始まる
 	if ( has_more_tokens( ifp ) ) {
-		advance( ifp );
+		advance();
 
-		if ( token_of_number = token_type( token ) == KEYWORD ) {
-			if ( strcmp( token, "int" ) == 0 || strcmp( token, "char" ) == 0 || strcmp( token, "boolean" ) == 0 || strcmp( token, "void") == 0 ) {
-				fprintf( stdout, "<keyword> %s </keyword>\n" );
-				return 1;
+		type_of_token = token_type( token );
+		if ( type_of_token == KEYWORD ) {
+			if ( strcmp( token, "constructor" ) == 0 || strcmp( token, "function" ) == 0 || strcmp( token, "method" ) == 0 ) {
+				fprintf( stdout, "<keyword> %s </keyword>\n", token );
 			} else {
-				fprintf( stdout, "[ERROR]: Next token is must be type( int, char, boolean, void), %s\n", __func__ );
+				fprintf( stdout, "[ERROR]: First token must be constructor, function or method\n" );
 			}
-		} else {
-			fprintf( stdout, "[ERROR]: Next token is must be keyword( type ), %s\n", __func__  );
 		}
 	}
 
-	// typeでなかった場合はトークンを入力ストリームに書き戻す
-	ungets( ifp );
+	// サブルーチンの型はvoid, int, char, boolean 及びクラス名のいずれか
+	if ( has_more_tokens( ifp ) ) {
+		advance();
 
-	return 0;
-}	
+		type_of_token = token_type( token );
+		if ( type_of_token == KEYWORD ) {
+			if ( 	strcmp( token, "int" ) == 0 || strcmp( token, "char" ) == 0 || 
+				strcmp( token, "boolean" ) == 0 || strcmp( token, "void" ) == 0 ) {
+				fprintf( stdout, "<keyword> %s </keyword>\n", token );
+			} else {
+				fprintf( stdout, "[ERROR]: Function type must be int, char or boolean\n" );
+			}
+		}
+	}
+
+	// サブルーチン名をコンパイル
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == IDENTIFIER ) {
+			fprintf( stdout, "<identifier> %s </identifier>\n", token );
+		} else {
+			fprintf( stdout, "[ERROR]: Function name must be identifier\n" );
+		}
+	}
+
+	// サブルーチン名の後のシンボルは(が来る
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == SYMBOL && token[0] == '(' ) {
+			fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+		} else {
+			fprintf( stdout, "[ERROR]: After subroutime name must be (\n" );
+		}
+	}
+
+	// パラメータリストをコンパイル
+	compile_parameterlist( ifp );
+
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+
+		if ( type_of_token == SYMBOL && token[0] == ')' ) {
+			fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+		}
+	}
+
+	// サブルーチン本体をコンパイル
+	// はじめのトークンは{
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == SYMBOL && token[0] == '{' ) {
+			fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+		}
+	}
+
+	// VarDecをコンパイル TODO:別関数として作成すること
+}
 
 void compile_subroutine () {
 	int type_of_keyword;
