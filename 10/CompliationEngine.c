@@ -267,7 +267,113 @@ int compile_Subroutine_Dec( FILE * ifp ) {
 	}
 
 	// VarDecをコンパイル TODO:別関数として作成すること
+	compile_Var_Dec( ifp );
+
+	// statementsをコンパイル
+	compile_Statements( ifp );
+
 }
+
+int compile_Statements( FILE * ifp ) {
+	int type_of_token;
+
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+
+		if ( type_of_token == KEYWORD ) {
+			if ( strcmp( token, "let" ) == 0 ) {
+				fprintf( stdout, "<keyword> %s </keyword>\n", token );
+				compile_Let_Statement( ifp );
+			} else if ( strcmp( token, "if" ) == 0 ) {
+				fprintf( stdout, "<keyword> %s </keyword>\n", token );
+				compile_If_Statement( ifp );
+			} else if ( strcmp( token, "while" ) == 0 ) {
+				fprintf( stdout, "<keyword> %s </keyword>\n", token );
+				compile_While_Statement( ifp );
+			} else if ( strcmp( token, "do" ) == 0 ) {
+				fprintf( stdout, "<keyword> %s </keyword>\n", token );
+				compile_Do_Statement( ifp );
+			} else if ( strcmp( token, "return" ) == 0 ) {
+				fprintf( stdout, "<keyword> %s </keyword>\n", token );
+				compile_Return_Statement( ifp );
+			}
+		}		
+	}
+
+}
+
+int compile_Var_Dec( FILE * ifp ) {
+	/* var type varname(identifier) (, varname)* ;*/
+	int type_of_token;
+
+	// var 
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == KEYWORD && strcmp( token, "var" ) == 0 ) {
+			fprintf( stdout, "<keyword> %s </keyword>\n", token );
+		}
+	}
+
+	// type 
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == KEYWORD && ( strcmp( token, "int" ) == 0 || strcmp( token, "char" ) == 0 || strcmp( token, "boolean" ) == 0 ) ) {
+			fprintf( stdout, "<keyword> %s </keyword>\n", token );
+		}
+	}
+
+	// varname 
+	if ( has_more_tokens( ifp ) ) {
+		advane();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == IDENTIFIER ) {
+			fprintf( stdout, "<identifier> %S </identifier>\n", token );
+		}
+	}
+
+
+	// (
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == SYMBOL && token[0] == '(' ) {
+			fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+		}
+	}
+
+	while ( 1 ) {
+		// 
+		if ( has_more_tokens( ifp ) ) {
+			advance();
+
+			type_of_token = token_type( token );
+			if ( type_of_token == SYMBOL && token[0] == ',' ) {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+			} else if ( type_of_token == SYMBOL && token[0] == ';' ) {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+				break;
+			}
+		}
+
+		if ( has_more_tokens( ifp ) ) {
+			advance();
+
+			type_of_token = token_type( token );
+ 			if ( type_of_token == IDENTIFIER ) {
+				fprintf( stdout, "<identifier> %s </identifier>\n", token );
+			}
+		}
+	}
+}
+
 
 void compile_subroutine () {
 	int type_of_keyword;
@@ -428,4 +534,163 @@ int compile_expreassionlist( FILE * ifp ) {
 		}
 	}
 
+}
+
+void compile_Let_Statement( FILE * ifp ) {
+	int type_of_token;
+	int flag = 0;
+	char before;
+
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+		type_of_token = token_type( token );
+		if ( type_of_token == KEYWORD ) {
+			if ( strcmp( token, "let" ) == 0 ) {
+				fprintf( stdout, "<keyword> %s </keyword>\n", token );
+			}
+		}
+	}
+
+	// 変数名をコンパイル
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+		type_of_token = token_type( token );
+		if ( type_of_token == IDENTIFIER ) {
+			fprintf( stdout, "<identifier> %s </identifier>\n", token );
+		}
+	}
+
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+		type_of_token = token_type( token );
+		if ( type_of_token == SYMBOL ) {
+			if ( token[0] == '=' ) {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+				before = token[0];
+			}
+		}
+	}
+	
+	if ( before == '[' ) {
+		compile_Expression( ifp );
+		if ( has_more_tokens( ifp ) ) {
+			advance();
+
+			type_of_token = token_type( token );
+			if ( has_more_tokens( ifp ) ) {
+				advance();
+
+				if ( type_of_token == SYMBOL ) {
+					fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+				}
+			}
+		}
+	}
+
+
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+		type_of_token = token_type( token );
+		if ( type_of_token == SYMBOL ) {
+			if ( token[0] == '=' ) {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+			}
+		}
+	} 	
+
+
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+		type_of_token = token_type( token );
+
+		if ( type_of_token == SYMBOL ) {
+			if ( token[0] == ';' ) {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+			}
+		}
+	}
+}
+
+void compile_If_Statement( FILE * ifp ) {
+	int type_of_token;
+
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == SYMBOL ) {
+			if ( token[0] == '(' ) {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+			}
+		}
+	}
+
+	compile_Expression( ifp );
+
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == SYMBOL ) {
+			if ( token[0] == ')' ) {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+			}
+		}
+	}
+
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+		type_of_token = token_type( token );
+		if ( type_of_token == SYMBOL ) {
+			if ( token[0] == '{' ) {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+			}
+		}
+	}
+	
+	compile_Statements( ifp );
+
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+		type_of_tokens = token_type( token );
+		if ( type_of_token == SYMBOL ) {
+			if ( token[0] == '}' ) {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+			}
+		}
+	}
+
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == KEYWORD ) {
+			if ( strcmp( token, "else" ) ) {
+				fprintf( stdout, "<keyword> %s </keyword>\n", token );
+
+				if ( has_more_token( ifp ) ) {
+					advance();
+					type_of_token = token_type( token );
+					if ( type_of_token == SYMBOL ) {
+						if ( token[0] == '{' ) {
+							fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+							compile_Statements( ifp );
+
+							if ( has_more_token( ifp ) ) {
+								advance();
+								type_of_token = token_type( token );
+								if ( type_of_token == SYMBOL ) {
+									if ( toke[0] == '}' ) {
+										fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+									}
+								}
+							}
+						}
+					} 
+				}
+			} else {
+				ungets( ifp );
+			}
+		}
+	}
 }
