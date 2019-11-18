@@ -702,17 +702,6 @@ void compile_While_Statement( FILE * ifp ) {
 		advance();
 
 		type_of_token = token_type( token );
-		if ( type_of_token == KEYWORD ) {
-			if ( strcmp( token, "while" ) == 0 ) {
-				fprintf( stdout, "<keyword> %s </keyword>\n", token );
-			} 
-		}
-	}
-
-	if ( has_more_tokens( ifp ) ) {
-		advance();
-
-		type_of_token = token_type( token );
 		if ( type_of_token == SYMBOL ) {
 			if ( token[0] == '(' ) {
 				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
@@ -758,3 +747,168 @@ void compile_While_Statement( FILE * ifp ) {
 	}
 	
 }
+
+void compile_Do_Statement( FILE * ifp ) {
+	  int type_of_token;
+	
+	  compile_Subroutine_Call( FILE * ifp );
+}
+
+void compile_Subroutine_Call( FILE * ifp ) {
+	int type_of_token;
+
+	if ( has_more_tokens( ifp ) ) {
+		  advance();
+
+		  type_of_token = token_type( token );
+		  if ( type_of_token == IDENTIFIER ) {
+			fprintf( stdout, "<identifier> %s </identifier>\n", token );
+		  }
+	}
+
+	
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == SYMBOL ) {
+			if ( token[0] == '(' ) {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+				compile_Expression_List( ifp );
+
+				if ( has_more_tokens( ifp ) ) {
+					advance();
+
+					type_of_token = token_type( token );
+					if ( type_of_token == SYMBOL ) {
+						fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+					}
+				}
+			} else if ( token[0] == '.' ) {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+
+				if ( has_more_tokens( ifp ) ) {
+					advance();
+
+					type_of_tokens = token_type( token );
+					if ( type_of_token == IDENTIFIER ) {
+						fprintf( stdout, "<identifier> %s </identifier>\n", token );
+					}
+
+					if ( has_more_tokens( ifp ) ) {
+						advance();
+
+						type_of_token = token_type( token );
+						if ( type_of_token == SYMBOL && token[0] == '(' ) {
+							fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+						}
+
+						compile_Expression_List( ifp );
+
+						if ( has_more_tokens( ifp ) ) {
+							advance();
+
+							type_of_token = token_type( token );
+							if ( type_of_token == SYMBOL && token[0] == '}' ) {
+								fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+							}
+						} 
+					}
+				}
+
+			}
+		}
+	}
+}
+
+void compile_Return_Statement( FILE * ifp ) {
+	int type_of_token;
+	
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == SYMBOL && token[0] == ';' ) {
+			fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+		} else {
+			compile_Expression( ifp );
+
+			if ( has_more_tokens( ifp ) ) {
+				advance();
+
+				type_of_token = token_type( token );
+				if ( type_of_token == SYMBOL && token[0] == ';' ) {
+					fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+				}
+			}
+		}
+	}
+}
+
+void compile_Expression( FILE * ifp ) {
+	int type_of_token;
+
+	compile_Term( ifp );
+
+	while ( 1 ) {
+		if ( has_more_tokens( ifp ) ) {
+			advance();
+
+			type_of_token = token_type( token );
+			if ( type_of_token == SYMBOL ) {
+				if ( token[0] == '+' || token[0] == '-' || token[0] == '*' || token[0] == '/' 
+						|| token[0] == '&' || token[0] == '|' || token[0] == '<' || token[0] == '>' || token[0] == '=' ) {
+					fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+					compile_Term( ifp );
+				} else {
+					break;
+				}
+			}
+		}
+	}
+}
+
+void compile_Term( FILE * ifp ) {
+	int type_of_token;
+
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+
+		type_of_token = token_type( token );
+		if ( type_of_token == INT_CONST ) {
+			fprintf( stdout, "<integerconst> %d </integerconst>\n", atoi( token ) );
+		} else if ( type_of_token == STRING_CONST ) {
+			fprintf( stdout, "<stringconst> %s </stringconst>\n", token );
+		} else if ( strcmp( token, "true" ) == 0 || strcmp( token, "false" ) == 0 || strcmp( token, "null" ) == 0 || strcmp( token, "this" ) == 0 ) {
+			fprintf() stdout, "<keywordconst> %s <keywordconst>\n", token );
+		} else if ( type_of_token == IDENTIFIER ) {
+			fprintf( stdout, "<identifier> %s </identifier>\n", token );
+			if ( has_more_tokens( ifp ) ) {
+				advance();
+				
+				int tmp_type_of_token;
+				tmp_type_of_token = token_type( token );
+				if ( tmp_type_of_token == '[' ) {
+					compile_Expression( ifp );
+				}
+			}
+		}
+	}
+}
+
+int compile_Symbol( FILE * ifp, char sym ) {
+	int type_of_token;
+
+	if ( has_more_tokens( ifp ) ) {
+		advance();
+		type_of_token = token_type( token );
+		if ( type_of_token == SYMBOL && token[0] == sym ) {
+			fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+			return 1;
+		} else {
+			ungetc( token[0], ifp );
+			return 0;
+		}
+	}
+	return 0;
+} 
