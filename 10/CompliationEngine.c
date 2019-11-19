@@ -29,7 +29,7 @@ int compile_Class( FILE * ifp ) {
 			fprintf( stdout, "\t<keyword> %s </keyword>\n", token );
 		} else {
 			fprintf( stdout, "[ERROR]: Program must starts \"Class\", compile canceled\n" );
-			return;
+			return -1; 
 		}
 	} 
 
@@ -42,13 +42,13 @@ int compile_Class( FILE * ifp ) {
 			fprintf( stdout, "<identifier> %s </identifier>\n", token );
 		} else {
 			fprintf( stdout, "[ERROR]: Class name must be identifier\n" );
-			return;
+			return -1;
 		}
 	}
 
 	if ( !compile_Symbol( ifp, '{' ) ) {
 		fprintf( stdout, "[ERROR]: After class name, { was expected\n" );
-		return;
+		return -1;
 	}
 
 
@@ -61,15 +61,17 @@ int compile_Class( FILE * ifp ) {
 
 	// 上記と同様
 	fprintf( stdout, "<subroutineDec>\n" );
-	compile_subroutine_var_dec();
+	compile_Subroutine_Dec();
 	fprintf( stdout, "</subroutineDec>\n" );
 
 	if ( !compile_Symbol( '}' ) ) {
 		fprintf( stdout, "[ERROR]: After class name, { was expected\n" );
-		return;
+		return -1;
 	}
-}
 
+	return 1;
+}
+/*
 int compile_class_name( FILE * ifp ) {
 	int type_of_token;
 
@@ -88,9 +90,9 @@ int compile_class_name( FILE * ifp ) {
 
 	return 0;
 }
-
+*/
 // class_var_decをコンパイルする
-int compile_Class_Var_Dec( ifp )  {
+int compile_Class_Var_Dec( FILE * ifp )  {
 
 	int type_of_token;
 
@@ -103,6 +105,7 @@ int compile_Class_Var_Dec( ifp )  {
 			fprintf( stdout, "<keyword> %s </keyword>\n", token );
 		} else {
 			fprintf( stdout, "[ERROR]: Class var declaration must start static of field\n" );
+			return -1;
 		}
 	}
 
@@ -117,9 +120,11 @@ int compile_Class_Var_Dec( ifp )  {
 				fprintf( stdout, "<keyword> %s </keyword>\n", token );
 			} else {
 				fprintf( stdout, "[ERROR]: Variable type must be int, char or boolean\n" );
+				return -1;
 			}
 		} else {
 			fprintf( stdout, "[ERROR]: Var type must be int, char or boolean\n" );
+			return -1;
 		}
 	}
 
@@ -134,6 +139,7 @@ int compile_Class_Var_Dec( ifp )  {
 				fprintf( stdout, "<identifier> %s </identifier>\n", token );
 			} else {
 				fprintf( stdout, "[ERROR]: Variable name must be identifier\n" );
+				return -1;
 			}
 		}
 
@@ -144,14 +150,14 @@ int compile_Class_Var_Dec( ifp )  {
 			break;
 		} else {
 			fprintf( stdout, "[ERROR]: Var name next token is ; or , \n" );
-			break;
+			return -1;
 		}
 	}
+	return 1;
 }
 
 int compile_Subroutine_Dec( FILE * ifp ) {
 	int type_of_token;
-
 
 	// サブルーチンの最初のトークンはconstructor, function, methodのいづれかで始まる
 	if ( has_more_tokens( ifp ) ) {
@@ -163,6 +169,7 @@ int compile_Subroutine_Dec( FILE * ifp ) {
 				fprintf( stdout, "<keyword> %s </keyword>\n", token );
 			} else {
 				fprintf( stdout, "[ERROR]: First token must be constructor, function or method\n" );
+				return -1;
 			}
 		}
 	}
@@ -178,6 +185,7 @@ int compile_Subroutine_Dec( FILE * ifp ) {
 				fprintf( stdout, "<keyword> %s </keyword>\n", token );
 			} else {
 				fprintf( stdout, "[ERROR]: Function type must be int, char or boolean\n" );
+				return -1;
 			}
 		}
 	}
@@ -191,20 +199,21 @@ int compile_Subroutine_Dec( FILE * ifp ) {
 			fprintf( stdout, "<identifier> %s </identifier>\n", token );
 		} else {
 			fprintf( stdout, "[ERROR]: Function name must be identifier\n" );
+			return -1;
 		}
 	}
 
 	// サブルーチン名の後のシンボルは(が来る
 	if ( !compile_Symbol( ifp, '(' ) ) {
 		fprintf( stdout, "[ERROR]: After subroutime name must be (\n" );
-		return;
+		return -1;
 	}
 
 	// パラメータリストをコンパイル
 	compile_parameterlist( ifp );
 
 	if ( !compile_Symbol( ifp, ')' ) ) {
-		return;
+		return -1;;
 	}
 
 	// サブルーチン本体をコンパイル
@@ -215,7 +224,8 @@ int compile_Subroutine_Dec( FILE * ifp ) {
 
 	// statementsをコンパイル
 	compile_Statements( ifp );
-
+	
+	return 1;
 }
 
 int compile_Statements( FILE * ifp ) {
@@ -243,9 +253,14 @@ int compile_Statements( FILE * ifp ) {
 				fprintf( stdout, "<keyword> %s </keyword>\n", token );
 				compile_Return_Statement( ifp );
 			}
+		} else {
+			return -1;
 		}		
+	} else {
+		return -1;
 	}
 
+	return 1;
 }
 
 int compile_Var_Dec( FILE * ifp ) {
@@ -259,6 +274,8 @@ int compile_Var_Dec( FILE * ifp ) {
 		type_of_token = token_type( token );
 		if ( type_of_token == KEYWORD && strcmp( token, "var" ) == 0 ) {
 			fprintf( stdout, "<keyword> %s </keyword>\n", token );
+		} else {
+			return -1;
 		}
 	}
 
@@ -269,22 +286,29 @@ int compile_Var_Dec( FILE * ifp ) {
 		type_of_token = token_type( token );
 		if ( type_of_token == KEYWORD && ( strcmp( token, "int" ) == 0 || strcmp( token, "char" ) == 0 || strcmp( token, "boolean" ) == 0 ) ) {
 			fprintf( stdout, "<keyword> %s </keyword>\n", token );
+		} else {
+			fprintf( stdout, "[ERROR] %s, msut be type\n", __func__ );
+			return -1;
 		}
+	} else {
+		fprintf( stdout, "[ERROR] %s, no more any tokens\n", __func__ );
 	}
-
+	
 	// varname 
 	if ( has_more_tokens( ifp ) ) {
 		advane();
 
 		type_of_token = token_type( token );
 		if ( type_of_token == IDENTIFIER ) {
-			fprintf( stdout, "<identifier> %S </identifier>\n", token );
+			fprintf( stdout, "<identifier> %s </identifier>\n", token );
+		} else {
+			return -1;
 		}
 	}
 
 
 	if ( !compile_Symbol( ifp, '(' ) ) {
-		return;
+		return -1;
 	}
 
 	while ( 1 ) {
@@ -292,7 +316,7 @@ int compile_Var_Dec( FILE * ifp ) {
 		if ( compile_Symbol( ifp, ',' ) ) {
 			; // do nothing
 		} else if ( compile_Symbol( ifp, ';' ) ) {
-			break;
+			return -1
 		}
 
 		if ( has_more_tokens( ifp ) ) {
@@ -301,9 +325,17 @@ int compile_Var_Dec( FILE * ifp ) {
 			type_of_token = token_type( token );
  			if ( type_of_token == IDENTIFIER ) {
 				fprintf( stdout, "<identifier> %s </identifier>\n", token );
+			} else {
+				fprintf( stdout, "[ERROR] next token must be identifier\n" );
+				return -1;
 			}
+		} else {
+			fprintf( stdout, "[ERROR] no more any tokens\n" );
+			return -1;
 		}
 	}
+
+	return 1;
 }
 
 
@@ -427,6 +459,7 @@ int compile_do( FILE * ifp ) {
 
 }
 
+/*
 int compile_subroutine( FILE * ifp ) {
 	int type_of_token;
 
@@ -445,7 +478,9 @@ int compile_subroutine( FILE * ifp ) {
 
 	compile_expressionlist( ifp );
 }
+*/
 
+/*
 int compile_expreassionlist( FILE * ifp ) {
 	int type_of_token;
 
@@ -458,6 +493,7 @@ int compile_expreassionlist( FILE * ifp ) {
 	}
 
 }
+*/
 
 void compile_Let_Statement( FILE * ifp ) {
 	int type_of_token;
@@ -472,6 +508,9 @@ void compile_Let_Statement( FILE * ifp ) {
 				fprintf( stdout, "<keyword> %s </keyword>\n", token );
 			}
 		}
+	} else {
+		fprintf( stdout, "[ERROR] __func__ no any more tokens\n" );
+		return -1;
 	}
 
 	// 変数名をコンパイル
@@ -488,10 +527,13 @@ void compile_Let_Statement( FILE * ifp ) {
 	
 	if ( before == '[' ) {
 		compile_Expression( ifp );
-		compile_Symbol( ifp, ']' );
+		if ( !compile_Symbol( ifp, ']' ) ) { return -1; }
 	}
-	compile_Symbol( ifp, '=' );
-	compile_Symbol( ifp, ';' ) ;
+	
+	if ( !compile_Symbol( ifp, '=' ) ) { return -1; }
+	if ( !compile_Symbol( ifp, ';' ) ) { return -1; }
+
+	return 1;
 }
 
 void compile_If_Statement( FILE * ifp ) {
