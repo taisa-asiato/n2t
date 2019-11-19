@@ -46,31 +46,27 @@ int compile_Class( FILE * ifp ) {
 		}
 	}
 
-	if ( has_more_tokens( ifp ) ) {
-		advance();
-
-		type_of_token = token_type( token );
-		if ( type_of_token == SYMBOL && token[0] == '{' ) {
-			fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
-		} else {
-			fprintf( stdout, "[ERROR]: After class name, { was expected\n" );
-		}
+	if ( !compile_Symbol( ifp, '{' ) ) {
+		fprintf( stdout, "[ERROR]: After class name, { was expected\n" );
+		return;
 	}
 
 
-		// 大きめおサブルーチンを作成してそちらに処理を
-		// すべて書いた方が可読性が上がる気がする
-		fprintf( stdout, "<classVarDec>\n" );
-		compile_Class_Var_Dec();
-		fprintf( stdout, "</subroutineDec>\n" );
+	// 大きめおサブルーチンを作成してそちらに処理を
+	// すべて書いた方が可読性が上がる気がする
+	fprintf( stdout, "<classVarDec>\n" );
+	compile_Class_Var_Dec();
+	fprintf( stdout, "</subroutineDec>\n" );
 
 
-		// 上記と同様
-		fprintf( stdout, "<subroutineDec>\n" );
-		compile_subroutine_var_dec();
-		fprintf( stdout, "</subroutineDec>\n" );
+	// 上記と同様
+	fprintf( stdout, "<subroutineDec>\n" );
+	compile_subroutine_var_dec();
+	fprintf( stdout, "</subroutineDec>\n" );
 
-		compile_symbol( '}' );
+	if ( !compile_Symbol( '}' ) ) {
+		fprintf( stdout, "[ERROR]: After class name, { was expected\n" );
+		return;
 	}
 }
 
@@ -93,31 +89,6 @@ int compile_class_name( FILE * ifp ) {
 	return 0;
 }
 
-int compile_symbol( FILE * ifp, char symbol_char ) {
-	int type_of_token;
-
-	if ( has_more_tokens( ifp ) ) {
-		advance();
-		type_of_token = keyword();
-		if ( type_of_token == SYMBOL ) {
-			if ( token[0] == symbol_char ) {
-				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
-				return 1;
-			} else {
-				fprintf( stdout, "[ERROR]: Syntax error, %c is expected\n", symbol_char );
-				ungets( ifp );
-				return 0;
-			}
-		} 
-	} else {
-		fprintf( stdout, "[ERROR]: No any input, %s\n", __func__ );
-		ungets( ifp );
-	}
-
-	return 0;
-}
-
-
 // class_var_decをコンパイルする
 int compile_Class_Var_Dec( ifp )  {
 
@@ -125,7 +96,7 @@ int compile_Class_Var_Dec( ifp )  {
 
 	// static or field
 	if ( has_more_tokens( ifp ) ) {
-		
+
 		advance();
 		type_of_token = token_type( token );
 		if ( type_of_token == KEYWORD && ( strcmp( token, "static" ) == 0 || strcmp( token, "field" ) == 0 ) ) {
@@ -137,7 +108,7 @@ int compile_Class_Var_Dec( ifp )  {
 
 	// 型のコンパイル
 	if ( has_more_tokens( ifp ) ) {
-		
+
 		advance();
 
 		type_of_token = token_type( token );
@@ -166,21 +137,14 @@ int compile_Class_Var_Dec( ifp )  {
 			}
 		}
 
-		if ( has_more_tokens( ifp ) ) {
-			// 区切り文字をコンパイル
-			// 区切り文字が;の場合ループを抜ける
-			advance();
 
-			type_of_token = token_type( token );
-			if ( type_of_token == SYMBOL && token[0] == ',' ) {
-				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
-			} else if ( type_of_token == SYMBOL && token[0] == ';' ) {
-				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
-				break;
-			} else {
-				fprintf( stdout, "[ERROR]: Var name next token is ; or , \n" );
-				break;
-			}
+		if ( compile_Symbol( ifp, ',') ) {
+			; // do nothing
+		} else if ( compile_Symbol( ifp, ';' ) ) {
+			break;
+		} else {
+			fprintf( stdout, "[ERROR]: Var name next token is ; or , \n" );
+			break;
 		}
 	}
 }
@@ -231,40 +195,21 @@ int compile_Subroutine_Dec( FILE * ifp ) {
 	}
 
 	// サブルーチン名の後のシンボルは(が来る
-	if ( has_more_tokens( ifp ) ) {
-		advance();
-
-		type_of_token = token_type( token );
-		if ( type_of_token == SYMBOL && token[0] == '(' ) {
-			fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
-		} else {
-			fprintf( stdout, "[ERROR]: After subroutime name must be (\n" );
-		}
+	if ( !compile_Symbol( ifp, '(' ) ) {
+		fprintf( stdout, "[ERROR]: After subroutime name must be (\n" );
+		return;
 	}
 
 	// パラメータリストをコンパイル
 	compile_parameterlist( ifp );
 
-	if ( has_more_tokens( ifp ) ) {
-		advance();
-
-		type_of_token = token_type( token );
-
-		if ( type_of_token == SYMBOL && token[0] == ')' ) {
-			fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
-		}
+	if ( !compile_Symbol( ifp, ')' ) ) {
+		return;
 	}
 
 	// サブルーチン本体をコンパイル
 	// はじめのトークンは{
-	if ( has_more_tokens( ifp ) ) {
-		advance();
-
-		type_of_token = token_type( token );
-		if ( type_of_token == SYMBOL && token[0] == '{' ) {
-			fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
-		}
-	}
+	compile_Symbol( ifp, '{' );
 
 	// VarDecをコンパイル TODO:別関数として作成すること
 	compile_Var_Dec( ifp );
@@ -339,28 +284,16 @@ int compile_Var_Dec( FILE * ifp ) {
 	}
 
 
-	// (
-	if ( has_more_tokens( ifp ) ) {
-		advance();
-
-		type_of_token = token_type( token );
-		if ( type_of_token == SYMBOL && token[0] == '(' ) {
-			fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
-		}
+	if ( !compile_Symbol( ifp, '(' ) ) {
+		return;
 	}
 
 	while ( 1 ) {
 		// 
-		if ( has_more_tokens( ifp ) ) {
-			advance();
-
-			type_of_token = token_type( token );
-			if ( type_of_token == SYMBOL && token[0] == ',' ) {
-				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
-			} else if ( type_of_token == SYMBOL && token[0] == ';' ) {
-				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
-				break;
-			}
+		if ( compile_Symbol( ifp, ',' ) ) {
+			; // do nothing
+		} else if ( compile_Symbol( ifp, ';' ) ) {
+			break;
 		}
 
 		if ( has_more_tokens( ifp ) ) {
@@ -387,9 +320,9 @@ void compile_subroutine () {
 				fprintf( stdout, "<keyword> %s </keyword>\n" );
 				compile_var_type( ifp );
 				compile_subroutine_name( ifp );
-				compile_symbol( ifp, '(' );
+				compile_Symbol( ifp, '(' );
 				compile_parameterlist( ifp );
-				compile_symbol( ')' );
+				compile_Symbol( ')' );
 			}  else {
 				fprintf( stdout, "[ERROR]: Next token is keyword( constructor, function, mehtod) is expected\n" );
 			}
@@ -447,9 +380,9 @@ int compile_parameterlist( FILE * ifp ) {
 	while ( 1 ) {
 		compile_var_type( ifp );
 		compile_var_name( ifp );
-		if ( compile_symbol( ifp, ',') ) {
+		if ( compile_Symbol( ifp, ',') ) {
 			// goto next parameter		
-		} else if ( compile_symbol( ifp, ';' ) ) {
+		} else if ( compile_Symbol( ifp, ';' ) ) {
 			break;
 		}
 	}
@@ -509,16 +442,7 @@ int compile_subroutine( FILE * ifp ) {
 	}
 
 	// symbol
-	if ( has_more_tokens( ifp ) ) {
-		advance();
-
-		type_of_token = token_type( token );
-		if ( type_of_token == SYMBOL ) {
-			if ( token[i] == '(' ) {
-				fprintf( stdout, "<symbol> %c </symbol>\n", token[i] );
-			}
-		}
-	}
+	compile_Symbol( ifp, '(' );
 
 	compile_expressionlist( ifp );
 }
@@ -560,16 +484,8 @@ void compile_Let_Statement( FILE * ifp ) {
 		}
 	}
 
-	if ( has_more_tokens( ifp ) ) {
-		advance();
-		type_of_token = token_type( token );
-		if ( type_of_token == SYMBOL ) {
-			if ( token[0] == '=' ) {
-				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
-				before = token[0];
-			}
-		}
-	}
+	// TODO ; beforeへの値いれを行う
+	compile_Symbol( ifp, '=' );
 	
 	if ( before == '[' ) {
 		compile_Expression( ifp );
@@ -906,7 +822,7 @@ int compile_Symbol( FILE * ifp, char sym ) {
 			fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
 			return 1;
 		} else {
-			ungetc( token[0], ifp );
+			ungetc( token[0], ifp  );
 			return 0;
 		}
 	}
