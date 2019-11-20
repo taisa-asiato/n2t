@@ -13,7 +13,7 @@ void compile_main( FILE * ifp, FILE * ofp ) {
 	int loopcounter = 0;
 
 	while ( has_more_tokens( ifp ) ) {
-		compile_class( ifp );
+		compile_Class( ifp );
 	}
 }
 
@@ -55,16 +55,16 @@ int compile_Class( FILE * ifp ) {
 	// 大きめおサブルーチンを作成してそちらに処理を
 	// すべて書いた方が可読性が上がる気がする
 	fprintf( stdout, "<classVarDec>\n" );
-	compile_Class_Var_Dec();
+	compile_Class_Var_Dec( ifp );
 	fprintf( stdout, "</subroutineDec>\n" );
 
 
 	// 上記と同様
 	fprintf( stdout, "<subroutineDec>\n" );
-	compile_Subroutine_Dec();
+	compile_Subroutine_Dec( ifp );
 	fprintf( stdout, "</subroutineDec>\n" );
 
-	if ( !compile_Symbol( '}' ) ) {
+	if ( !compile_Symbol( ifp, '}' ) ) {
 		fprintf( stdout, "[ERROR]: After class name, { was expected\n" );
 		return -1;
 	}
@@ -210,7 +210,7 @@ int compile_Subroutine_Dec( FILE * ifp ) {
 	}
 
 	// パラメータリストをコンパイル
-	compile_parameterlist( ifp );
+	compile_ParameterList( ifp );
 
 	if ( !compile_Symbol( ifp, ')' ) ) {
 		return -1;;
@@ -296,7 +296,7 @@ int compile_Var_Dec( FILE * ifp ) {
 	
 	// varname 
 	if ( has_more_tokens( ifp ) ) {
-		advane();
+		advance();
 
 		type_of_token = token_type( token );
 		if ( type_of_token == IDENTIFIER ) {
@@ -316,7 +316,7 @@ int compile_Var_Dec( FILE * ifp ) {
 		if ( compile_Symbol( ifp, ',' ) ) {
 			; // do nothing
 		} else if ( compile_Symbol( ifp, ';' ) ) {
-			return -1
+			return -1;
 		}
 
 		if ( has_more_tokens( ifp ) ) {
@@ -337,47 +337,6 @@ int compile_Var_Dec( FILE * ifp ) {
 
 	return 1;
 }
-
-
-void compile_subroutine () {
-	int type_of_keyword;
-
-	if ( has_more_tokens( ifp ) ) {
-		advance( ifp );
-		
-		token_of_number = token_type( token );
-		if ( token_of_number == KEYWORD ) {
-			if ( strcmp( token, "constructor" ) == 0 || strcmp( token, "function" ) == 0 || strcmp( token, "method" ) == 0 ) { 
-				fprintf( stdout, "<keyword> %s </keyword>\n" );
-				compile_var_type( ifp );
-				compile_subroutine_name( ifp );
-				compile_Symbol( ifp, '(' );
-				compile_parameterlist( ifp );
-				compile_Symbol( ')' );
-			}  else {
-				fprintf( stdout, "[ERROR]: Next token is keyword( constructor, function, mehtod) is expected\n" );
-			}
-		} 
-	} 
-}	
-
-int compile_var_name( FILE * ifp ) {
-	int type_of_keyword;
-
-	if( has_more_tokens( ifp ) ) {
-		advance( ifp );
-		
-		type_of_keyword = token_type( token );
-		if( type_of_keyword == IDENTIFIER ) {
-			fprintf( stdout, "<identifier> %s </identifier>\n", token );
-			return 1;
-		} else {
-			fprintf( stdout, "[ERROR]: Var name is identifier, %s\n", __func__ );
-		}
-	}
-	return 0;
-}
-
 
 void unegets( FILE * ifp ) {
 	for ( int i = 0 ; token[i] != '\0' ; i++ ) {
@@ -400,11 +359,11 @@ int compile_subroutine_name( FILE * ifp ) {
 		}
 	}
 
-	ungets( ifp );
+	ungets( ifp, strlen( token )  );
 	return 0;
 }
 
-int compile_parameterlist( FILE * ifp ) {
+int compile_ParameterList( FILE * ifp ) {
 
 	int token_of_number;
 
@@ -688,3 +647,10 @@ char compile_Symbol( FILE * ifp, char sym ) {
 	}
 	return 0;
 } 
+
+
+	int count = 0;
+	while ( count < length || token[count] != '\0' ) {
+		ungetc( ifp, token[count] );
+	}
+}
