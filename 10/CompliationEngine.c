@@ -59,9 +59,9 @@ int compile_Class( FILE * ifp ) {
 
 	// 大きめおサブルーチンを作成してそちらに処理を
 	// すべて書いた方が可読性が上がる気がする
-	fprintf( stdout, "<classVarDec>\n" );
+	//fprintf( stdout, "<classVarDec>\n" );
 	compile_Class_Var_Dec( ifp );
-	fprintf( stdout, "</classVarDec>\n" );
+	//fprintf( stdout, "</classVarDec>\n" );
 
 
 	// 上記と同様
@@ -107,8 +107,12 @@ int compile_Class_Var_Dec( FILE * ifp )  {
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
 		type_of_token = token_type( token );
+		fprintf( stdout, "===>%s\n", token );
 		if ( type_of_token == KEYWORD && ( strcmp( token, "static" ) == 0 || strcmp( token, "field" ) == 0 ) ) {
 			fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
+		} else {
+			ungets( ifp, strlen( token ) );
+			return 0;
 		}
 	}
 
@@ -125,8 +129,9 @@ int compile_Class_Var_Dec( FILE * ifp )  {
 				fprintf( stdout, "\t\t<identifier> %s </identifier>\n", token );
 			} else { 
 				fprintf( stdout, "[ERROR]: Var type must be int, char or boolean\n" );
+				ungets( ifp, strlen( token ) );
+				return 0;
 			}
-			return -1;
 		}
 	}
 
@@ -151,7 +156,7 @@ int compile_Class_Var_Dec( FILE * ifp )  {
 			break;
 		} else {
 			fprintf( stdout, "[ERROR]: Var name next token is ; or , \n" );
-			return -1;
+			ungets( ifp, strlen( token ) );
 		}
 	}
 	return 1;
@@ -166,6 +171,7 @@ int compile_Subroutine_Dec( FILE * ifp ) {
 		advance( ifp );
 
 		type_of_token = token_type( token );
+		fprintf( stdout, ">=>=>= %s\n", token  );
 		if ( type_of_token == KEYWORD ) {
 			if ( strcmp( token, "constructor" ) == 0 || strcmp( token, "function" ) == 0 || strcmp( token, "method" ) == 0 ) {
 				fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
@@ -290,10 +296,15 @@ int compile_Var_Dec( FILE * ifp ) {
 		type_of_token = token_type( token );
 		if ( type_of_token == KEYWORD && ( strcmp( token, "int" ) == 0 || strcmp( token, "char" ) == 0 || strcmp( token, "boolean" ) == 0 ) ) {
 			fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
-		} else {
+		} else 	if ( list_Find_Node( token ) == 1 ) {
+			fprintf( stdout, "\t\t<identifier> %s </identifier>\n", token );
+		} else { 
+			fprintf( stdout, "[ERROR]: Var type must be int, char, boolean or classname\n" );
+			ungets( ifp, strlen( token ) );
+			return 0;
 		}
 	}
-	
+
 	// varname 
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
@@ -339,7 +350,7 @@ int compile_Var_Dec( FILE * ifp ) {
 }
 
 void ungets( FILE * ifp, int length ) {
-	for ( int i = 0 ; token[i] != '\0' || i < length ; i++ ) {
+	for ( int i = length-1 ; i >= 0 ; i-- ) {
 		ungetc( token[i], ifp );
 	}
 }

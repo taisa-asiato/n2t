@@ -25,6 +25,7 @@ int main( int argc, char ** argv ) {
 		return 0;
 	} else {
 		list_Init();
+		list_Make_Standard_Class();
 		jack_analyze_main( argv[1] );
 	}
 

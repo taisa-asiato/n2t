@@ -120,3 +120,4 @@ void list_Print();
 void list_Print_Back();
 void list_Delete();
 int list_Find_Node( char * f_str );
+void list_Make_Standard_Class();
