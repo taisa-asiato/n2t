@@ -15,6 +15,8 @@ char keyword_str[21][20] = {
 	"return", "true", "false", "null", "this"
 };
 char t_type[256];
+list_t * head;
+list_t * end;
 
 int main( int argc, char ** argv ) {
 	/* エラー時の処理 */
@@ -22,7 +24,10 @@ int main( int argc, char ** argv ) {
 		fprintf( stderr, "[Usage]:JackAnalyze filename\n" );
 		return 0;
 	} else {
+		list_Init();
 		jack_analyze_main( argv[1] );
 	}
+
+	list_Delete();
 }
 

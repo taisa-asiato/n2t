@@ -39,6 +39,12 @@
 #define	exNULL		19
 #define THIS		20
 
+typedef struct __list {
+	struct __list * next;
+	struct __list * prev;
+	char symbol_name[256];
+} list_t;
+
 // コマンドライン引数として入力されるファイル名を保持する
 extern char inputfilename[256];
 // 入力ストリームのファイル名
@@ -57,7 +63,10 @@ extern char token[256];
 extern char keyword_str[21][20];
 // トークンの種類を示す文字列
 extern char t_type[256];
-
+// シンボルを管理するリストの先頭を表す
+list_t * head;
+// シンボルを管理するリストの最後を表す
+list_t * end;
 
 /* JackAnalyzer.c */
 int gen_inputfilename( struct dirent * dp, char * dirname );
@@ -67,7 +76,7 @@ void gen_outputfilename( char * filename );
 /* JackTokenizer.c */
 void jack_tokenizer_main( FILE * ifp, FILE * ofp );
 bool has_more_tokens( FILE * fp );
-void advance();
+int advance( FILE * ifp );
 int kyeword( char current[256] );
 bool is_keyword( char c_token[256] );
 void symbol( char symbol_string[256] );
@@ -101,3 +110,13 @@ char compile_Symbol( FILE * ifp, char sym );
 void ungets( FILE * ifp, int length );
 int compile_ParameterList( FILE * ifp );
 int compile_Expression_List( FILE * ifp );
+void print_Calling_functio_Name();
+
+
+/* list.c */
+void list_Add( char * sym_name );
+void list_Init();
+void list_Print();
+void list_Print_Back();
+void list_Delete();
+int list_Find_Node( char * f_str );

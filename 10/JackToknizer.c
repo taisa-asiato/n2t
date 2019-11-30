@@ -97,7 +97,7 @@ bool has_more_tokens( FILE * filepointer ) {
 	}
 }
 
-void advance( FILE * fp ) {
+int advance( FILE * fp ) {
 
 	char c;
 	int number = 0;
@@ -116,7 +116,7 @@ void advance( FILE * fp ) {
 		// 入力文字列をストリーム\に書き直す必要がある
 		number++;
 		token[number] = '\0';
-		return;
+		return 1;
 	} else if ( isdigit( c ) ) {
 		// intergerConst
 		// 整数の場合
@@ -128,37 +128,38 @@ void advance( FILE * fp ) {
 		ungetc( c, fp );
 		number++;
 		token[number] = '\0';
-		return;
+		return 1;
 	} else if ( ispunct( c ) ) {
 		// symbol文字列
 		token[number] = c;
 		number++;
 		token[number] = '\0';
-		return;
+		return 1;
 	}
+	return 0;
 }
 
 int token_type( char current[256] ) {
 	if ( is_keyword( current ) ) {
-		fprintf( stdout, "keyword\n" );
+		// fprintf( stdout, "keyword\n" );
 		strcpy( t_type, "keyword" );
 		return KEYWORD;
 	} else if ( is_symbol( current ) ) {
-		fprintf( stdout, "symbol\n" );
+		// fprintf( stdout, "symbol\n" );
 		strcpy( t_type, "symbol" );
 		return SYMBOL;
 	} else if ( is_integer_constant( current ) ) {
-		fprintf( stdout, "int_const\n" );
+		// fprintf( stdout, "int_const\n" );
 		strcpy( t_type, "int_const" );
 		return INT_CONST;
-	} else if ( is_string_constant( current ) ) {
-		fprintf( stdout, "string_const\n" );
-		strcpy( t_type, "string_const" );
-		return STRING_CONST;
 	} else if ( is_identifier( current ) )  {
-		fprintf( stdout, "identifier\n" );
+		// fprintf( stdout, "identifier\n" );
 		strcpy( t_type, "is_identifier" );
 		return IDENTIFIER;
+	} else if ( is_string_constant( current ) ) {
+		// fprintf( stdout, "string_const\n" );
+		strcpy( t_type, "string_const" );
+		return STRING_CONST;
 	}
 	return -1;
 }
