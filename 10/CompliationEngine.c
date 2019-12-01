@@ -76,26 +76,6 @@ int compile_Class( FILE * ifp ) {
 
 	return 1;
 }
-/*
-int compile_class_name( FILE * ifp ) {
-	int type_of_token;
-
-	if ( has_more_tokens( ifp ) ) {
-		advane();
-		type_of_token = keyword();
-		if ( type_of_token == IDENTIFIER ) {
-			fprintf( stdout, "<identifier> %s </identifier>\n", token );
-			return 1;
-		} else {
-			fprintf( stdout, "[ERROR]: Class Name must be identifier\n" );
-		}
-	} else {
-		fprintf( stdout, "[ERROR]: No any input, %s\n", __func__ );
-	}
-
-	return 0;
-}
-*/
 // class_var_decをコンパイルする
 int compile_Class_Var_Dec( FILE * ifp )  {
 
@@ -141,22 +121,21 @@ int compile_Class_Var_Dec( FILE * ifp )  {
 			// 変数名をコンパイル
 			advance( ifp );
 
+			fprintf( stdout, "----> %c\n", token[0] );
 			type_of_token = token_type( token );
 			if ( type_of_token == IDENTIFIER ) {
 				fprintf( stdout, "\t\t<identifier> %s </identifier>\n", token );
+			} else if ( type_of_token == SYMBOL ) {
+				if ( compile_Symbol( ifp, ',' ) ) {
+					; // do nothing
+				} else if ( compile_Symbol( ifp, ';' ) ) {
+					break;
+				}
 			} else {
+				fprintf( stdout, "[ERROR]: Var name next token is ; or , \n" );
 				ungets( ifp, strlen( token ) );
-			}
-		}
-
-
-		if ( compile_Symbol( ifp, ',') ) {
-			; // do nothing
-		} else if ( compile_Symbol( ifp, ';' ) ) {
-			break;
-		} else {
-			fprintf( stdout, "[ERROR]: Var name next token is ; or , \n" );
-			ungets( ifp, strlen( token ) );
+				return 0;
+			} 
 		}
 	}
 	return 1;
@@ -335,7 +314,7 @@ int compile_Var_Dec( FILE * ifp ) {
 
 			type_of_token = token_type( token );
  			if ( type_of_token == IDENTIFIER ) {
-				fprintf( stdout, "<identifier> %s </identifier>\n", token );
+				fprintf( stdout, "\t\t<identifier> %s </identifier>\n", token );
 			} else {
 				fprintf( stdout, "[ERROR] next token must be identifier\n" );
 				return -1;
