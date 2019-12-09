@@ -57,17 +57,25 @@ int compile_Class( FILE * ifp ) {
 	}
 
 
-	// 大きめおサブルーチンを作成してそちらに処理を
-	// すべて書いた方が可読性が上がる気がする
-	//fprintf( stdout, "<classVarDec>\n" );
-	compile_Class_Var_Dec( ifp );
-	//fprintf( stdout, "</classVarDec>\n" );
+	while ( has_more_tokens(ifp) ) {
+		// 大きめおサブルーチンを作成してそちらに処理を
+		// すべて書いた方が可読性が上がる気がする
+		//fprintf( stdout, "<classVarDec>\n" );
+		advance(ifp);
+		type_of_token = token_type(token);
+		if ( type_of_token == KEYWORD && strcmp( token, "var" ) == 0 ) {
+			ungets( ifp, strlen(token) );
+			compile_Class_Var_Dec( ifp );
+			//fprintf( stdout, "</classVarDec>\n" );
+		} else {
+			// 上記と同様
+			ungets( ifp, strlen(token) );
+			fprintf( stdout, "<subroutineDec>\n" );
+			compile_Subroutine_Dec( ifp );
+			fprintf( stdout, "</subroutineDec>\n" );
+		}
 
-
-	// 上記と同様
-	fprintf( stdout, "<subroutineDec>\n" );
-	compile_Subroutine_Dec( ifp );
-	fprintf( stdout, "</subroutineDec>\n" );
+	}
 
 	if ( !compile_Symbol( ifp, '}' ) ) {
 		fprintf( stdout, "[ERROR]: After class name, { was expected\n" );
@@ -116,6 +124,7 @@ int compile_Class_Var_Dec( FILE * ifp )  {
 	}
 
 	// 区切り文字が, である限り変数名のコンパイルを続ける
+	fprintf( stdout, "After " );
 	while ( 1 ) {
 		if ( has_more_tokens( ifp ) ) {
 			// 変数名をコンパイル
@@ -123,6 +132,7 @@ int compile_Class_Var_Dec( FILE * ifp )  {
 
 			fprintf( stdout, "----> %c\n", token[0] );
 			type_of_token = token_type( token );
+
 			if ( type_of_token == IDENTIFIER ) {
 				fprintf( stdout, "\t\t<identifier> %s </identifier>\n", token );
 			} else if ( type_of_token == SYMBOL ) {
@@ -207,7 +217,19 @@ int compile_Subroutine_Dec( FILE * ifp ) {
 	// はじめのトークンは{
 	compile_Symbol( ifp, '{' );
 
-	compile_Var_Dec( ifp );
+	while ( has_more_tokens(ifp) ) {
+		advance( ifp );
+		type_of_token = token_type( token );
+		if ( type_of_token == KEYWORD && strcmp( token, "var" ) == 0 ) {
+			ungets( ifp, strlen( token ) );
+			compile_Var_Dec( ifp );
+		} else {
+			fprintf( stdout, "break while loop because no more any var\n" );
+			fprintf( stdout, "input word is %s\n", token );
+			ungets( ifp, strlen( token ) );
+			break;
+		}
+	}
 
 	// statementsをコンパイル
 	compile_Statements( ifp );
@@ -219,33 +241,37 @@ int compile_Statements( FILE * ifp ) {
 	int type_of_token;
 
 	fprintf( stdout, "[%s]\n", __func__  );
-	if ( has_more_tokens( ifp ) ) {
-		advance( ifp );
+	while ( 1 ) {
+		if ( has_more_tokens( ifp ) ) {
+			advance( ifp );
 
-		type_of_token = token_type( token );
+			type_of_token = token_type( token );
 
-		if ( type_of_token == KEYWORD ) {
-			if ( strcmp( token, "let" ) == 0 ) {
-				fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
-				compile_Let_Statement( ifp );
-			} else if ( strcmp( token, "if" ) == 0 ) {
-				fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
-				compile_If_Statement( ifp );
-			} else if ( strcmp( token, "while" ) == 0 ) {
-				fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
-				compile_While_Statement( ifp );
-			} else if ( strcmp( token, "do" ) == 0 ) {
-				fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
-				compile_Do_Statement( ifp );
-			} else if ( strcmp( token, "return" ) == 0 ) {
-				fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
-				compile_Return_Statement( ifp );
-			}
+			if ( type_of_token == KEYWORD ) {
+				if ( strcmp( token, "let" ) == 0 ) {
+					fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
+					compile_Let_Statement( ifp );
+				} else if ( strcmp( token, "if" ) == 0 ) {
+					fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
+					compile_If_Statement( ifp );
+				} else if ( strcmp( token, "while" ) == 0 ) {
+					fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
+					compile_While_Statement( ifp );
+				} else if ( strcmp( token, "do" ) == 0 ) {
+					fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
+					compile_Do_Statement( ifp );
+				} else if ( strcmp( token, "return" ) == 0 ) {
+					fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
+					compile_Return_Statement( ifp );
+				}
+			} else {
+				ungets( ifp , strlen( token ) );
+				return -1;
+			}		
 		} else {
+			ungets( ifp, strlen( token ) );
 			return -1;
-		}		
-	} else {
-		return -1;
+		}
 	}
 
 	return 1;
@@ -296,11 +322,11 @@ int compile_Var_Dec( FILE * ifp ) {
 		}
 	}
 
-
+/*
 	if ( !compile_Symbol( ifp, '(' ) ) {
 		return -1;
 	}
-
+*/
 	while ( 1 ) {
 		// 
 		if ( compile_Symbol( ifp, ',' ) ) {
@@ -483,20 +509,6 @@ int compile_Let_Statement( FILE * ifp ) {
 	int flag = 0;
 	char before;
 
-	fprintf( stdout, "[%s]\n", __func__  );
-	if ( has_more_tokens( ifp ) ) {
-		advance( ifp );
-		type_of_token = token_type( token );
-		if ( type_of_token == KEYWORD ) {
-			if ( strcmp( token, "let" ) == 0 ) {
-				fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
-			}
-		}
-	} else {
-		fprintf( stdout, "[ERROR] __func__ no any more tokens\n" );
-		return -1;
-	}
-
 	// 変数名をコンパイル
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
@@ -514,8 +526,10 @@ int compile_Let_Statement( FILE * ifp ) {
 		if ( !compile_Symbol( ifp, ']' ) ) { return -1; }
 	}
 	
-	if ( !compile_Symbol( ifp, '=' ) ) { return -1; }
-	if ( !compile_Symbol( ifp, ';' ) ) { return -1; }
+	compile_Symbol( ifp, '=' ); 
+	compile_Expression( ifp );
+	compile_Symbol( ifp, ';' );
+	fprintf( stdout, "End of %s\n", __func__ );
 
 	return 1;
 }
@@ -650,15 +664,41 @@ void compile_Term( FILE * ifp ) {
 		advance( ifp );
 
 		type_of_token = token_type( token );
+
+		fprintf( stdout, "input words is %s\n", token );
 		if ( type_of_token == INT_CONST ) {
+			// integerConst
 			fprintf( stdout, "\t\t<integerconst> %d </integerconst>\n", atoi( token ) );
 		} else if ( type_of_token == STRING_CONST ) {
+			// stringConst
 			fprintf( stdout, "\t\t<stringconst> %s </stringconst>\n", token );
 		} else if ( strcmp( token, "true" ) == 0 || strcmp( token, "false" ) == 0 || strcmp( token, "null" ) == 0 || strcmp( token, "this" ) == 0 ) {
+			// keywordConst
 			fprintf( stdout, "\t\t<keywordconst> %s <keywordconst>\n", token );
 		} else if ( type_of_token == IDENTIFIER ) {
+			// varName
 			fprintf( stdout, "\t\t<identifier> %s </identifier>\n", token );
-			compile_Symbol( ifp, ']' ); 
+			if ( compile_Symbol( ifp, '[' ) ) {
+				compile_Expression( ifp );
+				compile_Symbol( ifp, ']' );
+			} else if ( compile_Symbol( ifp, '(' ) ) {
+				compile_Subroutine_Call( ifp );
+			}
+		} else if ( type_of_token == SYMBOL ) {
+			if ( token[0] == '(' ) {
+				// '(' expression ')'
+				ungetc( token[0], ifp );
+				compile_Symbol( ifp, '(' );
+				compile_Expression( ifp );
+				compile_Symbol( ifp, ')' );
+			} else if ( token[0] == '-' || token[0] == '~' ) {
+
+				if ( !compile_Symbol( ifp, '-' ) ) {
+					compile_Symbol( ifp, '~' );
+				}
+				compile_Term( ifp );
+			}
+			
 		}
 	}
 }
@@ -674,6 +714,7 @@ char compile_Symbol( FILE * ifp, char sym ) {
 			fprintf( stdout, "\t\t<symbol> %c </symbol>\n", token[0] );
 			return token[0];
 		} else {
+			fprintf( stdout, "%d\n", token[0] );
 			ungetc( token[0], ifp  );
 			return 0;
 		}
