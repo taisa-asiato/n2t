@@ -301,7 +301,7 @@ int compile_Var_Dec( FILE * ifp ) {
 		type_of_token = token_type( token );
 		if ( type_of_token == KEYWORD && ( strcmp( token, "int" ) == 0 || strcmp( token, "char" ) == 0 || strcmp( token, "boolean" ) == 0 ) ) {
 			fprintf( stdout, "\t\t<keyword> %s </keyword>\n", token );
-		} else 	if ( list_Find_Node( token ) == 1 ) {
+		} else 	if ( list_Find_Node( token ) ) {
 			fprintf( stdout, "\t\t<identifier> %s </identifier>\n", token );
 		} else { 
 			fprintf( stdout, "[ERROR]: Var type must be int, char, boolean or classname\n" );
@@ -519,16 +519,22 @@ int compile_Let_Statement( FILE * ifp ) {
 	}
 
 	// TODO ; beforeへの値いれを行う
-	before = compile_Symbol( ifp, '=' );
-	
-	if ( before == '[' ) {
+	if ( has_more_tokens( ifp ) ) {
+		advance( ifp );
+	}
+
+	if ( token[0] == '=' ) {
+		ungetc( token[0], ifp );
+		compile_Symbol( ifp, '=' );
 		compile_Expression( ifp );
-		if ( !compile_Symbol( ifp, ']' ) ) { return -1; }
+	} else if ( token[0] == '[' ) {
+		ungetc( token[0], ifp );
+		compile_Symbol( ifp, '[' );
+		compile_Expression( ifp );
+		compile_Symbol( ifp, ']' );
 	}
 	
-	compile_Symbol( ifp, '=' ); 
-	compile_Expression( ifp );
-	compile_Symbol( ifp, ';' );
+	compile_Symbol( ifp, ';' ); 
 	fprintf( stdout, "End of %s\n", __func__ );
 
 	return 1;
@@ -585,38 +591,38 @@ void compile_While_Statement( FILE * ifp ) {
 }
 
 void compile_Do_Statement( FILE * ifp ) {
-	  int type_of_token;
-	
-	fprintf( stdout, "[%s]\n", __func__  );
-	  compile_Subroutine_Call( ifp );
-}
-
-void compile_Subroutine_Call( FILE * ifp ) {
 	int type_of_token;
 
 	fprintf( stdout, "[%s]\n", __func__  );
-	if ( has_more_tokens( ifp ) ) {
-		  advance( ifp );
+	compile_Subroutine_Call( ifp, list_t * class_pos );
+}
 
-		  type_of_token = token_type( token );
-		  if ( type_of_token == IDENTIFIER ) {
-			fprintf( stdout, "\t\t<identifier> %s </identifier>\n", token );
-		  }
-	}
+void compile_Subroutine_Call( FILE * ifp, list_t * class_pos ) {
+	int type_of_token;
+	char class_name[256];
+	subroutine_name_t * p;
+	strcpy( class_name, token );
 
-	
+	fprintf( stdout, "[%s]\n", __func__  );
+	/*if ( has_more_tokens( ifp ) ) {
+	  advance( ifp );
+
+	  type_of_token = token_type( token );
+	  if ( type_of_token == IDENTIFIER ) {
+	  fprintf( stdout, "\t\t<identifier> %s </identifier>\n", token );
+	  }
+	  }*/
+
 	if ( compile_Symbol( ifp, '(' ) ) {
 		compile_Expression_List( ifp );
-		if ( compile_Symbol( ifp, ')' ) ) {
-			; // do nothing
-		} else if ( compile_Symbol( ifp, '.' ) ) {
-			if ( has_more_tokens( ifp ) ) {
-				advance( ifp );
+		compile_Symbol( ifp, ')' );
+	} else if ( compile_Symbol( ifp, '.' ) ) {
+		if ( has_more_tokens( ifp) ) {
+			advance( ifp );
 
-				type_of_token = token_type( token );
-				if ( type_of_token == IDENTIFIER ) {
-					fprintf( stdout, "\t\t<identifier> %s </identifier>\n", token );
-				}	
+			type_of_token = token_type( token );
+			if ( p = list_Find_Node_Subrot( class_pos, token ) ) {
+				fprintf( stdout, "\t\t<identifier> %s <identifier>", token );
 			}
 
 			if ( compile_Symbol( ifp, '(' ) ) {
@@ -658,14 +664,13 @@ void compile_Expression( FILE * ifp ) {
 
 void compile_Term( FILE * ifp ) {
 	int type_of_token;
+	list_t * p;
 
 	fprintf( stdout, "[%s]\n", __func__  );
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
-
 		type_of_token = token_type( token );
 
-		fprintf( stdout, "input words is %s\n", token );
 		if ( type_of_token == INT_CONST ) {
 			// integerConst
 			fprintf( stdout, "\t\t<integerconst> %d </integerconst>\n", atoi( token ) );
@@ -678,12 +683,14 @@ void compile_Term( FILE * ifp ) {
 		} else if ( type_of_token == IDENTIFIER ) {
 			// varName
 			fprintf( stdout, "\t\t<identifier> %s </identifier>\n", token );
-			if ( compile_Symbol( ifp, '[' ) ) {
+			if ( p = list_Find_Node( token ) ) {
+				fprintf( stdout, "call subroutine\n" );
+				ungets( ifp, strlen( token ) );
+				compile_Subroutine_Call( ifp, p );
+			} else if ( compile_Symbol( ifp, '[' ) ) {
 				compile_Expression( ifp );
 				compile_Symbol( ifp, ']' );
-			} else if ( compile_Symbol( ifp, '(' ) ) {
-				compile_Subroutine_Call( ifp );
-			}
+			} 		
 		} else if ( type_of_token == SYMBOL ) {
 			if ( token[0] == '(' ) {
 				// '(' expression ')'
@@ -692,13 +699,11 @@ void compile_Term( FILE * ifp ) {
 				compile_Expression( ifp );
 				compile_Symbol( ifp, ')' );
 			} else if ( token[0] == '-' || token[0] == '~' ) {
-
 				if ( !compile_Symbol( ifp, '-' ) ) {
 					compile_Symbol( ifp, '~' );
 				}
 				compile_Term( ifp );
-			}
-			
+			} 
 		}
 	}
 }

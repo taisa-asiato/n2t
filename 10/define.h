@@ -39,10 +39,18 @@
 #define	exNULL		19
 #define THIS		20
 
+typedef struct __subroutine_list {
+	struct __subroutine_list * next;
+	struct __subroutine_list * prev;
+	char subroutine_name[256];
+} subroutine_name_t;
+
 typedef struct __list {
 	struct __list * next;
 	struct __list * prev;
 	char symbol_name[256];
+	subroutine_name_t * subrot_head;
+	subroutine_name_t * subrot_end;
 } list_t;
 
 // コマンドライン引数として入力されるファイル名を保持する
@@ -67,6 +75,8 @@ extern char t_type[256];
 list_t * head;
 // シンボルを管理するリストの最後を表す
 list_t * end;
+
+// 関数名の管理するリストの先頭を指す
 
 /* JackAnalyzer.c */
 int gen_inputfilename( struct dirent * dp, char * dirname );
@@ -102,7 +112,7 @@ int compile_Let_Statement( FILE * ifp );
 void compile_If_Statement( FILE * ifp );
 void compile_While_Statement( FILE * ifp );
 void compile_Do_Statement( FILE * ifp );
-void compile_Subroutine_Call( FILE * ifp );
+void compile_Subroutine_Call( FILE * ifp, list_t * class_pos );
 void compile_Return_Statement( FILE * ifp );
 void compile_Expression( FILE * ifp );
 void compile_Term( FILE * ifp );
@@ -110,7 +120,6 @@ char compile_Symbol( FILE * ifp, char sym );
 void ungets( FILE * ifp, int length );
 int compile_ParameterList( FILE * ifp );
 int compile_Expression_List( FILE * ifp );
-void print_Calling_functio_Name();
 
 
 /* list.c */
@@ -119,5 +128,19 @@ void list_Init();
 void list_Print();
 void list_Print_Back();
 void list_Delete();
-int list_Find_Node( char * f_str );
+list_t * list_Find_Node( char * f_str );
 void list_Make_Standard_Class();
+void list_Init_Subrot( list_t * class_pos );
+void list_Add_Subrot( list_t * class_pos, char * subrot_name );
+void list_Print_Subrot( list_t * class_name );
+void list_Print_Back_Subrot( list_t * class_name );
+void list_Delete_Subrot( list_t * class_name );
+void list_Init_Math_Class( list_t * math_pos );
+void list_Init_String_Class( list_t * string_pos );
+void list_Init_Array_Class( list_t * array_pos );
+void list_Init_Output_Class( list_t * output_pos );
+void list_Init_Screen_Class( list_t * screen_pos );
+void list_Init_Keyboart_Class( list_t * keyboard_pos );
+void list_Init_Memory_Class( list_t * memory_pos );
+void list_Init_Sys_Class( list_t * sys_pos );
+subroutine_name_t *  list_Find_Node_Subrot( list_t * class_name, char * subrot_name );
