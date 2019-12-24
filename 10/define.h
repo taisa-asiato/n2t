@@ -97,6 +97,7 @@ int token_type( char current[256] );
 bool is_symbol( char c_token[256] );
 int keyword( char c_token[256] );
 
+void get_stringconst( FILE * fp );
 bool is_identifier( char val_string[256] );
 bool is_string_constant( char c_token[256] );
 bool is_integer_constant( char c_token[256] );

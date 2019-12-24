@@ -315,6 +315,7 @@ int compile_Var_Dec( FILE * ifp ) {
 		advance( ifp );
 
 		type_of_token = token_type( token );
+		fprintf( stdout, "next value is %c\n", token[0] );
 		if ( type_of_token == IDENTIFIER ) {
 			fprintf( stdout, "\t\t<identifier> %s </identifier>\n", token );
 		} else {
@@ -592,9 +593,10 @@ void compile_While_Statement( FILE * ifp ) {
 
 void compile_Do_Statement( FILE * ifp ) {
 	int type_of_token;
-
+	list_t * p = list_Find_Node( token );
 	fprintf( stdout, "[%s]\n", __func__  );
-	compile_Subroutine_Call( ifp, list_t * class_pos );
+
+	compile_Subroutine_Call( ifp, p );
 }
 
 void compile_Subroutine_Call( FILE * ifp, list_t * class_pos ) {
@@ -621,8 +623,9 @@ void compile_Subroutine_Call( FILE * ifp, list_t * class_pos ) {
 			advance( ifp );
 
 			type_of_token = token_type( token );
+			fprintf( stdout, "%s\n", t_type );
 			if ( p = list_Find_Node_Subrot( class_pos, token ) ) {
-				fprintf( stdout, "\t\t<identifier> %s <identifier>", token );
+				fprintf( stdout, "\t\t<identifier> %s <identifier>\n", token );
 			}
 
 			if ( compile_Symbol( ifp, '(' ) ) {
@@ -669,14 +672,33 @@ void compile_Term( FILE * ifp ) {
 	fprintf( stdout, "[%s]\n", __func__  );
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
-		type_of_token = token_type( token );
 
+		fprintf( stdout, "%s\n", token );
+		type_of_token = token_type( token );
+		fprintf( stdout, "%s\n", token );
+		fprintf( stdout, "%s\n", t_type );
 		if ( type_of_token == INT_CONST ) {
 			// integerConst
 			fprintf( stdout, "\t\t<integerconst> %d </integerconst>\n", atoi( token ) );
 		} else if ( type_of_token == STRING_CONST ) {
 			// stringConst
-			fprintf( stdout, "\t\t<stringconst> %s </stringconst>\n", token );
+			// "はシンボルではないので, 下に書いた部分では引っかからない
+			// なので, 
+			
+			get_stringconst( ifp );
+			fprintf( stdout, "\t\t<stringconst>" );
+			fprintf( stdout, " %s ", token );
+			/*
+			do {
+				if ( has_more_tokens( ifp ) ) {
+					advance( ifp );
+					if ( token[0] == '"' ) {
+						fprintf( stdout, "")
+					}
+					fprintf( stdout, "%s", token );
+				}
+			} while ( token[0] != '"' );*/
+			fprintf( stdout, "<stringconst>\n" );
 		} else if ( strcmp( token, "true" ) == 0 || strcmp( token, "false" ) == 0 || strcmp( token, "null" ) == 0 || strcmp( token, "this" ) == 0 ) {
 			// keywordConst
 			fprintf( stdout, "\t\t<keywordconst> %s <keywordconst>\n", token );
@@ -685,13 +707,15 @@ void compile_Term( FILE * ifp ) {
 			fprintf( stdout, "\t\t<identifier> %s </identifier>\n", token );
 			if ( p = list_Find_Node( token ) ) {
 				fprintf( stdout, "call subroutine\n" );
-				ungets( ifp, strlen( token ) );
+				// ungets( ifp, strlen( token ) );
 				compile_Subroutine_Call( ifp, p );
 			} else if ( compile_Symbol( ifp, '[' ) ) {
 				compile_Expression( ifp );
 				compile_Symbol( ifp, ']' );
 			} 		
 		} else if ( type_of_token == SYMBOL ) {
+
+			fprintf( stdout, "this is symbol\n" );
 			if ( token[0] == '(' ) {
 				// '(' expression ')'
 				ungetc( token[0], ifp );
@@ -703,7 +727,7 @@ void compile_Term( FILE * ifp ) {
 					compile_Symbol( ifp, '~' );
 				}
 				compile_Term( ifp );
-			} 
+			}
 		}
 	}
 }

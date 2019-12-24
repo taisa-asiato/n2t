@@ -15,7 +15,7 @@ char keyword_str[21][20] = {
 	"return", "true", "false", "null", "this"
 };
 char t_type[256];
-list_t * head;
+list_t * head_;
 list_t * end;
 
 int main( int argc, char ** argv ) {

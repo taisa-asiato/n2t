@@ -139,6 +139,19 @@ int advance( FILE * fp ) {
 	return 0;
 }
 
+void get_stringconst( FILE * fp ) {
+	char c;
+	int number = 1;
+
+	while ( 1 ) {
+		c = fgetc( fp );
+		token[number] = c;
+		if ( c == '"' ) { break; }
+		number++;
+	}
+
+}
+
 int token_type( char current[256] ) {
 	if ( is_keyword( current ) ) {
 		// fprintf( stdout, "keyword\n" );
@@ -165,6 +178,8 @@ int token_type( char current[256] ) {
 }
 
 bool is_keyword( char c_token[256] ) {
+
+	// fprintf( stdout, "[%s] %s\n", __func__, token );
 	if ( 
 		strcmp( c_token, "class" ) == 0 	|| strcmp( c_token, "constructor" ) == 0 || 
 		strcmp( c_token, "function" ) == 0 	|| strcmp( c_token, "method" ) == 0  || 
@@ -183,6 +198,8 @@ bool is_keyword( char c_token[256] ) {
 }
 
 bool is_symbol( char c_token[256] ) {
+
+	// fprintf( stdout, "[%s] %s\n", __func__, token );
 	if (
 		strcmp( c_token, "{" ) == 0 || strcmp( c_token, "}" ) == 0 || strcmp( c_token, "(" ) == 0 ||
 		strcmp( c_token, ")" ) == 0 || strcmp( c_token, "[" ) == 0 || strcmp( c_token, "]" ) == 0 ||
@@ -198,6 +215,8 @@ bool is_symbol( char c_token[256] ) {
 
 bool is_integer_constant( char c_token[256] ) {
 	int num;
+
+	// fprintf( stdout, "[%s] %s\n", __func__, token );
 	if ( ( num = atoi( c_token ) ) ) {
 		if ( num >= 0 || num <= 32767 ) {
 			return true;
@@ -207,25 +226,29 @@ bool is_integer_constant( char c_token[256] ) {
 }
 
 bool is_string_constant( char c_token[256] ) {
+	// fprintf( stdout, "[%s] %s\n", __func__, token );
 	int length = strlen( c_token );
 	int i = 0;
-	int str_flag = 0;
-	
-	while ( c_token[i] != '\0' && c_token[i] != '"' ) {
-		if ( isalpha( c_token[i] ) ) {
+	int str_flag = 1;
+
+	// fprintf( stdout, "this is jadgement function of string or not\n" );
+	// fprintf( stdout, "%d, %s, \n", c_token[0], c_token );
+	if ( c_token[i] == '"' ) {
+		/*i++;
+		str_flag = 0;
+		while ( c_token[i] != '"' ) {
+			fprintf( stdout, "%c", c_token[i] );
 			i++;
-		} else {
-			c_token[i] = '\0';
-			str_flag = 1;
-			break;
 		}
+		fprintf( stdout, "\n" );
+		c_token[i] = '\0';*/
+		fprintf( stdout, "This is string\n" );
+		return true;
 	}
 
 	if ( str_flag == 1 ) {
 		return false;
 	}
-
-	return true;
 }
 
 int keyword( char c_token[256] ) {
@@ -308,18 +331,28 @@ void string_val( char val_string[256] ) {
 bool is_identifier( char val_string[256] ) {
 	int length = strlen( val_string );
 	int i = 0;
+	int id_flag = 0;
 
-	if ( val_string[0] >= '0' && val_string[0] <= '9' ) {
+	// fprintf( stdout, "[%s] %s\n", __func__, token );
+	if (  ( val_string[0] >= 48 && val_string[0] <= 57 ) || val_string[0] == '"'  ) {
 		return false;
 	}
 
-	while ( i < length  ) {
+	// fprintf( stdout, "[%s] %d, %d, %s, \n", __func__, token[0], '0', token );
+	i++;
+	while ( i <= length  ) {
+		id_flag = 1;
 		if ( isalpha( val_string[i] ) || val_string[i] == '_' || ( val_string[i] >= '0' && val_string[i] <= '9' ) ) {
 			i++;
 		} else {
 			val_string[i] = '\0';
-			return false;
+			break;
 		}
 	}
-	return true;
+
+	if ( id_flag ) {
+		return true;
+	} else {
+		return false;
+	}
 }
