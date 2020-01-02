@@ -17,6 +17,8 @@ char keyword_str[21][20] = {
 char t_type[256];
 list_t * head_;
 list_t * end;
+// デバッグ情報を出力する場合, 1をセットしコンパイルする
+int debug = 0;
 
 int main( int argc, char ** argv ) {
 	/* エラー時の処理 */

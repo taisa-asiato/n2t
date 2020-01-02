@@ -78,12 +78,14 @@ bool has_more_tokens( FILE * filepointer ) {
 				// fprintf( stdout, "last line is [tmp_c]:%d and [c]:%d\n", tmp_c, c );
 			} else {
 				// /１個の場合は演算子なため入力ストリームに書き戻す
+				// 空白及び/をその順番で書き戻す
+				// cには/以外の文字がセットされているので, 直性/を書き戻す
 				ungetc( c, filepointer );
+				ungetc( '/', filepointer );
 				return true;
 			}
 		} 
 	} 
-	// fprintf( stdout, "word is %c\n", c );
 	ungetc( c, filepointer ); // 入力ストリームから読み取った値を再度入寮ストリームへ書き戻す
 
 	// cの値がアルファベットか演算子の場合, トークンが存在するため
@@ -101,7 +103,6 @@ int advance( FILE * fp ) {
 
 	char c;
 	int number = 0;
-
 	c = fgetc( fp );
 
 	if ( isalnum( c ) ) {
@@ -131,6 +132,7 @@ int advance( FILE * fp ) {
 		return 1;
 	} else if ( ispunct( c ) ) {
 		// symbol文字列
+		// fprintf( stdout, "symbol char is %c\n", c );
 		token[number] = c;
 		number++;
 		token[number] = '\0';
@@ -146,31 +148,33 @@ void get_stringconst( FILE * fp ) {
 	while ( 1 ) {
 		c = fgetc( fp );
 		token[number] = c;
-		if ( c == '"' ) { break; }
 		number++;
+		if ( c == '"' ) { 
+			token[number] = '\0';
+			break; 
+		}
 	}
-
 }
 
 int token_type( char current[256] ) {
 	if ( is_keyword( current ) ) {
-		// fprintf( stdout, "keyword\n" );
+		// fprintf( stdout, "this is keyword\n" );
 		strcpy( t_type, "keyword" );
 		return KEYWORD;
 	} else if ( is_symbol( current ) ) {
-		// fprintf( stdout, "symbol\n" );
+		// fprintf( stdout, "this is symbol\n" );
 		strcpy( t_type, "symbol" );
 		return SYMBOL;
 	} else if ( is_integer_constant( current ) ) {
-		// fprintf( stdout, "int_const\n" );
+		// fprintf( stdout, "this is int_const\n" );
 		strcpy( t_type, "int_const" );
 		return INT_CONST;
 	} else if ( is_identifier( current ) )  {
-		// fprintf( stdout, "identifier\n" );
+		// fprintf( stdout, "this is identifier\n" );
 		strcpy( t_type, "is_identifier" );
 		return IDENTIFIER;
 	} else if ( is_string_constant( current ) ) {
-		// fprintf( stdout, "string_const\n" );
+		// fprintf( stdout, "this is string_const\n" );
 		strcpy( t_type, "string_const" );
 		return STRING_CONST;
 	}
@@ -216,8 +220,9 @@ bool is_symbol( char c_token[256] ) {
 bool is_integer_constant( char c_token[256] ) {
 	int num;
 
-	// fprintf( stdout, "[%s] %s\n", __func__, token );
-	if ( ( num = atoi( c_token ) ) ) {
+	// fprintf( stdout, "[%s] %s, %d, %d\n", __func__, token, atoi( c_token ), token[0] );
+	if ( ( num = atoi( c_token ) ) || c_token[0] == '0' ) {
+		//fprintf( stdout, "this is string val\n" );
 		if ( num >= 0 || num <= 32767 ) {
 			return true;
 		}
@@ -242,13 +247,17 @@ bool is_string_constant( char c_token[256] ) {
 		}
 		fprintf( stdout, "\n" );
 		c_token[i] = '\0';*/
-		fprintf( stdout, "This is string\n" );
+		//fprintf( stdout, "This is string\n" );
 		return true;
 	}
 
+	/*
 	if ( str_flag == 1 ) {
 		return false;
 	}
+	*/
+
+	return false;
 }
 
 int keyword( char c_token[256] ) {

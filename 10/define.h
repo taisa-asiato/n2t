@@ -75,6 +75,8 @@ extern char t_type[256];
 list_t * head;
 // シンボルを管理するリストの最後を表す
 list_t * end;
+// デバッグ情報出力, 1:出力, 0:出力しない
+extern int debug;
 
 // 関数名の管理するリストの先頭を指す
 
@@ -104,23 +106,23 @@ bool is_integer_constant( char c_token[256] );
 
 /* CompliationEngine.c */
 void compile_main( FILE * ifp, FILE * ofp );
-int compile_Class();
-int compile_Class_Var_Dec( FILE * ifp );
-int compile_Subroutine_Dec( FILE * ifp );
-int compile_Statements( FILE * ifp );
-int compile_Var_Dec( FILE * ifp );
-int compile_Let_Statement( FILE * ifp );
-void compile_If_Statement( FILE * ifp );
-void compile_While_Statement( FILE * ifp );
-void compile_Do_Statement( FILE * ifp );
-void compile_Subroutine_Call( FILE * ifp, list_t * class_pos );
-void compile_Return_Statement( FILE * ifp );
-void compile_Expression( FILE * ifp );
-void compile_Term( FILE * ifp );
-char compile_Symbol( FILE * ifp, char sym );
+int compile_Class( FILE * ifp, int depth );
+int compile_Class_Var_Dec( FILE * ifp, int depth );
+int compile_Subroutine_Dec( FILE * ifp, int depth );
+int compile_Statements( FILE * ifp, int depth );
+int compile_Var_Dec( FILE * ifp, int depth );
+int compile_Let_Statement( FILE * ifp, int depth );
+void compile_If_Statement( FILE * ifp, int depth );
+void compile_While_Statement( FILE * ifp, int depth );
+void compile_Do_Statement( FILE * ifp, int depth );
+void compile_Subroutine_Call( FILE * ifp, list_t * class_pos, int depth );
+void compile_Return_Statement( FILE * ifp, int depth );
+void compile_Expression( FILE * ifp, int depth );
+void compile_Term( FILE * ifp, int depth );
+char compile_Symbol( FILE * ifp, char sym, int depth );
 void ungets( FILE * ifp, int length );
-int compile_ParameterList( FILE * ifp );
-int compile_Expression_List( FILE * ifp );
+int compile_ParameterList( FILE * ifp, int depth );
+int compile_Expression_List( FILE * ifp, int depth );
 
 
 /* list.c */
