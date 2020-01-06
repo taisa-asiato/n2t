@@ -357,19 +357,22 @@ int compile_Statements( FILE * ifp, int depth ) {
 				if ( debug ) {
 					fprintf( stdout, "[%s]:Finish\n", __func__ );
 				}
-				return -1;
+				break;
 			}		
 		} else {
 			ungets( ifp, strlen( token ) );
 			if ( debug ) {
 				fprintf( stdout, "[%s]:Finish\n", __func__ );
 			}
-			return -1;
+			// printTab( depth ); 
+			// fprintf( stdout, "</statements>\n" );
+			break;
 		}
 	}
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
 	}
+
 	printTab( depth ); 
 	fprintf( stdout, "</statements>\n" );
 	return 1;
@@ -439,6 +442,8 @@ int compile_Var_Dec( FILE * ifp, int depth ) {
 		if ( compile_Symbol( ifp, ',', sec_depth ) ) {
 			; // do nothing
 		} else if ( compile_Symbol( ifp, ';', sec_depth ) ) {
+			printTab( depth );
+			fprintf( stdout, "</varDec>\n" );
 			return -1;
 		}
 
@@ -458,8 +463,6 @@ int compile_Var_Dec( FILE * ifp, int depth ) {
 			return -1;
 		}
 	}
-	printTab( depth );
-	fprintf( stdout, "</varDec>\n" );
 
 	return 1;
 }
@@ -514,17 +517,17 @@ int compile_ParameterList( FILE * ifp, int depth ) {
 					fprintf( stdout, "<keyword> %s </keyword>\n", token );
 				} else {
 					ungets( ifp, strlen( token ) );
-					return -1;
+					break;
 				}
 			} else if ( type_of_token == IDENTIFIER ) {
 				printTab( depth );
 				fprintf( stdout, "<identifier> %s </identifier>\n", token );
 			} else {
 				ungets( ifp, strlen( token ) );
-				return -1;
+				break;
 			}
 		} else {
-			return -1;
+			break;
 		}
 
 		if ( has_more_tokens( ifp ) ) {
@@ -536,7 +539,7 @@ int compile_ParameterList( FILE * ifp, int depth ) {
 				fprintf( stdout, "<identifier> %s </identifier>\n", token );
 			}
 		} else {
-			return -1;
+			break;
 		}
 		if ( compile_Symbol( ifp, ',', depth ) ) {
 			// goto next parameter		
@@ -635,7 +638,7 @@ int compile_Let_Statement( FILE * ifp, int depth ) {
 	printTab( depth );
 	fprintf( stdout, "<letStatement>\n" );
 	printTab( sec_depth );
-	fprintf( stdout, "<keyword> let <keyword>\n" );
+	fprintf( stdout, "<keyword> let </keyword>\n" );
 
 	// 変数名をコンパイル
 	if ( has_more_tokens( ifp ) ) {
@@ -733,7 +736,7 @@ void compile_While_Statement( FILE * ifp, int depth ) {
 		fprintf( stdout, "[%s]\n", __func__  );
 	}
 	printTab( depth );
-	fprintf( stdout, "<whileStatements>\n" );
+	fprintf( stdout, "<whileStatement>\n" );
 	printTab( sec_depth );
 	fprintf( stdout, "<keyword> while </keyword>\n" );
 
@@ -753,7 +756,7 @@ void compile_While_Statement( FILE * ifp, int depth ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
 	}
 	printTab( depth );
-	fprintf( stdout, "<whileStatements>\n" );
+	fprintf( stdout, "</whileStatement>\n" );
 
 
 }
@@ -768,9 +771,9 @@ void compile_Do_Statement( FILE * ifp, int depth ) {
 	}
 
 	printTab( depth );
-	fprintf( stdout, "<doStatements>\n" );
+	fprintf( stdout, "<doStatement>\n" );
 	printTab( sec_depth );
-	fprintf( stdout, "<keyword> do <keyword>\n" );
+	fprintf( stdout, "<keyword> do </keyword>\n" );
  	/*
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
@@ -788,7 +791,7 @@ void compile_Do_Statement( FILE * ifp, int depth ) {
 	}
 
 	printTab( depth );
-	fprintf( stdout, "</doStatements>\n" );
+	fprintf( stdout, "</doStatement>\n" );
 }
 
 void compile_Subroutine_Call( FILE * ifp, list_t * class_pos, int depth ) {
@@ -828,7 +831,7 @@ void compile_Subroutine_Call( FILE * ifp, list_t * class_pos, int depth ) {
 					fprintf( stdout, "call subroutine, this method is registered at method list\n" );
 				}
 				printTab( depth );
-				fprintf( stdout, "<identifier> %s <identifier>\n", token );
+				fprintf( stdout, "<identifier> %s </identifier>\n", token );
 			}
 
 			if ( compile_Symbol( ifp, '(', depth ) ) {
@@ -846,18 +849,19 @@ void compile_Subroutine_Call( FILE * ifp, list_t * class_pos, int depth ) {
 void compile_Return_Statement( FILE * ifp, int depth ) {
 	int type_of_token;
 	int sec_depth = depth+1;
+	int flag = 0;
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]\n", __func__  );
 	}
 
 	printTab( depth );
-	fprintf( stdout, "<returnStatements>\n" );
+	fprintf( stdout, "<returnStatement>\n" );
 	printTab( sec_depth );
-	fprintf( stdout, "<keyword> return <keyword>\n" );
+	fprintf( stdout, "<keyword> return </keyword>\n" );
 
 	if ( compile_Symbol( ifp, ';', sec_depth ) ) {
-		compile_Expression( ifp, sec_depth );
+		// do nothing
 	} else {
 		compile_Expression( ifp, sec_depth );
 		compile_Symbol( ifp, ';', sec_depth );
@@ -868,36 +872,66 @@ void compile_Return_Statement( FILE * ifp, int depth ) {
 	}
 
 	printTab( depth );
-	fprintf( stdout, "</returnStatements>\n" );
+	fprintf( stdout, "</returnStatement>\n" );
 }
 
 void compile_Expression( FILE * ifp, int depth ) {
 	int type_of_token;
 	int sec_depth = depth+1;
+	int flag = 0;
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]\n", __func__  );
 	}
-	printTab( depth );
-	fprintf( stdout, "<expression>\n" );
-	compile_Term( ifp, sec_depth );
 
-	while ( 1 ) {
-		if ( 	compile_Symbol( ifp, '+', sec_depth ) || compile_Symbol( ifp, '-', sec_depth ) || compile_Symbol( ifp, '*', sec_depth ) || 
-			compile_Symbol( ifp, '/', sec_depth ) || compile_Symbol( ifp, '&', sec_depth ) || compile_Symbol( ifp, '|', sec_depth ) || 
-			compile_Symbol( ifp, '<', sec_depth ) || compile_Symbol( ifp, '>', sec_depth ) || compile_Symbol( ifp, '=', sec_depth ) ) {
-			compile_Term( ifp, sec_depth );
-		} else {
-			break;
+
+	if ( has_more_tokens( ifp ) ) {
+		advance( ifp );
+
+		type_of_token = token_type( token );
+		if ( 	type_of_token == INT_CONST || type_of_token == STRING_CONST || strcmp( token, "true" ) == 0 || 
+			strcmp( token, "false" ) == 0 || strcmp( token, "null" ) == 0 || strcmp( token, "this" ) == 0 ) {
+
+			flag = 1;
+		} else if ( type_of_token == IDENTIFIER ) {
+			// varName
+			flag = 1;
+		} else if ( type_of_token == SYMBOL ) {
+			// fprintf( stdout, "this is symbol\n" );
+			if ( token[0] == '(' || token[0] == '-' || token[0] == '~' ) {
+				flag = 1;
+			}
 		}
 	}
 
-	if ( debug ) {
-		fprintf( stdout, "[%s]:Finish\n", __func__ );
+
+	if ( flag = 1 ) {
+
+		ungets( ifp, strlen( token ) );
+		printTab( depth );
+		fprintf( stdout, "<expression>\n" );
+		compile_Term( ifp, sec_depth );
+
+		while ( 1 ) {
+			if ( 	compile_Symbol( ifp, '+', sec_depth ) || compile_Symbol( ifp, '-', sec_depth ) || compile_Symbol( ifp, '*', sec_depth ) || 
+					compile_Symbol( ifp, '/', sec_depth ) || compile_Symbol( ifp, '&', sec_depth ) || compile_Symbol( ifp, '|', sec_depth ) || 
+					compile_Symbol( ifp, '<', sec_depth ) || compile_Symbol( ifp, '>', sec_depth ) || compile_Symbol( ifp, '=', sec_depth ) ) {
+				compile_Term( ifp, sec_depth );
+			} else {
+				break;
+			}
+		}
+
+		if ( debug ) {
+			fprintf( stdout, "[%s]:Finish\n", __func__ );
+		}
+
+		printTab( depth );
+		fprintf( stdout, "</expression>\n" );
+
+	} else {
+		return;
 	}
-	
-	printTab( depth );
-	fprintf( stdout, "</expression>\n" );
 }
 
 void compile_Term( FILE * ifp, int depth ) {
@@ -935,7 +969,6 @@ void compile_Term( FILE * ifp, int depth ) {
 			printTab( sec_depth );
 			fprintf( stdout, "<stringConstant>" );
 			fprintf( stdout, " %s ", token );
-			printTab( sec_depth );
 			fprintf( stdout, "</stringConstant>\n" );
 		} else if (	strcmp( token, "true" ) == 0 || strcmp( token, "false" ) == 0 || 
 			   	strcmp( token, "null" ) == 0 || strcmp( token, "this" ) == 0 ) {
@@ -1001,7 +1034,15 @@ char compile_Symbol( FILE * ifp, char sym, int depth ) {
 		type_of_token = token_type( token );
 		if ( type_of_token == SYMBOL && token[0] == sym ) {
 			printTab( depth );
-			fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+			if ( token[0] == '<' ) {
+				fprintf( stdout, "<symbol> &lt; </symbol>\n" );
+			} else if ( token[0] == '>' ) {
+				fprintf( stdout, "<symbol> &gt; </symbol>\n" );
+			} else if ( token[0] == '&' ) {
+				fprintf( stdout, "<symbol> &amp; </symbol>\n" );
+			} else {
+				fprintf( stdout, "<symbol> %c </symbol>\n", token[0] );
+			}
 			if ( debug ) {
 				fprintf( stdout, "[%s]:Finish\n", __func__ );
 			}
@@ -1020,6 +1061,7 @@ char compile_Symbol( FILE * ifp, char sym, int depth ) {
 int compile_Expression_List( FILE * ifp, int depth ) {
 	int type_of_token;
 	int sec_depth = depth+1;
+	int flag = 0;
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]\n", __func__  );
@@ -1029,9 +1071,29 @@ int compile_Expression_List( FILE * ifp, int depth ) {
 	fprintf( stdout, "<expressionList>\n" );
 
 	if ( has_more_tokens( ifp ) ) {
-		compile_Expression( ifp, sec_depth );
-		while ( compile_Symbol( ifp, ',', sec_depth )  ) {
+		advance( ifp );
+
+		type_of_token = token_type( token );
+		if ( 	type_of_token == INT_CONST || type_of_token == STRING_CONST || strcmp( token, "true" ) == 0 || 
+				strcmp( token, "false" ) == 0 || strcmp( token, "null" ) == 0 || strcmp( token, "this" ) == 0 ) {
+
+			flag = 1;
+		} else if ( type_of_token == IDENTIFIER ) {
+			// varName
+			flag = 1;
+		} else if ( type_of_token == SYMBOL ) {
+			// fprintf( stdout, "this is symbol\n" );
+			if ( token[0] == '-' || token[0] == '~' ) {
+				flag = 1;
+			}
+		}
+
+		ungets( ifp, strlen( token ) );
+		if ( flag == 1 ) {
 			compile_Expression( ifp, sec_depth );
+			while ( compile_Symbol( ifp, ',', sec_depth )  ) {
+				compile_Expression( ifp, sec_depth );
+			}
 		}
 	}
 	if ( debug ) {

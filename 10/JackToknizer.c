@@ -94,7 +94,7 @@ bool has_more_tokens( FILE * filepointer ) {
 		// fprintf( stdout, "%c", c );
 		return true;
 	} else {
-		fprintf( stdout, "not string, ignore this word\n" );
+		// fprintf( stdout, "not string, ignore this word\n" );
 		return false;
 	}
 }
@@ -142,17 +142,18 @@ int advance( FILE * fp ) {
 }
 
 void get_stringconst( FILE * fp ) {
+	// 文字列の"は出力に含めない
 	char c;
-	int number = 1;
+	int number = 0;
 
 	while ( 1 ) {
 		c = fgetc( fp );
 		token[number] = c;
-		number++;
 		if ( c == '"' ) { 
 			token[number] = '\0';
 			break; 
 		}
+		number++;
 	}
 }
 
