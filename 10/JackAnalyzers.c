@@ -38,9 +38,10 @@ void jack_analyze_main( char * fname ) {
 					if ( debug ) {
 						fprintf( stdout, "=> output is %s\n", outputfilename );
 					}
-					// outputfp = fopen( outputfilename, "w" );
+					outputfp = fopen( outputfilename, "w" );
 					// jack_tokenizer_main( inputfp, outputfp );
-					// fclose( outputfp );
+					compile_main( inputfp, outputfp );
+					fclose( outputfp );
 					fclose( inputfp );
 				}
 			}

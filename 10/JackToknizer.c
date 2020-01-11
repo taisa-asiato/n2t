@@ -105,10 +105,10 @@ int advance( FILE * fp ) {
 	int number = 0;
 	c = fgetc( fp );
 
-	if ( isalnum( c ) ) {
+	if ( isdigit( c ) ) {
 		// 文字列の場合
 		token[number] = c;
-		while ( isalpha( ( c = fgetc( fp ) ) ) ) {
+		while ( isdigit( ( c = fgetc( fp ) ) ) ) {
 			number++;
 			token[number] = c;
 		}
@@ -118,11 +118,11 @@ int advance( FILE * fp ) {
 		number++;
 		token[number] = '\0';
 		return 1;
-	} else if ( isdigit( c ) ) {
+	} else if ( isalnum( c ) ) {
 		// intergerConst
 		// 整数の場合
 		token[number] = c;
-		while ( isdigit( ( c = fgetc( fp ) ) ) ) {
+		while ( isalnum( ( c = fgetc( fp ) ) ) ) {
 			number++;
 			token[number] = c;
 		}
@@ -168,15 +168,15 @@ int token_type( char current[256] ) {
 		return SYMBOL;
 	} else if ( is_integer_constant( current ) ) {
 		// fprintf( stdout, "this is int_const\n" );
-		strcpy( t_type, "int_const" );
+		strcpy( t_type, "integerConstant" );
 		return INT_CONST;
 	} else if ( is_identifier( current ) )  {
 		// fprintf( stdout, "this is identifier\n" );
-		strcpy( t_type, "is_identifier" );
+		strcpy( t_type, "identifier" );
 		return IDENTIFIER;
 	} else if ( is_string_constant( current ) ) {
 		// fprintf( stdout, "this is string_const\n" );
-		strcpy( t_type, "string_const" );
+		strcpy( t_type, "stringConstant" );
 		return STRING_CONST;
 	}
 	return -1;

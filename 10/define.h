@@ -77,7 +77,8 @@ list_t * head;
 list_t * end;
 // デバッグ情報出力, 1:出力, 0:出力しない
 extern int debug;
-
+// 出力先情報, 0:ファイルへ出力, 1:標準出力
+extern int isstdout;
 // 関数名の管理するリストの先頭を指す
 
 /* JackAnalyzer.c */
@@ -106,24 +107,27 @@ bool is_integer_constant( char c_token[256] );
 
 /* CompliationEngine.c */
 void compile_main( FILE * ifp, FILE * ofp );
-int compile_Class( FILE * ifp, int depth );
-int compile_Class_Var_Dec( FILE * ifp, int depth );
-int compile_Subroutine_Dec( FILE * ifp, int depth );
-int compile_Statements( FILE * ifp, int depth );
-int compile_Var_Dec( FILE * ifp, int depth );
-int compile_Let_Statement( FILE * ifp, int depth );
-void compile_If_Statement( FILE * ifp, int depth );
-void compile_While_Statement( FILE * ifp, int depth );
-void compile_Do_Statement( FILE * ifp, int depth );
-void compile_Subroutine_Call( FILE * ifp, list_t * class_pos, int depth );
-void compile_Return_Statement( FILE * ifp, int depth );
-void compile_Expression( FILE * ifp, int depth );
-void compile_Term( FILE * ifp, int depth );
-char compile_Symbol( FILE * ifp, char sym, int depth );
+int compile_Class( FILE * ifp, FILE * ofp, int depth );
+int compile_Class_Var_Dec( FILE * ifp, FILE * ofp, int depth );
+int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int depth );
+int compile_Statements( FILE * ifp, FILE * ofp, int depth );
+int compile_Var_Dec( FILE * ifp, FILE * ofp, int depth );
+int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth );
+void compile_If_Statement( FILE * ifp, FILE * ofp, int depth );
+void compile_While_Statement( FILE * ifp, FILE * ofp, int depth );
+void compile_Do_Statement( FILE * ifp, FILE * ofp, int depth );
+void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int depth );
+int compile_Return_Statement( FILE * ifp, FILE * ofp, int depth );
+void compile_Expression( FILE * ifp, FILE * ofp, int depth );
+void compile_Term( FILE * ifp, FILE * ofp, int depth );
+char compile_Symbol( FILE * ifp, FILE * ofp, char sym, int depth );
 void ungets( FILE * ifp, int length );
-int compile_ParameterList( FILE * ifp, int depth );
-int compile_Expression_List( FILE * ifp, int depth );
-
+int compile_ParameterList( FILE * ifp, FILE * ofp, int depth );
+int compile_Expression_List( FILE * ifp, FILE * ofp, int depth );
+void printTab( FILE * ofp, int depth );
+void printTokenAndTag( FILE * ofp, char * type, char * thistoken, int depth );
+void printTokenAndTagStart( FILE * ofp, char * thistoken, int depth );
+void printTokenAndTagEnd( FILE * ofp, char * thistoken, int depth );
 
 /* list.c */
 void list_Add( char * sym_name );
