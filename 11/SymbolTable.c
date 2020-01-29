@@ -30,11 +30,11 @@ void construter() {
 	init_SymbolTable();
 }
 
-void my_define( int iscls, char * symbol_name, int type, int proper, int number ) {
+void my_define( int iscls, char * symbol_name, char * type, char * proper, int number ) {
 	scope_t * tmp = malloc( sizoef( scope_t ) );
 	strcpy( tmp->name, symbol_name );
-	tmp->type = type;
-	tmp->proper = proper;
+	strcpy( tmp->type, type );
+	strcpy( tmp->proper, proper);
 	tmp->number = number;
 
 	if ( iscls ) {

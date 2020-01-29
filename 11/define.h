@@ -102,6 +102,7 @@ extern int kind;
 extern char typeof[256];
 extern char propof[256];
 extern int current_type;
+extern char sname[256];
 
 /* JackAnalyzer.c */
 int gen_inputfilename( struct dirent * dp, char * dirname );
@@ -176,7 +177,7 @@ subroutine_name_t *  list_Find_Node_Subrot( list_t * class_name, char * subrot_n
 
 /* SymbolTable.c */
 void init();
-void my_define( int iscls, char * symbol_name, int type, int proper, int number );
+void my_define( int iscls, char * symbol_name, char * type, char * proper, char * number );
 int var_Count( char * symbol_name );
 int kind_Of( char * name );
 int type_Of( char * name );
