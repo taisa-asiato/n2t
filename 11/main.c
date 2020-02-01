@@ -15,19 +15,28 @@ char keyword_str[21][20] = {
 	"return", "true", "false", "null", "this"
 };
 char t_type[256];
-list_t * head_;
+list_t * head;
 list_t * end;
 // デバッグ情報を出力する場合, 1をセットしコンパイルする
-int debug = 0;
+int debug = 1;
 // 出力先を変更する場合, 1をセットしコンパイルする
-int isstdout = 0;
+int isstdout = 1;
 
-extern int cnt_field;
-extern int cnt_arg;
-extern int cnt_var;
-extern int kind;
-extern char typeof[256];
-extern int current_type;
+// 識別子の型や属性及びインデックスを登録するための変数
+scope_t * cls;
+scope_t * clsp;
+
+scope_t * sub;
+scope_t * subp;
+int cnt_static;
+int cnt_field;
+int cnt_arg;
+int cnt_var;
+int kind;
+char my_typeof[256];
+char propof[256];
+int current_type;
+char sname[256];
 int main( int argc, char ** argv ) {
 	/* エラー時の処理 */
 	if ( argc != 2 ) {

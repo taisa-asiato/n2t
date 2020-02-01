@@ -41,6 +41,19 @@ void printTokenAndTagEnd( FILE * ofp, char * thistoken, int depth ) {
 	}
 }
 
+void printTokenStatus( FILE * ofp, char * thistoken, int depth ) {
+	printTab( ofp, depth );
+	int local_kind = kind_Of( thistoken );
+	int local_type = type_Of( thistoken );
+	int local_index = index_Of( thistoken );
+
+	if ( isstdout ) {
+		fprintf( stdout, "<status> %s %s %d </status>\n", propof, my_typeof, local_index );
+	} else {
+		fprintf( ofp, "<status> %s %s %d </status>\n", propof, my_typeof, local_index );
+	}
+}
+
 void compile_main( FILE * ifp, FILE * ofp ) {
 	char current_line[256];
 	char * cp;
@@ -56,7 +69,7 @@ void compile_main( FILE * ifp, FILE * ofp ) {
 
 	while ( has_more_tokens( ifp ) ) {
 		// list_Print();
-		constructor();
+		constructer();		
 		compile_Class( ifp, ofp, depth );
 		//advance( ifp );
 		//fprintf( stdout, "%s\n", token );
@@ -94,12 +107,13 @@ int compile_Class( FILE * ifp, FILE * ofp, int depth ) {
 		advance( ifp );
 		type_of_token = token_type( token );
 		if ( type_of_token == IDENTIFIER ) {
-			printTokenAndTag( ofp, t_type, token, sec_depth );
 			if ( !( p = list_Find_Node( token ) ) ) {
 				list_Add( token );
 				p = list_Find_Node( token ); 
 				list_Init_Subrot( p );
 			}
+			printTokenAndTag( ofp, t_type, token, sec_depth );
+			printTokenStatus( ofp, token,  depth );
 		} else {
 			fprintf( stdout, "[ERROR]: Class name must be identifier\n" );
 			return -1;
@@ -110,7 +124,6 @@ int compile_Class( FILE * ifp, FILE * ofp, int depth ) {
 		fprintf( stdout, "[ERROR]: After class name, { was expected\n" );
 		return -1;
 	}
-
 
 	// クラス変数，関数及びメソッドをコンパイルする
 	while ( has_more_tokens(ifp) ) {
@@ -192,12 +205,12 @@ int compile_Class_Var_Dec( FILE * ifp, FILE * ofp, int depth )  {
 		type_of_token = token_type( token );
 		if ( type_of_token == KEYWORD ) {
 			if ( strcmp( token, "int" ) == 0 || strcmp( token, "char" ) == 0 || strcmp( token, "boolean" ) == 0 ) {
-				strcpy( typeof, token );
+				strcpy( my_typeof, token );
 				printTokenAndTag( ofp, t_type, token, sec_depth );
 			} 
 		} else if ( type_of_token == IDENTIFIER ) {
 			if ( list_Find_Node( token ) ) {
-				strcpy( typeof, token );
+				strcpy( my_typeof, token );
 				printTokenAndTag( ofp, t_type, token, sec_depth );
 			} else { 
 				fprintf( stdout, "[ERROR]:Undefined Class name %s\n", token );
@@ -218,13 +231,14 @@ int compile_Class_Var_Dec( FILE * ifp, FILE * ofp, int depth )  {
 
 			if ( type_of_token == IDENTIFIER ) {
 				if ( strcmp( propof, "static" ) == 0 ) {
-					my_define( 1, token, typeof, propof, cnt_static );
+					my_define( 1, token, my_typeof, propof, cnt_static );
 					cnt_static += 1;
 				} else if ( strcmp( propof, "field" ) == 0 ) {
-					my_define( 1, token, typeof, propof, cnt_field );
+					my_define( 1, token, my_typeof, propof, cnt_field );
 					cnt_field += 1;
 				}
 				printTokenAndTag( ofp, t_type, token, sec_depth );
+				printTokenStatus( ofp, token, depth );
 			} else if ( type_of_token == SYMBOL ) {
 				if ( token[0] == ','  ) {
 					ungets( ifp, strlen( token ) );
@@ -464,11 +478,11 @@ int compile_Var_Dec( FILE * ifp, FILE * ofp, int depth ) {
 		type_of_token = token_type( token );
 		if ( type_of_token == KEYWORD && ( strcmp( token, "int" ) == 0 || strcmp( token, "char" ) == 0 || strcmp( token, "boolean" ) == 0 ) ) {
 			// プリミティブ型の場合
-			strcpy( typeof, token );
+			strcpy( my_typeof, token );
 			printTokenAndTag( ofp, t_type, token, sec_depth );
 		} else 	if ( list_Find_Node( token ) ) {
 			// プリミティブ型以外の場合
-			strcpy( typeof, token );
+			strcpy( my_typeof, token );
 			printTokenAndTag( ofp, t_type, token, sec_depth );
 		} else { 
 			fprintf( stdout, "[ERROR]: Var type must be int, char, boolean or classname\n" );
@@ -486,8 +500,9 @@ int compile_Var_Dec( FILE * ifp, FILE * ofp, int depth ) {
 			fprintf( stdout, "next value is %c\n", token[0] );
 		}
 		if ( type_of_token == IDENTIFIER ) {
-			my_define( 0, token, typeof, propof, cnt_var );
+			my_define( 0, token, my_typeof, propof, cnt_var );
 			printTokenAndTag( ofp, t_type, token, sec_depth );
+			printTokenStatus( ofp, token, depth );
 		} else {
 			return -1;
 		}
@@ -507,7 +522,9 @@ int compile_Var_Dec( FILE * ifp, FILE * ofp, int depth ) {
 
 			type_of_token = token_type( token );
  			if ( type_of_token == IDENTIFIER ) {
+				my_define( 0, token, my_typeof, propof, cnt_var );
 				printTokenAndTag( ofp, t_type, token, sec_depth );
+				printTokenStatus( ofp, token, depth );
 			} else {
 				fprintf( stdout, "[ERROR] next token must be identifier\n" );
 				return -1;
@@ -570,7 +587,7 @@ int compile_ParameterList( FILE * ifp, FILE * ofp, int depth ) {
 			if ( type_of_token == KEYWORD ) {
 				// プリミティブ型の場合
 				if ( strcmp( token, "int" ) == 0 || strcmp( token, "char " ) == 0 || strcmp( token, "boolean" ) ) {
-					strcpy( typeof, token );		
+					strcpy( my_typeof, token );		
 					cnt_arg += 1;
 					printTokenAndTag( ofp, t_type, token, sec_depth );
 				} else {
@@ -579,7 +596,7 @@ int compile_ParameterList( FILE * ifp, FILE * ofp, int depth ) {
 				}
 			} else if ( type_of_token == IDENTIFIER ) {
 				// プリミティブ型以外の型の場合
-				strcpy( typeof, token );
+				strcpy( my_typeof, token );
 				cnt_arg += 1;
 				printTokenAndTag( ofp, t_type, token, sec_depth );
 			} else {
@@ -596,7 +613,7 @@ int compile_ParameterList( FILE * ifp, FILE * ofp, int depth ) {
 
 			if ( type_of_token == IDENTIFIER ) {
 				// 引数名をコンパイルする
-				my_define( 0, token, typeof, propof, cnt_arg );
+				my_define( 0, token, my_typeof, propof, cnt_arg );
 				printTokenAndTag( ofp, t_type, token, sec_depth );
 			}
 		} else {

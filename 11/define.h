@@ -38,6 +38,8 @@
 #define	FALSE		18
 #define	exNULL		19
 #define THIS		20
+#define NONE 		21
+#define ARG		22
 
 typedef struct __subroutine_list {
 	struct __subroutine_list * next;
@@ -55,8 +57,8 @@ typedef struct __list {
 
 typedef struct _scope {
 	char name[256];
-	int type;
-	int proper;
+	char type[256];
+	char proper[256];
 	int number;
 	struct _scope * next;
 	struct _scope * prev;
@@ -81,25 +83,25 @@ extern char keyword_str[21][20];
 // トークンの種類を示す文字列
 extern char t_type[256];
 // シンボルを管理するリストの先頭を表す
-list_t * head;
+extern list_t * head;
 // シンボルを管理するリストの最後を表す
-list_t * end;
+extern list_t * end;
 // デバッグ情報出力, 1:出力, 0:出力しない
 extern int debug;
 // 出力先情報, 0:ファイルへ出力, 1:標準出力
 extern int isstdout;
 // 関数名の管理するリストの先頭を指す
-scope_t * cls;
-scope_t * clsp;
-
-scope_t * sub;
-scope_t * subp;
+extern scope_t * cls;
+extern scope_t * clsp;
+extern scope_t * sub;
+extern scope_t * subp;
+// 現在のトークンが指す識別子のスコープ情報などを保持する[
 extern int cnt_static;
 extern int cnt_field;
 extern int cnt_arg;
 extern int cnt_var;
 extern int kind;
-extern char typeof[256];
+extern char my_typeof[256];
 extern char propof[256];
 extern int current_type;
 extern char sname[256];
@@ -151,6 +153,7 @@ void printTab( FILE * ofp, int depth );
 void printTokenAndTag( FILE * ofp, char * type, char * thistoken, int depth );
 void printTokenAndTagStart( FILE * ofp, char * thistoken, int depth );
 void printTokenAndTagEnd( FILE * ofp, char * thistoken, int depth );
+void printTokenStatus( FILE * ofp, char * thistoken, int depth );
 
 /* list.c */
 void list_Add( char * sym_name );
@@ -176,10 +179,13 @@ void list_Init_Sys_Class( list_t * sys_pos );
 subroutine_name_t *  list_Find_Node_Subrot( list_t * class_name, char * subrot_name );
 
 /* SymbolTable.c */
-void init();
-void my_define( int iscls, char * symbol_name, char * type, char * proper, char * number );
+void init_SymbolTable();
+void init_SubroutineTable();
+void constructer();
+void my_define( int iscls, char * symbol_name, char * type, char * proper, int number );
 int var_Count( char * symbol_name );
 int kind_Of( char * name );
 int type_Of( char * name );
 int index_Of( char * name );
-
+void del_SymbolTable();
+void del_SubroutineTable();
