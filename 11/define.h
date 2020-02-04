@@ -189,3 +189,4 @@ int type_Of( char * name );
 int index_Of( char * name );
 void del_SymbolTable();
 void del_SubroutineTable();
+void print_All_Symbol();

@@ -28,11 +28,11 @@ scope_t * clsp;
 
 scope_t * sub;
 scope_t * subp;
-int cnt_static;
-int cnt_field;
-int cnt_arg;
-int cnt_var;
-int kind;
+int cnt_static = 0;
+int cnt_field = 0;
+int cnt_arg = 0;
+int cnt_var = 0;
+int kind = 0;
 char my_typeof[256];
 char propof[256];
 int current_type;

@@ -13,41 +13,9 @@ void jack_tokenizer_main( FILE * ifp, FILE * ofp  ) {
 	int loopcounter = 0;
 
 
-	// fprintf( stdout, "%s", current_line );
 	while ( has_more_tokens( ifp ) ) {
-		// fprintf( stdout, "input file\n" );
-		// fprintf( stdout, "%c\n", *cp );
-		// cp++;
 		advance( ifp );
-		//fprintf( stdout, "round%d\n", loopcounter );
-		// if ( loopcounter > 1000 ) { break; }
 		fprintf( stdout, "token word is %s\n", token );
-		// type_of_token = token_type( token );
-		// fprintf( stdout, "[%s\t]\t:%s\n", t_type, token );
-		/*
-		if ( type_of_token == KEYWORD ) {
-			type_of_keyword= keyword( token );
-			fprintf( stdout, "[KEYWORD]:%s\n", keyword_str[type_of_token] );
-			fprintf( stdout, "\tcalling keyword function\n" );
-		} else if ( type_of_token == SYMBOL ) {
-			symbol( symbol_string );
-			fprintf( stdout, "[SYMBOL]:%s\n", symbol_string );
-			fprintf( stdout, "\tcalling symbol function\n" );
-		} else if ( type_of_token == INT_CONST ) {
-			int_num = int_val( token );
-			fprintf( stdout, "[INT_CONST]:%d\n", int_num );
-			fprintf( stdout, "\tcalling int_const function\n" );
-		} else if ( type_of_token == STRING_CONST ) {
-			string_val( string_const );
-			fprintf( stdout, "[STRING_CONST]:%s\n", string_const );
-			fprintf( stdout, "\tcalling string_const function\n" );
-		} else if ( type_of_token == IDENTIFIER ) {
-			identifier( identifier_string ); 
-			fprintf( stdout, "[IDENTIFIER]:%s\n", identifier_string );
-			fprintf( stdout, "\tcalling identifier function\n" );
-		} else {
-			fprintf( stdout, "No token, if reach here, this means error\n" );
-		}*/
 	}
 }
 
@@ -59,8 +27,8 @@ bool has_more_tokens( FILE * filepointer ) {
 
 	// 入力ストリームの最終文字列まで読み込む
 	// macでは\r\nなので，条件分岐でヒットするようにしておく
-	while ( ( c = fgetc( filepointer ) ) == ' ' || c == '\t' || c == '\n' || c == '/' || c == '\r' ) {
-		// fprintf( stdout, "space, tab, newline line code\n" ); // do nothing, goto next round
+	while ( ( c = fgetc( filepointer ) ) == ' ' || c == '\t' || 
+		c == '\n' || c == '/' || c == '\r' ) {
 		if ( c == '/' ) {
 			c = fgetc( filepointer ); // 現在のストリームの位置を進める
 			if ( c == '/' ) {

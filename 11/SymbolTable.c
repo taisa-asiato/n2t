@@ -27,9 +27,14 @@ void init_SubroutineTable() {
 void constructer() {
 	init_SubroutineTable();
 	init_SymbolTable();
+	cnt_static = -1;
+        cnt_field = -1;
+        cnt_arg = -1;
+        cnt_var = -1;
 }
 
 void my_define( int iscls, char * symbol_name, char * type, char * proper, int number ) {
+	fprintf( stdout, "%lu\n", sizeof( scope_t ) );
 	scope_t * tmp = malloc( sizeof( scope_t ) );
 	strcpy( tmp->name, symbol_name );
 	strcpy( tmp->type, type );
@@ -47,6 +52,9 @@ void my_define( int iscls, char * symbol_name, char * type, char * proper, int n
 		tmp->next = NULL;
 		subp = tmp;
 	}
+	if ( debug ) {
+		fprintf( stdout, "function %s finished\n", __func__  );
+	}
 }
 
 scope_t * list_Find_Scope_Cls( char * symbol_name ) {
@@ -61,9 +69,9 @@ scope_t * list_Find_Scope_Cls( char * symbol_name ) {
 }
 
 scope_t * list_Find_Scope_Sub( char * symbol_name ) {
-	scope_t * tmp = subp;
+	scope_t * tmp = sub;
 	while ( tmp != NULL ) {
-		if ( strcmp( symbol_name, tmp->name ) ) {
+		if ( strcmp( symbol_name, tmp->name ) == 0 ) {
 			return tmp;
 		}
 		tmp = tmp->next;
@@ -105,6 +113,11 @@ int var_Count( char * my_typeof ) {
 }
 
 int kind_Of( char * name ) {
+	
+	if ( debug ) {
+		fprintf(stdout, "[%s]\n", __func__);
+	}
+	
 	if ( strcmp( name, "static" ) == 0 ) {
 		return STATIC;
 	} else if ( strcmp( name, "field" ) == 0 ) {
@@ -119,6 +132,10 @@ int kind_Of( char * name ) {
 
 int type_Of( char * name ) {
 	scope_t * tmp;
+	if ( debug ) {
+		fprintf(stdout, "[%s]\n", __func__);
+	}
+
 	tmp = list_Find_Scope( name );
 	if ( tmp ) {
 		if ( strcmp( tmp->type, "int" ) == 0 ) {
@@ -137,7 +154,14 @@ int type_Of( char * name ) {
 }
 
 int index_Of( char * name ) {
+	if ( debug ) {
+		fprintf(stdout, "[%s]\n", __func__);
+	}
 	scope_t * tmp = list_Find_Scope( name );
+	
+	if (debug) {
+		fprintf(stdout, "[%s] addresss is [%p], index is [%d]\n", name, tmp, tmp->number);
+	}
 	return tmp->number;
 }
 
@@ -160,5 +184,21 @@ void del_SubroutineTable() {
 		del = tmp;
 		tmp = tmp->next;
 		free( del );
+	}
+}
+
+void print_All_Symbol( char * funcname ) {
+	scope_t * tmp = cls;
+	fprintf(stdout, "[Class_Scope]\n");
+	while ( tmp ) {
+		fprintf(stdout, "[%s] ===> %s,%s,%s,%d\n", funcname, tmp->name, tmp->type, tmp->proper, tmp->number);
+		tmp = tmp->next;
+	}
+
+	fprintf(stdout, "[Subrot_Scope]\n");
+	tmp = sub;
+	while ( tmp ) {
+		fprintf(stdout, "[%s] ===> %s,%s,%s,%d\n", funcname, tmp->name, tmp->type, tmp->proper, tmp->number);
+		tmp = tmp->next;
 	}
 }

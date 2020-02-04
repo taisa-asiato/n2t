@@ -42,15 +42,23 @@ void printTokenAndTagEnd( FILE * ofp, char * thistoken, int depth ) {
 }
 
 void printTokenStatus( FILE * ofp, char * thistoken, int depth ) {
+	if ( debug ) {
+		fprintf(stdout, "[%s]\n", __func__);
+	}
+
 	printTab( ofp, depth );
 	int local_kind = kind_Of( thistoken );
 	int local_type = type_Of( thistoken );
 	int local_index = index_Of( thistoken );
 
+	if (debug) {
+		fprintf(stdout, "printout token status\n");
+	}
+
 	if ( isstdout ) {
-		fprintf( stdout, "<status> %s %s %d </status>\n", propof, my_typeof, local_index );
+		fprintf( stdout, "<status> %s %s %s %d </status>\n", thistoken, propof, my_typeof, local_index );
 	} else {
-		fprintf( ofp, "<status> %s %s %d </status>\n", propof, my_typeof, local_index );
+		fprintf( ofp, "<status> %s %s %s %d </status>\n",thistoken, propof, my_typeof, local_index );
 	}
 }
 
@@ -86,7 +94,7 @@ int compile_Class( FILE * ifp, FILE * ofp, int depth ) {
 	list_t * p;
 
 	printTokenAndTagStart( ofp, "class", depth );
-	
+
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
 		type_of_token = token_type( token );
@@ -113,7 +121,7 @@ int compile_Class( FILE * ifp, FILE * ofp, int depth ) {
 				list_Init_Subrot( p );
 			}
 			printTokenAndTag( ofp, t_type, token, sec_depth );
-			printTokenStatus( ofp, token,  depth );
+			//printTokenStatus( ofp, token,  depth );
 		} else {
 			fprintf( stdout, "[ERROR]: Class name must be identifier\n" );
 			return -1;
@@ -141,7 +149,7 @@ int compile_Class( FILE * ifp, FILE * ofp, int depth ) {
 			ungets( ifp, strlen(token) );
 			compile_Class_Var_Dec( ifp, ofp, sec_depth );
 		} else if (	type_of_token == KEYWORD && ( strcmp( token, "constructor" ) == 0 || 
-				strcmp( token, "function" ) == 0 || strcmp( token, "method" ) == 0 ) ) {
+					strcmp( token, "function" ) == 0 || strcmp( token, "method" ) == 0 ) ) {
 			// 上記と同様
 			// 関数及びメソッドをコンパイルする
 			ungets( ifp, strlen(token) );
@@ -168,7 +176,7 @@ int compile_Class( FILE * ifp, FILE * ofp, int depth ) {
 	}
 
 	printTokenAndTagEnd( ofp, "class", depth );
-	
+
 	return 1;
 }
 
@@ -182,7 +190,7 @@ int compile_Class_Var_Dec( FILE * ifp, FILE * ofp, int depth )  {
 	if ( debug ) {
 		fprintf( stdout, "[%s]\n", __func__ );
 	}
-	
+
 	printTokenAndTagStart( ofp, "classVarDec", depth );
 
 	// static or field
@@ -237,6 +245,7 @@ int compile_Class_Var_Dec( FILE * ifp, FILE * ofp, int depth )  {
 					my_define( 1, token, my_typeof, propof, cnt_field );
 					cnt_field += 1;
 				}
+				print_All_Symbol(__func__);
 				printTokenAndTag( ofp, t_type, token, sec_depth );
 				printTokenStatus( ofp, token, depth );
 			} else if ( type_of_token == SYMBOL ) {
@@ -294,7 +303,7 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 		type_of_token = token_type( token );
 		if ( type_of_token == KEYWORD ) {
 			if ( 	strcmp( token, "int" ) == 0 || strcmp( token, "char" ) == 0 || 
-				strcmp( token, "boolean" ) == 0 || strcmp( token, "void" ) == 0 ) {
+					strcmp( token, "boolean" ) == 0 || strcmp( token, "void" ) == 0 ) {
 				printTokenAndTag( ofp, t_type, token, sec_depth );
 			} else {
 				fprintf( stdout, "[ERROR]: Primitive type are  int, char or boolean, type is %s\n", token );
@@ -385,7 +394,7 @@ int compile_Statements( FILE * ifp, FILE * ofp, int depth ) {
 	// このブロックをコンパイルする時に一番低い
 	// インデント深さを記録する
 	int sec_depth = depth + 1;
-	
+
 	printTokenAndTagStart( ofp, "statements", depth );
 	if ( debug ) {
 		fprintf( stdout, "[%s]\n", __func__  );
@@ -460,7 +469,6 @@ int compile_Var_Dec( FILE * ifp, FILE * ofp, int depth ) {
 	// var 
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
-
 		type_of_token = token_type( token );
 		if ( type_of_token == KEYWORD && strcmp( token, "var" ) == 0 ) {
 			strcpy( propof, token );
@@ -501,6 +509,7 @@ int compile_Var_Dec( FILE * ifp, FILE * ofp, int depth ) {
 		}
 		if ( type_of_token == IDENTIFIER ) {
 			my_define( 0, token, my_typeof, propof, cnt_var );
+			print_All_Symbol(__func__);
 			printTokenAndTag( ofp, t_type, token, sec_depth );
 			printTokenStatus( ofp, token, depth );
 		} else {
@@ -521,8 +530,12 @@ int compile_Var_Dec( FILE * ifp, FILE * ofp, int depth ) {
 			advance( ifp );
 
 			type_of_token = token_type( token );
- 			if ( type_of_token == IDENTIFIER ) {
+			if ( type_of_token == IDENTIFIER ) {
+				if ( strcmp( propof, "var" ) == 0 ) {
+					cnt_var += 1;
+				}
 				my_define( 0, token, my_typeof, propof, cnt_var );
+				print_All_Symbol(__func__);
 				printTokenAndTag( ofp, t_type, token, sec_depth );
 				printTokenStatus( ofp, token, depth );
 			} else {
@@ -553,11 +566,11 @@ int compile_subroutine_name( FILE * ifp, FILE * ofp, int depth ) {
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
 		depth++;
-		
+
 		type_of_keyword = token_type( token );
 		if ( type_of_keyword == IDENTIFIER ) {
 			// printTab( depth );
- 			// fprintf( stdout, "<identifier> %s </identifier>\n", token );
+			// fprintf( stdout, "<identifier> %s </identifier>\n", token );
 			printTokenAndTag( ofp, t_type, token, depth );
 			return 1;
 		} else {
@@ -614,6 +627,7 @@ int compile_ParameterList( FILE * ifp, FILE * ofp, int depth ) {
 			if ( type_of_token == IDENTIFIER ) {
 				// 引数名をコンパイルする
 				my_define( 0, token, my_typeof, propof, cnt_arg );
+				print_All_Symbol(__func__);
 				printTokenAndTag( ofp, t_type, token, sec_depth );
 			}
 		} else {
@@ -629,83 +643,6 @@ int compile_ParameterList( FILE * ifp, FILE * ofp, int depth ) {
 	printTokenAndTagEnd( ofp, "parameterList", depth );
 	return 0;
 }
-/*
-int compile_statements( FILE * ifp ) {
-	
-	if ( has_more_tokens( ifp ) ) {
-		advance( ifp );
-
-		if ( strcmp( token, "do" ) == 0 ) { 
-			compile_do( ifp );
-		} else if ( strcmp( token, "let" ) == 0 ) {
-			compile_let( ifp );
-		} else if ( strcmp( token, "while" ) == 0 ) {
-			compile_while( ifp );
-		} else if ( strcmp( token, "return" ) == 0 ) {
-			compile_return( ifp );
-		} else if ( strcmp( token, "if" ) == 0 ) {
-			compile_if( ifp );
-		}
-		return 1;
-	}
-	return 0;
-}
-*/
-
-/*
-int compile_do( FILE * ifp ) {
-
-	int type_of_token;
-
-	// subroutinename
-	if ( has_more_token( ifp ) ) {
-		advance( ifp );
-		
-		// next token is subroutinename, identifier 
-		type_of_token = token_type( token );
-		if ( type_of_token == IDENTIFIER ) {
-			fprintf( stdout, "<identifier> %s </identifier>\n", token );
-		}
-	}
-
-}
-*/
-
-/*
-int compile_subroutine( FILE * ifp ) {
-	int type_of_token;
-
-	// subroutinename 
-	if ( has_more_tokens( ifp ) ) {
-		advance( ifp );
-
-		type_of_token = token_type( token );
-		if ( type_of_token == IDENTIFIER ) {
-			fprintf( stdout, "<identifier> %s </identifier>\n", token );
-		}
-	}
-
-	// symbol
-	compile_Symbol( ifp, '(' );
-
-	compile_expressionlist( ifp );
-}
-*/
-
-/*
-int compile_expreassionlist( FILE * ifp ) {
-	int type_of_token;
-
-
-	while ( 1 ) {
-		if ( has_more_tokens( ifp ) ) {
-		
-			compile_expression( ifp );
-		}
-	}
-
-}
-*/
 
 int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 	int type_of_token;
@@ -749,7 +686,7 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 		compile_Symbol( ifp, ofp, '=', sec_depth );
 		compile_Expression( ifp, ofp, sec_depth );
 	}
-	
+
 	compile_Symbol( ifp, ofp, ';', sec_depth ); 
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
@@ -783,7 +720,7 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth ) {
 	compile_Symbol( ifp, ofp, ')', sec_depth );
 
 	compile_Symbol( ifp, ofp, '{', sec_depth );
-	
+
 	compile_Statements( ifp, ofp, sec_depth );
 
 	compile_Symbol( ifp, ofp, '}', sec_depth );
@@ -840,7 +777,7 @@ void compile_While_Statement( FILE * ifp, FILE * ofp, int depth ) {
 	compile_Symbol( ifp, ofp, ')', sec_depth );
 
 	compile_Symbol( ifp, ofp, '{', sec_depth );
-	
+
 	compile_Statements( ifp, ofp, sec_depth );
 
 	compile_Symbol( ifp, ofp, '}', sec_depth );
@@ -863,21 +800,9 @@ void compile_Do_Statement( FILE * ifp, FILE * ofp, int depth ) {
 		fprintf( stdout, "[%s]\n", __func__  );
 	}
 
-	// printTab( depth );
-	// fprintf( stdout, "<doStatement>\n" );
 	printTokenAndTagStart( ofp, "doStatement", depth );
-	// printTab( sec_depth );
-	// fprintf( stdout, "<keyword> do </keyword>\n" );
 	printTokenAndTag( ofp, t_type, token, sec_depth );
- 	/*
-	if ( has_more_tokens( ifp ) ) {
-		advance( ifp );
-		type_of_token = token_type( token );
-		if ( type_of_token == IDENTIFIER ) {
-	  		fprintf( stdout, "\t\t<identifier> %s </identifier>\n", token );
-		}
-	}
-	*/
+
 	compile_Subroutine_Call( ifp, ofp, p, sec_depth );
 	compile_Symbol( ifp, ofp, ';', sec_depth ); 
 
@@ -885,8 +810,6 @@ void compile_Do_Statement( FILE * ifp, FILE * ofp, int depth ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
 	}
 
-	// printTab( depth );
-	// fprintf( stdout, "</doStatement>\n" );
 	printTokenAndTagEnd( ofp, "doStatement", depth );
 }
 
@@ -905,12 +828,12 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 		type_of_token = token_type( token );
 		if ( type_of_token == IDENTIFIER ) {
 			// if ( ( lp = list_Find_Node( token ) ) ) { 
-				if ( debug ) {
-					fprintf( stdout, "call subroutine, this class is registered at function list\n" );
-				}
-				// printTab( depth );
-				// fprintf( stdout, "<identifier> %s </identifier>\n", token );
-				printTokenAndTag( ofp, t_type, token, depth );
+			if ( debug ) {
+				fprintf( stdout, "call subroutine, this class is registered at function list\n" );
+			}
+			// printTab( depth );
+			// fprintf( stdout, "<identifier> %s </identifier>\n", token );
+			printTokenAndTag( ofp, t_type, token, depth );
 			// }
 		}
 	}
@@ -924,12 +847,12 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			type_of_token = token_type( token );
 
 			// if ( ( p = list_Find_Node_Subrot( lp, token ) ) ) {
-				if ( debug ) {
-					fprintf( stdout, "call subroutine, this method is registered at method list\n" );
-				}
-				// printTab( depth );
-				// fprintf( stdout, "<identifier> %s </identifier>\n", token );
-				printTokenAndTag( ofp, t_type, token, depth );
+			if ( debug ) {
+				fprintf( stdout, "call subroutine, this method is registered at method list\n" );
+			}
+			// printTab( depth );
+			// fprintf( stdout, "<identifier> %s </identifier>\n", token );
+			printTokenAndTag( ofp, t_type, token, depth );
 			// }
 
 			if ( compile_Symbol( ifp, ofp, '(', depth ) ) {
@@ -1002,7 +925,7 @@ void compile_Expression( FILE * ifp, FILE * ofp, int depth ) {
 
 		type_of_token = token_type( token );
 		if ( 	type_of_token == INT_CONST || type_of_token == STRING_CONST || strcmp( token, "true" ) == 0 || 
-			strcmp( token, "false" ) == 0 || strcmp( token, "null" ) == 0 || strcmp( token, "this" ) == 0 ) {
+				strcmp( token, "false" ) == 0 || strcmp( token, "null" ) == 0 || strcmp( token, "this" ) == 0 ) {
 
 			flag = 1;
 		} else if ( type_of_token == IDENTIFIER ) {
@@ -1027,8 +950,8 @@ void compile_Expression( FILE * ifp, FILE * ofp, int depth ) {
 
 		while ( 1 ) {
 			if ( 	compile_Symbol( ifp, ofp, '+', sec_depth ) || compile_Symbol( ifp, ofp,  '-', sec_depth ) || compile_Symbol( ifp, ofp, '*', sec_depth ) || 
-				compile_Symbol( ifp, ofp, '/', sec_depth ) || compile_Symbol( ifp, ofp, '&', sec_depth ) || compile_Symbol( ifp, ofp, '|', sec_depth ) || 
-				compile_Symbol( ifp, ofp, '<', sec_depth ) || compile_Symbol( ifp, ofp, '>', sec_depth ) || compile_Symbol( ifp, ofp, '=', sec_depth ) ) {
+					compile_Symbol( ifp, ofp, '/', sec_depth ) || compile_Symbol( ifp, ofp, '&', sec_depth ) || compile_Symbol( ifp, ofp, '|', sec_depth ) || 
+					compile_Symbol( ifp, ofp, '<', sec_depth ) || compile_Symbol( ifp, ofp, '>', sec_depth ) || compile_Symbol( ifp, ofp, '=', sec_depth ) ) {
 				compile_Term( ifp, ofp, sec_depth );
 			} else {
 				break;
@@ -1088,7 +1011,7 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 			// fprintf( stdout, "</stringConstant>\n" );
 			printTokenAndTag( ofp, t_type, token, sec_depth );
 		} else if (	strcmp( token, "true" ) == 0 || strcmp( token, "false" ) == 0 || 
-			   	strcmp( token, "null" ) == 0 || strcmp( token, "this" ) == 0 ) {
+				strcmp( token, "null" ) == 0 || strcmp( token, "this" ) == 0 ) {
 			// keywordConst
 			flag = 1;
 			// printTab( sec_depth );
@@ -1098,11 +1021,11 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 			// varName
 			if ( ( p = list_Find_Node( token ) ) ) {
 				// サブルーチン呼び出し
-			flag = 1;
+				flag = 1;
 				ungets( ifp, strlen( token ) );
 				compile_Subroutine_Call( ifp, ofp, p, sec_depth );
 			} else {
-			flag = 1;
+				flag = 1;
 				// printTab( sec_depth );
 				// fprintf( stdout, "<identifier> %s </identifier>\n", token );
 				printTokenAndTag( ofp, t_type, token, sec_depth );
