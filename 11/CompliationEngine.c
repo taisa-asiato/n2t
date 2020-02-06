@@ -56,7 +56,10 @@ void printTokenStatus( FILE * ofp, char * thistoken, int depth ) {
 	}
 
 	if ( isstdout ) {
-		fprintf( stdout, "<status> %s %s %s %d </status>\n", thistoken, propof, my_typeof, local_index );
+		fprintf( stdout, "<name> %s </name>\n", thistoken );
+		fprintf( stdout, "<property> %s </property>\n", propof );
+		fprintf( stdout, "<type> %s </type\n", my_typeof );
+		fprintf( stdout, "<index> %d </index>\n", local_index );
 	} else {
 		fprintf( ofp, "<status> %s %s %s %d </status>\n",thistoken, propof, my_typeof, local_index );
 	}
@@ -626,6 +629,7 @@ int compile_ParameterList( FILE * ifp, FILE * ofp, int depth ) {
 
 			if ( type_of_token == IDENTIFIER ) {
 				// 引数名をコンパイルする
+				strcpy( propof, "argument" );
 				my_define( 0, token, my_typeof, propof, cnt_arg );
 				print_All_Symbol(__func__);
 				printTokenAndTag( ofp, t_type, token, sec_depth );

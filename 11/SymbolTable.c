@@ -189,16 +189,25 @@ void del_SubroutineTable() {
 
 void print_All_Symbol( char * funcname ) {
 	scope_t * tmp = cls;
-	fprintf(stdout, "[Class_Scope]\n");
+	fprintf(stdout, "==> [Class_Scope] <==\n");
+	fprintf( stdout, "[%s]\n", funcname );
 	while ( tmp ) {
-		fprintf(stdout, "[%s] ===> %s,%s,%s,%d\n", funcname, tmp->name, tmp->type, tmp->proper, tmp->number);
+		fprintf(stdout, "%10s(name)\n", tmp->name );
+		fprintf(stdout, "%10s(type)\n", tmp->type );
+		fprintf(stdout, "%10s(property)\n", tmp->proper );
+		fprintf(stdout, "%10d(index)\n", tmp->number);
+		fprintf(stdout, "==\n");
 		tmp = tmp->next;
 	}
 
-	fprintf(stdout, "[Subrot_Scope]\n");
+	fprintf(stdout, "==> [Subrot_Scope] <==\n");
 	tmp = sub;
 	while ( tmp ) {
-		fprintf(stdout, "[%s] ===> %s,%s,%s,%d\n", funcname, tmp->name, tmp->type, tmp->proper, tmp->number);
+		fprintf(stdout, "%10s(name)\n", tmp->name );
+		fprintf(stdout, "%10s(type)\n", tmp->type );
+		fprintf(stdout, "%10s(property)\n", tmp->proper );
+		fprintf(stdout, "%10d(index)\n", tmp->number);
+		fprintf(stdout, "==\n");
 		tmp = tmp->next;
 	}
 }
