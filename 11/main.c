@@ -18,7 +18,7 @@ char t_type[256];
 list_t * head;
 list_t * end;
 // デバッグ情報を出力する場合, 1をセットしコンパイルする
-int debug = 1;
+int debug = 0;
 // 出力先を変更する場合, 1をセットしコンパイルする
 int isstdout = 1;
 
@@ -33,10 +33,13 @@ int cnt_field = 0;
 int cnt_arg = 0;
 int cnt_var = 0;
 int kind = 0;
+int symbol_define = 0;
+int symbol_used = 0;
 char my_typeof[256];
 char propof[256];
 int current_type;
 char sname[256];
+
 int main( int argc, char ** argv ) {
 	/* エラー時の処理 */
 	if ( argc != 2 ) {

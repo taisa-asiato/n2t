@@ -8,6 +8,8 @@ void init_SymbolTable() {
 	cls->number = -1;
 	cls->next = NULL;
 	cls->prev = NULL;
+	cls->defined = 0;
+	cls->used = 0;
 
 	clsp = cls;
 }
@@ -20,17 +22,29 @@ void init_SubroutineTable() {
 	sub->number = -1;
 	sub->next = NULL;
 	sub->prev = NULL;
+	sub->defined = 0;
+	sub->used = 0;
 
 	subp = sub;
 }
 
-void constructer() {
+void delete_SubroutineTable() {
+	scope_t * tmp = sub;
+	scope_t * delnot;
+	while ( tmp ) {
+		delnot = tmp;
+		tmp = tmp->next;
+		free( delnot );
+	}
+}
+
+void constructor() {
 	init_SubroutineTable();
 	init_SymbolTable();
-	cnt_static = -1;
-        cnt_field = -1;
-        cnt_arg = -1;
-        cnt_var = -1;
+	cnt_static = 0;
+        cnt_field = 0;
+        cnt_arg = 0;
+        cnt_var = 0;
 }
 
 void my_define( int iscls, char * symbol_name, char * type, char * proper, int number ) {
@@ -40,6 +54,9 @@ void my_define( int iscls, char * symbol_name, char * type, char * proper, int n
 	strcpy( tmp->type, type );
 	strcpy( tmp->proper, proper);
 	tmp->number = number;
+	if ( symbol_define ) {
+		tmp->defined = 1;
+	}
 
 	if ( iscls ) {
 		clsp->next = tmp;
@@ -88,6 +105,7 @@ scope_t * list_Find_Scope( char * symbol_name ) {
 	} else {
 		return list_Find_Scope_Sub( symbol_name );
 	}
+	return NULL;
 }
 
 int var_Count( char * my_typeof ) {
@@ -160,9 +178,13 @@ int index_Of( char * name ) {
 	scope_t * tmp = list_Find_Scope( name );
 	
 	if (debug) {
-		fprintf(stdout, "[%s] addresss is [%p], index is [%d]\n", name, tmp, tmp->number);
+		fprintf(stdout, "[%s] addresss is [%p]\n", name, tmp );
 	}
-	return tmp->number;
+
+	if ( tmp ) {
+		return tmp->number;
+	}
+	return -1;
 }
 
 void del_SymbolTable() {
@@ -196,6 +218,11 @@ void print_All_Symbol( char * funcname ) {
 		fprintf(stdout, "%10s(type)\n", tmp->type );
 		fprintf(stdout, "%10s(property)\n", tmp->proper );
 		fprintf(stdout, "%10d(index)\n", tmp->number);
+		if ( tmp->defined == 1 ) {
+			fprintf( stdout, "%10s(definition)\n", "define" );
+		} else if ( tmp->defined == 0 ) {
+			fprintf( stdout, "%10s(used)\n", "used" );
+		} 
 		fprintf(stdout, "==\n");
 		tmp = tmp->next;
 	}
@@ -207,7 +234,51 @@ void print_All_Symbol( char * funcname ) {
 		fprintf(stdout, "%10s(type)\n", tmp->type );
 		fprintf(stdout, "%10s(property)\n", tmp->proper );
 		fprintf(stdout, "%10d(index)\n", tmp->number);
+		if ( tmp->defined == 1 ) {
+			fprintf( stdout, "%10s(definition)\n", "define" );
+		} else if ( tmp->used == 0 ) {
+			fprintf( stdout, "%10s(used)\n", "used" );
+		} 
 		fprintf(stdout, "==\n");
 		tmp = tmp->next;
 	}
+}
+
+void print_Class_Subrot( char * symbol_name, int iscls ) {
+	if ( iscls == CLASS) {
+		fprintf( stdout, "< =class= > %s < /=class= >\n", symbol_name );
+	} else if ( iscls == METHOD ){
+		fprintf( stdout, "< =method= > %s < =/method= >\n", symbol_name );
+	} else if( iscls == FUNCTION ) {
+		fprintf( stdout, "< =function= > %s <=/function= >\n", symbol_name );
+	} else if ( iscls == CONSTRUCTOR ) {
+		fprintf( stdout, "< =constructer= > %s < =constructer= >\n", symbol_name );
+	}
+}
+
+int Is_Used( char * thistoken ) {
+	if ( debug ) {
+		fprintf(stdout, "[%s]\n", __func__);
+	}
+
+	scope_t * tmp = list_Find_Scope( thistoken );		
+	
+	if ( tmp ) {
+		return tmp->used;
+	}
+
+	return 0;
+}
+
+int Is_Defined( char * thistoken ) {
+	if ( debug ) {
+		fprintf(stdout, "[%s]\n", __func__);
+	}
+
+	scope_t * tmp = list_Find_Scope( thistoken );
+
+	if ( tmp ) {
+		return tmp->defined;
+	}
+	return 0;
 }

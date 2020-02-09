@@ -60,6 +60,8 @@ typedef struct _scope {
 	char type[256];
 	char proper[256];
 	int number;
+	int defined;
+	int used;
 	struct _scope * next;
 	struct _scope * prev;
 } scope_t;
@@ -101,6 +103,8 @@ extern int cnt_field;
 extern int cnt_arg;
 extern int cnt_var;
 extern int kind;
+extern int symbol_define;
+extern int symbol_used;
 extern char my_typeof[256];
 extern char propof[256];
 extern int current_type;
@@ -154,6 +158,8 @@ void printTokenAndTag( FILE * ofp, char * type, char * thistoken, int depth );
 void printTokenAndTagStart( FILE * ofp, char * thistoken, int depth );
 void printTokenAndTagEnd( FILE * ofp, char * thistoken, int depth );
 void printTokenStatus( FILE * ofp, char * thistoken, int depth );
+void printSubrotStatus( FILE * ofp, list_t * class_p, char * thistoken, int depth );
+void printClassStatus( FILE * ofp, list_t * class_p, char * thistoken, int depth );
 
 /* list.c */
 void list_Add( char * sym_name );
@@ -181,7 +187,7 @@ subroutine_name_t *  list_Find_Node_Subrot( list_t * class_name, char * subrot_n
 /* SymbolTable.c */
 void init_SymbolTable();
 void init_SubroutineTable();
-void constructer();
+void constructor();
 void my_define( int iscls, char * symbol_name, char * type, char * proper, int number );
 int var_Count( char * symbol_name );
 int kind_Of( char * name );
@@ -190,3 +196,10 @@ int index_Of( char * name );
 void del_SymbolTable();
 void del_SubroutineTable();
 void print_All_Symbol();
+void print_Class_Subrot( char * symbol_name, int iscls );
+int Is_Used( char * thistoken );
+int Is_Defined( char * thistoken );
+scope_t * list_Find_Scope_Cls( char * symbol_name );
+scope_t * list_Find_Scope_Sub( char * symbol_name );
+scope_t * list_Find_Scope( char * symbol_name );
+void delete_SubroutineTable();
