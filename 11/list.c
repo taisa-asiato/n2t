@@ -117,16 +117,55 @@ list_t * list_Find_Node( char * f_str ) {
 	return 0;
 }
 
-subroutine_name_t *  list_Find_Node_Subrot( list_t * class_name, char * subrot_name ) {
+subroutine_name_t * list_Find_Node_Subrot( list_t * class_name, char * subrot_name ) {
 	subroutine_name_t * p = class_name->subrot_head;
 	
-	while ( p != NULL ) {
+	while ( p ) {
+		if ( debug ) {
+			fprintf( stdout, "[%s]:Start\n", __func__  );
+		}
 		if ( strcmp( p->subroutine_name, subrot_name ) == 0 ) {
 				return p;
 		}
 		p = p->next;
 	}
 	return 0;
+}
+
+// 関数名から当該関数が宣言されているクラスのリストポインタを返す
+list_t * list_Find_Node_Subrot_BelongClass( char * subrot_name ) {
+	list_t * p = head;
+	subroutine_name_t * tmp;
+
+	while ( p != NULL ) {
+		tmp = head->subrot_head;
+		while ( tmp ) {
+			if ( strcmp( tmp->subroutine_name, subrot_name ) == 0 ) {
+				return p;
+			}
+			tmp = tmp->next;
+		}
+		p = p->next;
+	}
+	return NULL;
+}
+
+// 関数名から探索する関数がリストに登録されているか確認する
+subroutine_name_t * list_Find_Node_Subrot_NoClass( char * subrot_name ) {
+	list_t * p = head;
+	subroutine_name_t * tmp;
+
+	while ( p != NULL ) {
+		tmp = head->subrot_head;
+		while ( tmp ) {
+			if ( strcmp( tmp->subroutine_name, subrot_name ) == 0 ) {
+				return tmp;
+			}
+			tmp = tmp->next;
+		}
+		p = p->next;
+	}
+	return NULL;
 }
 
 void list_Make_Standard_Class() {

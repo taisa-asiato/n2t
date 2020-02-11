@@ -109,6 +109,7 @@ extern char my_typeof[256];
 extern char propof[256];
 extern int current_type;
 extern char sname[256];
+extern char thisclassname[256];
 
 /* JackAnalyzer.c */
 int gen_inputfilename( struct dirent * dp, char * dirname );
@@ -183,6 +184,8 @@ void list_Init_Keyboart_Class( list_t * keyboard_pos );
 void list_Init_Memory_Class( list_t * memory_pos );
 void list_Init_Sys_Class( list_t * sys_pos );
 subroutine_name_t *  list_Find_Node_Subrot( list_t * class_name, char * subrot_name );
+list_t * list_Find_Node_Subrot_BelongClass( char * subrot_name );
+subroutine_name_t * list_Find_Node_Subrot_NoClass( char * subrot_name );
 
 /* SymbolTable.c */
 void init_SymbolTable();
