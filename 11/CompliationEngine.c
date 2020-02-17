@@ -942,12 +942,16 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			}
 
 			printTokenAndTag( ofp, t_type, token, depth );
-			// list_Print();
 			if ( type_of_token == IDENTIFIER ) {
-				p = list_Find_Node_Subrot_NoClass( token );
-				fprintf( stdout, "%s ==> %s\n", token, p );
+				// methodの登録クラスを確認
+				lp = list_Find_Node( tmp_token );
+				// 登録クラス中のメソッドが登録されているか確認
+				p = list_Find_Node_Subrot( lp, token );
 				if ( p ) {
-					lp = list_Find_Node_Subrot_BelongClass( token );
+					// lp = list_Find_Node_Subrot_BelongClass( token );
+					printSubrotStatus( ofp, lp, token, depth );
+				} else {
+					list_Add_Subrot( lp, token );
 					printSubrotStatus( ofp, lp, token, depth );
 				}
 			}
