@@ -49,7 +49,7 @@ void list_Add( char * sym_name ) {
 void list_Print_Subrot( list_t * class_name ) {
 	subroutine_name_t * p = class_name->subrot_head;
 	while ( p != NULL ) {
-		fprintf( stdout, "\t\t[%50s]\n", p->subroutine_name );
+		fprintf( stdout, "\t\t[%p:%40s]\n", p->subroutine_name, p->subroutine_name );
 		p = p->next;
 	}
 }
@@ -137,9 +137,12 @@ list_t * list_Find_Node_Subrot_BelongClass( char * subrot_name ) {
 	list_t * p = head;
 	subroutine_name_t * tmp;
 
+	if ( debug ) {
+		fprintf( stdout, "[%s]:Start\n", __func__ );
+	}
 	while ( p != NULL ) {
-		tmp = head->subrot_head;
-		while ( tmp ) {
+		tmp = p->subrot_head;
+		while ( tmp != NULL ) {
 			if ( strcmp( tmp->subroutine_name, subrot_name ) == 0 ) {
 				return p;
 			}
@@ -155,9 +158,17 @@ subroutine_name_t * list_Find_Node_Subrot_NoClass( char * subrot_name ) {
 	list_t * p = head;
 	subroutine_name_t * tmp;
 
+	if ( debug ) {
+		fprintf( stdout, "[%s]:Start\n", __func__ );
+	}
+
 	while ( p != NULL ) {
-		tmp = head->subrot_head;
+		tmp = p->subrot_head;
+		if ( debug ) {
+			fprintf( stdout, "%p %p:%s\n", tmp, p, p->symbol_name );
+		}
 		while ( tmp ) {
+			// fprintf( stdout, "%s\n", tmp->subroutine_name );
 			if ( strcmp( tmp->subroutine_name, subrot_name ) == 0 ) {
 				return tmp;
 			}

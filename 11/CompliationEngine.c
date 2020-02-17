@@ -793,7 +793,6 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth ) {
 	compile_Statements( ifp, ofp, sec_depth );
 
 	compile_Symbol( ifp, ofp, '}', sec_depth );
-	fprintf( stdout, "check\n" );
 
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
@@ -879,6 +878,7 @@ void compile_Do_Statement( FILE * ifp, FILE * ofp, int depth ) {
 void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int depth ) {
 	int type_of_token;
 	char class_name[256];
+	char tmp_token[256];
 	subroutine_name_t * p;
 	list_t * lp;
 	strcpy( class_name, token );
@@ -897,14 +897,32 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			}
 
 			printTokenAndTag( ofp, t_type, token, depth );
-			p = list_Find_Node_Subrot_NoClass( token );
-			if ( !p ) {
-				lp = list_Find_Node( thisclassname );
-				list_Add_Subrot( lp, token );
-				fprintf( stdout, " ==>> %s, %s, address is %p\n", thisclassname, token, lp );
+			strcpy( tmp_token, token );
+			advance( ifp );
+			if ( token[0] == '(' ) {
+				lp = list_Find_Node_Subrot_BelongClass( tmp_token );
+				if ( !lp ) {
+					if ( debug ) {
+						fprintf( stdout, "this function is not registered at list, %s\n", tmp_token );
+					}
+					lp = list_Find_Node( thisclassname );
+					list_Add_Subrot( lp, tmp_token );	
+					list_Print();
+						
+				}
+				printSubrotStatus( ofp, lp, tmp_token, depth );
+				ungets( ifp, strlen( token ) );
+			} else if ( token[0] == '.' ) {
+				// クラスメソッドの場合, クラス名をコンパイルすることになる
+				lp = list_Find_Node( tmp_token );
+				if ( !lp ) {
+					// クラス名がリストに未登録の場合
+					list_Add( tmp_token );
+					lp = list_Find_Node( tmp_token );
+				}
+				printClassStatus( ofp, lp, tmp_token, depth );
+				ungets( ifp, strlen( token ) );
 			}
-			list_Print();
-			printSubrotStatus( ofp, lp, token, depth );
 		}
 	}
 
@@ -922,7 +940,17 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			if ( debug ) {
 				fprintf( stdout, "call subroutine, this method is registered at method list\n" );
 			}
+
 			printTokenAndTag( ofp, t_type, token, depth );
+			// list_Print();
+			if ( type_of_token == IDENTIFIER ) {
+				p = list_Find_Node_Subrot_NoClass( token );
+				fprintf( stdout, "%s ==> %s\n", token, p );
+				if ( p ) {
+					lp = list_Find_Node_Subrot_BelongClass( token );
+					printSubrotStatus( ofp, lp, token, depth );
+				}
+			}
 
 			if ( compile_Symbol( ifp, ofp, '(', depth ) ) {
 				compile_Expression_List( ifp, ofp, depth );

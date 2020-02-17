@@ -48,7 +48,7 @@ void constructor() {
 }
 
 void my_define( int iscls, char * symbol_name, char * type, char * proper, int number ) {
-	fprintf( stdout, "%lu\n", sizeof( scope_t ) );
+	// fprintf( stdout, "%lu\n", sizeof( scope_t ) );
 	scope_t * tmp = malloc( sizeof( scope_t ) );
 	strcpy( tmp->name, symbol_name );
 	strcpy( tmp->type, type );
