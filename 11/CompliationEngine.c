@@ -70,12 +70,12 @@ void printTokenStatus( FILE * ofp, char * thistoken, int depth ) {
 
 			printTab( ofp, depth );
 			fprintf( stdout, "<index> %d </index>\n", local_index );
-			if ( isused ) {
-				printTab( ofp, depth );
-				fprintf( stdout, "<status> Used </status>\n" );
-			} else if ( isused == 0 || isdefined ) {
+			if ( strcmp( propof, "var" ) == 0 ) {
 				printTab( ofp, depth );
 				fprintf( stdout, "<status> Defined </status>\n" );
+			} else {
+				printTab( ofp, depth );
+				fprintf( stdout, "<status> Used </status>\n" );
 			}
 		} else {
 			printTab( ofp, depth );
@@ -538,7 +538,6 @@ int compile_Var_Dec( FILE * ifp, FILE * ofp, int depth ) {
 		if ( type_of_token == KEYWORD && strcmp( token, "var" ) == 0 ) {
 			symbol_define = 1;
 			strcpy( propof, token );
-			cnt_var += 1;
 			printTokenAndTag( ofp, t_type, token, sec_depth );
 		} else {
 			return -1;
@@ -575,8 +574,9 @@ int compile_Var_Dec( FILE * ifp, FILE * ofp, int depth ) {
 		}
 		if ( type_of_token == IDENTIFIER ) {
 			my_define( 0, token, my_typeof, propof, cnt_var );
+			cnt_var += 1;
 			printTokenAndTag( ofp, t_type, token, sec_depth );
-			printTokenStatus( ofp, token, depth );
+			printTokenStatus( ofp, token, sec_depth+1 );
 		} else {
 			return -1;
 		}
@@ -591,18 +591,17 @@ int compile_Var_Dec( FILE * ifp, FILE * ofp, int depth ) {
 			printTokenAndTagEnd( ofp, "varDec", depth );
 			return -1;
 		}
-
 		if ( has_more_tokens( ifp ) ) {
 			advance( ifp );
 
 			type_of_token = token_type( token );
 			if ( type_of_token == IDENTIFIER ) {
 				if ( strcmp( propof, "var" ) == 0 ) {
+					my_define( 0, token, my_typeof, propof, cnt_var );
 					cnt_var += 1;
+					printTokenAndTag( ofp, t_type, token, sec_depth );
+					printTokenStatus( ofp, token, sec_depth+1 );
 				}
-				my_define( 0, token, my_typeof, propof, cnt_var );
-				printTokenAndTag( ofp, t_type, token, sec_depth );
-				printTokenStatus( ofp, token, depth );
 			} else {
 				fprintf( stdout, "[ERROR] next token must be identifier\n" );
 				return -1;
@@ -733,6 +732,7 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 		advance( ifp );
 		type_of_token = token_type( token );
 		if ( type_of_token == IDENTIFIER ) {
+			strcpy( propof, "notVar" );
 			printTokenAndTag( ofp, t_type, token, sec_depth );
 			printTokenStatus( ofp, token, sec_depth );
 			tmp = list_Find_Scope( token );
