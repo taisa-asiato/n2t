@@ -206,3 +206,6 @@ scope_t * list_Find_Scope_Cls( char * symbol_name );
 scope_t * list_Find_Scope_Sub( char * symbol_name );
 scope_t * list_Find_Scope( char * symbol_name );
 void delete_SubroutineTable();
+
+/* VMWriter.c */
+void writePush( FILE * ofp, int SEGNUMBER, int index );
