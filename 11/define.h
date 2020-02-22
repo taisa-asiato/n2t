@@ -41,6 +41,16 @@
 #define NONE 		21
 #define ARG		22
 
+// for VMWriter.c
+#define VM_CONST 	0
+#define VM_ARG		1
+#define VM_LOCAL	2
+#define VM_STATIC	3
+#define VM_THIS		4
+#define VM_THAT		5
+#define VM_POINTER	6
+#define VM_TEMP		7
+
 typedef struct __subroutine_list {
 	struct __subroutine_list * next;
 	struct __subroutine_list * prev;
@@ -192,7 +202,8 @@ void init_SymbolTable();
 void init_SubroutineTable();
 void constructor();
 void my_define( int iscls, char * symbol_name, char * type, char * proper, int number );
-int var_Count( char * symbol_name );
+int var_ClassCount( char * symbol_name );
+int var_SubrotCount( char * symbol_name );
 int kind_Of( char * name );
 int type_Of( char * name );
 int index_Of( char * name );
@@ -209,3 +220,11 @@ void delete_SubroutineTable();
 
 /* VMWriter.c */
 void writePush( FILE * ofp, int SEGNUMBER, int index );
+void writePop( FILE * ofp, int SEGNUMBER, int index );
+void writeAritmetic( FILE * ofp, char command[256] );
+void writeLabel( FILE * ofp, char labelname[256] );
+void writeGoto( FILE * ofp, char labelname[256] );
+void writeIf( FILE * ofp, char labelname[256] );
+void writeCall( FILE * ofp, char func[256], int nargs );
+void writeFunction( FILE * ofp, char func[256], int nlocals );
+void writeReturn( FILE * ofp );

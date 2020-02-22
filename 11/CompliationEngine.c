@@ -57,7 +57,7 @@ void printTokenStatus( FILE * ofp, char * thistoken, int depth ) {
 		fprintf(stdout, "printout token status\n");
 	}
 
-	if ( isstdout ) {
+	if ( isstdout & debug ) {
 		if ( tmp ) {
 			printTab( ofp, depth );
 			fprintf( stdout, "<name> %s </name>\n", thistoken );
@@ -81,6 +81,8 @@ void printTokenStatus( FILE * ofp, char * thistoken, int depth ) {
 			printTab( ofp, depth );
 			fprintf( stdout, "no registerd symbol : %s\n", thistoken );
 		}
+	} else if ( isstdout &! debug ) {
+		////  fprintf( stdout, "push " )
 	} else {
 		fprintf( ofp, "<status> %s %s %s %d </status>\n",thistoken, propof, my_typeof, local_index );
 	}
@@ -91,12 +93,16 @@ void printSubrotStatus( FILE * ofp, list_t * class_p, char * thistoken, int dept
 		fprintf( stdout, "[%s]:Start\n", __func__ );
 	}
 
-	if ( isstdout ) {
+	if ( isstdout & debug ) {
 		printTab( ofp, depth );
 		fprintf( stdout, "<subrot_name> %s </subrot_name>\n", thistoken );
 
 		printTab( ofp, depth );
 		fprintf( stdout, "<belong_class> %s </belong_class>\n", class_p->symbol_name );
+	} else if ( isstdout & !debug ) {
+		fprintf( stdout, "function %s.%s\n", class_p->symbol_name, thistoken );
+	} else {
+		fprintf( ofp, "function %s.%s\n", class_p->symbol_name, thistoken );
 	}
 }
 
@@ -328,6 +334,7 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 	int type_of_token;
 	int sec_depth = depth+1;
 	int func_type = 0; 
+	char function_name[256];
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]\n", __func__  );
@@ -396,6 +403,7 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 			printTokenAndTag( ofp, t_type, token, sec_depth );
 			list_Add_Subrot( class_pos, token );
 			printSubrotStatus( ofp, class_pos, token, sec_depth );
+			strcpy( function_name, token );
 		} else {
 			fprintf( stdout, "[ERROR]: Function name must be identifier\n" );
 			return -1;
@@ -410,6 +418,8 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 
 	// パラメータリストをコンパイル
 	compile_ParameterList( ifp, ofp, sec_depth );
+	writeFunction( ofp, function_name, var_SubrotCount( "argument" ) );
+	
 
 	if ( !compile_Symbol( ifp, ofp, ')', sec_depth ) ) {
 		return -1;

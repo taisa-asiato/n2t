@@ -4,39 +4,39 @@ void writePush( FILE * ofp, int SEGNUMBER, int index ) {
 	if ( isstdout & debug ) {
 		fprintf( stdout, "push %s\n", token );
 	} else if ( isstdout  & !debug ) {
-		if ( SEGNUMBER == CONST ) {
+		if ( SEGNUMBER == VM_CONST ) {
 			fprintf( stdout, "push constant %d\n", index );
-		} else if ( SEGNUMBER == ARG ) {
+		} else if ( SEGNUMBER == VM_ARG ) {
 			fprintf( stdout, "push argument %d\n", index );
-		} else if ( SEGNUMBER == LOCAL ) {
+		} else if ( SEGNUMBER == VM_LOCAL ) {
 			fprintf( stdout, "push local %d\n", index );
-		} else if ( SEGNUMBER == STATIC ) {
+		} else if ( SEGNUMBER == VM_STATIC ) {
 			fprintf( stdout, "push static %d\n", index );
-		} else if ( SEGNUMBER == THIS ) {
+		} else if ( SEGNUMBER == VM_THIS ) {
 			fprintf( stdout, "push this %d\n", index );
-		} else if ( SEGNUMBER == THAT ) {
+		} else if ( SEGNUMBER == VM_THAT ) {
 			fprintf( stdout, "push that %d\n", index );
-		} else if ( SEGNUMBER == POINTER ) {
+		} else if ( SEGNUMBER == VM_POINTER ) {
 			fprintf( stdout, "push pointer %s\n", token );
-		} else if ( SEGNUMBER == TEMP ) {
+		} else if ( SEGNUMBER == VM_TEMP ) {
 			fprintf( stdout, "push temp %d\n", index );
 		}
 	} else {
-		if ( SEGNUMBER == CONST ) {
+		if ( SEGNUMBER == VM_CONST ) {
 			fprintf( ofp, "push constant %d\n", index );
-		} else if ( SEGNUMBER == ARG ) {
+		} else if ( SEGNUMBER == VM_ARG ) {
 			fprintf( ofp, "push argument %d\n", index );
-		} else if ( SEGNUMBER == LOCAL ) {
+		} else if ( SEGNUMBER == VM_LOCAL ) {
 			fprintf( ofp, "push local %d\n", index );
-		} else if ( SEGNUMBER == STATIC ) {
+		} else if ( SEGNUMBER == VM_STATIC ) {
 			fprintf( ofp, "push static %d\n", index );
-		} else if ( SEGNUMBER == THIS ) {
+		} else if ( SEGNUMBER == VM_THIS ) {
 			fprintf( ofp, "push this %d\n", index );
-		} else if ( SEGNUMBER == THAT ) {
+		} else if ( SEGNUMBER == VM_THAT ) {
 			fprintf( ofp, "push that %d\n", index );
-		} else if ( SEGNUMBER == POINTER ) {
+		} else if ( SEGNUMBER == VM_POINTER ) {
 			fprintf( ofp, "push pointer %s\n", token );
-		} else if ( SEGNUMBER == TEMP ) {
+		} else if ( SEGNUMBER == VM_TEMP ) {
 			fprintf( ofp, "push temp %d\n", index );
 		}
 	}	
@@ -44,41 +44,41 @@ void writePush( FILE * ofp, int SEGNUMBER, int index ) {
 
 void writePop( FILE * ofp, int SEGNUMBER, int index ) {
 	if ( isstdout & debug ) {
-		fprintf( stdout, "pop %d\n", token );
+		fprintf( stdout, "pop %s\n", token );
 	} else if ( isstdout & !debug ) {
-		if ( SEGNUMBER == CONST ) {
+		if ( SEGNUMBER == VM_CONST ) {
 			fprintf( stdout, "pop constant %d\n", index );
-		} else if ( SEGNUMBER == ARG ) {
+		} else if ( SEGNUMBER == VM_ARG ) {
 			fprintf( stdout, "pop argument %d\n", index );
-		} else if ( SEGNUMBER == LOCAL ) {
+		} else if ( SEGNUMBER == VM_LOCAL ) {
 			fprintf( stdout, "pop local %d\n", index );
-		} else if ( SEGNUMBER == STATIC ) {
+		} else if ( SEGNUMBER == VM_STATIC ) {
 			fprintf( stdout, "pop static %d\n", index );
-		} else if ( SEGNUMBER == THIS ) {
+		} else if ( SEGNUMBER == VM_THIS ) {
 			fprintf( stdout, "pop this %d\n", index );
-		} else if ( SEGNUMBER == THAT ) {
+		} else if ( SEGNUMBER == VM_THAT ) {
 			fprintf( stdout, "pop that %d\n", index );
-		} else if ( SEGNUMBER == POINTER ) {
+		} else if ( SEGNUMBER == VM_POINTER ) {
 			fprintf( stdout, "pop pointer %d\n", index );
-		} else if ( SEGNUMBER == TEMP ) {
+		} else if ( SEGNUMBER == VM_TEMP ) {
 			fprintf( stdout, "pop temp %d\n", index );
 		}
 	} else {
-		if ( SEGNUMBER == CONST ) {
+		if ( SEGNUMBER == VM_CONST ) {
 			fprintf( ofp, "pop constant %d\n", index );
-		} else if ( SEGNUMBER == ARG ) {
+		} else if ( SEGNUMBER == VM_ARG ) {
 			fprintf( ofp, "pop argument %d\n", index );
-		} else if ( SEGNUMBER == LOCAL ) {
+		} else if ( SEGNUMBER == VM_LOCAL ) {
 			fprintf( ofp, "pop local %d\n", index );
-		} else if ( SEGNUMBER == STATIC ) {
+		} else if ( SEGNUMBER == VM_STATIC ) {
 			fprintf( ofp, "pop static %d\n", index );
-		} else if ( SEGNUMBER == THIS ) {
+		} else if ( SEGNUMBER == VM_THIS ) {
 			fprintf( ofp, "pop this %d\n", index );
-		} else if ( SEGNUMBER == THAT ) {
+		} else if ( SEGNUMBER == VM_THAT ) {
 			fprintf( ofp, "pop that %d\n", index );
-		} else if ( SEGNUMBER == POINTER ) {
+		} else if ( SEGNUMBER == VM_POINTER ) {
 			fprintf( ofp, "pop pointer %d\n", index );
-		} else if ( SEGNUMBER == TEMP ) {
+		} else if ( SEGNUMBER == VM_TEMP ) {
 			fprintf( ofp, "pop temp %d\n", index );
 		}
 	}
@@ -86,7 +86,7 @@ void writePop( FILE * ofp, int SEGNUMBER, int index ) {
 
 void writeAritmetic( FILE * ofp, char command[256] ) {
 	if ( isstdout & debug ) {
-		fprintf( stdout, "%d\n", token );
+		fprintf( stdout, "%s\n", token );
 	} else if ( isstdout & !debug ) {
 		if ( strcmp( command, "+" ) == 0 ) {
 			fprintf( stdout, "add\n" );
@@ -166,21 +166,30 @@ void writeIf( FILE * ofp, char labelname[256] ) {
 
 void writeCall( FILE * ofp, char func[256], int nargs ) {
 	if ( isstdout & debug ) {
-		fprintf( stdout, "call %s %n\n", func, nargs );
+		fprintf( stdout, "call %s %d\n", func, nargs );
 	} else if ( isstdout & !debug ) {
-		fprintf( stdout, "call %s %n\n", func, nargs );
+		fprintf( stdout, "call %s %d\n", func, nargs );
 	} else {
-		fprintf( ofp, "call %s %n\n", func, nargs );
+		fprintf( ofp, "call %s %d\n", func, nargs );
 	}
 }
 
 void writeFunction( FILE * ofp, char func[256], int nlocals ) {
 	if ( isstdout & debug ) {
-		fprintf( stdout, "call %s %n\n", func, nargs );
+		fprintf( stdout, "function %s %d\n", func, nlocals );
 	} else if ( isstdout & !debug ) {
-		fprintf( stdout, "call %s %n\n", func, nargs );
+		fprintf( stdout, "function %s %d\n", func, nlocals );
 	} else {
-		fprintf( ofp, "call %s %n\n", func, nargs );
+		fprintf( ofp, "function %s %d\n", func, nlocals );
 	}
+}
 
+void writeReturn( FILE * ofp ) {
+	if ( isstdout & debug ) {
+		fprintf( stdout, "return\n" );
+	} else if ( isstdout & !debug ) {
+		fprintf( stdout, "return\n" );
+	} else {
+		fprintf( ofp, "return\n" );
+	}
 }

@@ -108,20 +108,26 @@ scope_t * list_Find_Scope( char * symbol_name ) {
 	return NULL;
 }
 
-int var_Count( char * my_typeof ) {
+int var_ClassCount( char * my_proper ) {
 	int cnt = 0;
-	if ( strcmp( my_typeof, "static" ) == 0 || strcmp( my_typeof, "field" ) == 0 ) {
+	if ( strcmp( my_proper, "static" ) == 0 || strcmp( my_proper, "field" ) == 0 ) {
 		scope_t * tmp = cls->next; 
 		while ( tmp ) {
-			if ( strcmp( tmp->type, my_typeof ) == 0 ) {
+			if ( strcmp( tmp->proper, my_proper ) == 0 ) {
 				cnt += 1;
 			}
 			tmp = tmp->next;
 		}
-	} else if ( strcmp( my_typeof, "var" ) == 0 || strcmp( my_typeof, "argument" ) == 0 ) {
+	}
+	return cnt;
+}
+
+int var_SubrotCount( char * my_proper ) {
+	int cnt = 0;
+	if ( strcmp( my_proper, "var" ) == 0 || strcmp( my_proper, "argument" ) == 0 ) {
 		scope_t * tmp = sub->next;
 		while ( tmp ) {
-			if ( strcmp( tmp->type, my_typeof ) == 0 ) {
+			if ( strcmp( tmp->type, my_proper ) == 0 ) {
 				cnt += 1;
 			}
 			tmp = tmp->next;
