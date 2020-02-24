@@ -40,6 +40,8 @@ char propof[256];
 int current_type;
 char sname[256];
 char thisclassname[256];
+char opstack[512];
+int opnum = 0;
 
 int main( int argc, char ** argv ) {
 	/* エラー時の処理 */

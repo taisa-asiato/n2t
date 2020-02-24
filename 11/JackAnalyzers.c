@@ -20,7 +20,7 @@ void gen_outputfilename( char * filename ) {
 	strcpy( tmpfilename, filename );
 	cp = strstr( tmpfilename, ".jack" );
 	*cp = '\0';
-	sprintf( outputfilename, "%s_test.xml", tmpfilename );
+	sprintf( outputfilename, "%s_test.vm", tmpfilename );
 }
 
 void jack_analyze_main( char * fname ) {

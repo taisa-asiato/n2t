@@ -5,7 +5,7 @@ void writePush( FILE * ofp, int SEGNUMBER, int index ) {
 		fprintf( stdout, "push %s\n", token );
 	} else if ( isstdout  & !debug ) {
 		if ( SEGNUMBER == VM_CONST ) {
-			fprintf( stdout, "push constant %d\n", index );
+			fprintf( stdout, "push constant %s\n", token );
 		} else if ( SEGNUMBER == VM_ARG ) {
 			fprintf( stdout, "push argument %d\n", index );
 		} else if ( SEGNUMBER == VM_LOCAL ) {
@@ -23,7 +23,7 @@ void writePush( FILE * ofp, int SEGNUMBER, int index ) {
 		}
 	} else {
 		if ( SEGNUMBER == VM_CONST ) {
-			fprintf( ofp, "push constant %d\n", index );
+			fprintf( ofp, "push constant %s\n", token );
 		} else if ( SEGNUMBER == VM_ARG ) {
 			fprintf( ofp, "push argument %d\n", index );
 		} else if ( SEGNUMBER == VM_LOCAL ) {
@@ -108,6 +108,10 @@ void writeAritmetic( FILE * ofp, char command[256] ) {
 			fprintf( stdout, "|" );
 		} else if ( strcmp( command, "!" ) == 0 ) {
 			fprintf( stdout, "!" );
+		} else if ( strcmp( command, "*" ) == 0 ) {
+			fprintf( stdout, "call Math.multiply 2\n" );
+		} else if ( strcmp( command, "/" ) == 0 ) {
+			fprintf( stdout, "call Math.divide 2\n" );
 		}
 	} else {
 		if ( strcmp( command, "+" ) == 0 ) {
@@ -130,6 +134,10 @@ void writeAritmetic( FILE * ofp, char command[256] ) {
 			fprintf( ofp, "|" );
 		} else if ( strcmp( command, "!" ) == 0 ) {
 			fprintf( ofp, "!" );
+		} else if ( strcmp( command, "*" ) == 0 ) {
+			fprintf( ofp, "call Math.multiply 2\n" );
+		} else if ( strcmp( command, "/" ) == 0 ) {
+			fprintf( ofp, "call Math.divide 2\n" );
 		}
 	}
 }
