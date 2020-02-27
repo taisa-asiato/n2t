@@ -20,7 +20,7 @@ void gen_outputfilename( char * filename ) {
 	strcpy( tmpfilename, filename );
 	cp = strstr( tmpfilename, ".jack" );
 	*cp = '\0';
-	sprintf( outputfilename, "%s_test.vm", tmpfilename );
+	sprintf( outputfilename, "%s.vm", tmpfilename );
 }
 
 void jack_analyze_main( char * fname ) {
@@ -46,7 +46,7 @@ void jack_analyze_main( char * fname ) {
 				}
 			}
 		}
-		fprintf( stdout, "under construction\n" );
+		//fprintf( stdout, "under construction\n" );
 	} else {
 		// 入力ファイルがディレクトリでない場合
 		strcpy( streamfilename, fname );

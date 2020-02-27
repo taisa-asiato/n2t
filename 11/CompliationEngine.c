@@ -8,7 +8,7 @@ void printTab( FILE * ofp, int depth ) {
 		}
 	} else {
 		while ( depth ) {
-			fprintf( ofp, "  " );
+			//fprintf( ofp, "  " );
 			depth--;
 		}
 	}
@@ -19,7 +19,7 @@ void printTokenAndTag( FILE * ofp, char * type, char * thistoken, int depth ) {
 	if ( isstdout ) {
 		fprintf( stdout, "<%s> %s </%s>\n", type, thistoken, type );
 	} else {
-		fprintf( ofp, "<%s> %s </%s>\n", type, thistoken, type   );
+		//fprintf( ofp, "<%s> %s </%s>\n", type, thistoken, type   );
 	}
 }
 
@@ -28,7 +28,7 @@ void printTokenAndTagStart( FILE * ofp, char * thistoken, int depth ){
 	if ( isstdout ) {
 		fprintf( stdout, "<%s>\n", thistoken );
 	} else {
-		fprintf( ofp, "<%s>\n", thistoken );
+		//fprintf( ofp, "<%s>\n", thistoken );
 	}
 }
 
@@ -37,7 +37,7 @@ void printTokenAndTagEnd( FILE * ofp, char * thistoken, int depth ) {
 	if ( isstdout ) {
 		fprintf( stdout, "</%s>\n", thistoken);
 	} else {
-		fprintf( ofp, "</%s>\n", thistoken );
+		//fprintf( ofp, "</%s>\n", thistoken );
 	}
 }
 
@@ -82,9 +82,9 @@ void printTokenStatus( FILE * ofp, char * thistoken, int depth ) {
 			fprintf( stdout, "no registerd symbol : %s\n", thistoken );
 		}
 	} else if ( isstdout &! debug ) {
-		////  fprintf( stdout, "push " )
+		fprintf( stdout, "push " );
 	} else {
-		fprintf( ofp, "<status> %s %s %s %d </status>\n",thistoken, propof, my_typeof, local_index );
+		//fprintf( ofp, "<status> %s %s %s %d </status>\n",thistoken, propof, my_typeof, local_index );
 	}
 }
 
@@ -102,9 +102,9 @@ void printSubrotStatus( FILE * ofp, list_t * class_p, char * thistoken, int dept
 		printTab( ofp, depth );
 		fprintf( stdout, "<belong_class> %s </belong_class>\n", class_p->symbol_name );
 	} else if ( isstdout & !debug ) {
-		// fprintf( stdout, "function %s.%s\n", class_p->symbol_name, thistoken );
+		fprintf( stdout, "function %s.%s\n", class_p->symbol_name, thistoken );
 	} else {
-		fprintf( ofp, "function %s.%s\n", class_p->symbol_name, thistoken );
+		//fprintf( ofp, "function %s.%s\n", class_p->symbol_name, thistoken );
 	}
 }
 
@@ -972,6 +972,7 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 					printSubrotStatus( ofp, lp, token, depth );
 				} else {
 					list_Add_Subrot( lp, token );
+					p = list_Find_Node_Subrot( lp, token );
 					printSubrotStatus( ofp, lp, token, depth );
 				}
 			}
@@ -985,9 +986,12 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			}
 		}
 	}
+	fprintf( stdout, "before start sprintf, %s %s\n", lp->symbol_name, p->subroutine_name  );
 	char classdotfunc[256];
 	sprintf( classdotfunc, "%s.%s", lp->symbol_name, p->subroutine_name );
 	writeCall( ofp, classdotfunc, argnum );
+
+	fprintf( stdout, "after start sprintf\n" );
 
 
 	if ( debug ) {
@@ -1026,8 +1030,13 @@ int compile_Return_Statement( FILE * ifp, FILE * ofp, int depth, char func_type[
 	}
 
 	if ( strcmp( func_type, "void" ) == 0 ) {
-		fprintf( stdout, "pop temp 0\n" );
-		fprintf( stdout, "push constant 0\n" );
+		if ( debug ) {
+			fprintf( stdout, "pop temp 0\n" );
+			fprintf( stdout, "push constant 0\n" );
+		} else {
+			fprintf( ofp, "pop temp 0\n" );
+			fprintf( ofp, "push constant 0\n" );
+		}
 	}
 
 	printTokenAndTagEnd( ofp, "returnStatement", depth );
@@ -1063,6 +1072,7 @@ void compile_Expression( FILE * ifp, FILE * ofp, int depth ) {
 		} else if ( type_of_token == SYMBOL ) {
 			if ( token[0] == '(' || token[0] == '-' || token[0] == '~' ) {
 				flag = 3;
+				strcpy( op_token, token );
 			}
 		}
 	}
@@ -1117,6 +1127,7 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 	int type_of_token;
 	int flag = 0;
 	int sec_depth = depth+1;
+	char tmp_symbol[256];
 	list_t * p;
 
 	if ( debug ) {
@@ -1172,6 +1183,7 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 			}
 		} else if ( type_of_token == SYMBOL ) {
 			// fprintf( stdout, "this is symbol\n" );
+			strcpy( tmp_symbol, token );
 			if ( token[0] == '(' ) {
 				// '(' expression ')'
 				flag = 1;
@@ -1184,11 +1196,13 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 				ungets( ifp, strlen( token ) );
 				compile_Symbol( ifp, ofp, '-', sec_depth );
 				compile_Term( ifp, ofp, sec_depth );
+				writeAritmetic( ofp, tmp_symbol );
 			} else if ( token[0] == '~' ) {
 				flag = 1;
 				ungets( ifp, strlen( token ) );
 				compile_Symbol( ifp, ofp, '~', sec_depth );
 				compile_Term( ifp, ofp, sec_depth );
+				writeAritmetic( ofp, tmp_symbol );
 			}
 		}
 	}

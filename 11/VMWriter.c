@@ -119,7 +119,7 @@ void writeAritmetic( FILE * ofp, char command[256] ) {
 		} else if ( strcmp( command, "-" ) == 0 ) {
 			fprintf( ofp, "sub\n" );
 		} else if ( strcmp( command, "-") == 0 ) {
-			fprintf( ofp, "-%s\n", token );
+			fprintf( ofp, "neg\n" );
 		} else if ( strcmp( command, "~" ) == 0 ) {
 			fprintf( ofp, "~%s\n", token );
 		} else if ( strcmp( command, "=" ) == 0 ) {
