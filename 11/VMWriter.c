@@ -112,6 +112,8 @@ void writeAritmetic( FILE * ofp, char command[256] ) {
 			fprintf( stdout, "call Math.multiply 2\n" );
 		} else if ( strcmp( command, "/" ) == 0 ) {
 			fprintf( stdout, "call Math.divide 2\n" );
+		} else if ( strcmp( command, "neg" ) == 0 ) {
+			fprintf( stdout, "neg\n" );
 		}
 	} else {
 		if ( strcmp( command, "+" ) == 0 ) {
@@ -138,6 +140,8 @@ void writeAritmetic( FILE * ofp, char command[256] ) {
 			fprintf( ofp, "call Math.multiply 2\n" );
 		} else if ( strcmp( command, "/" ) == 0 ) {
 			fprintf( ofp, "call Math.divide 2\n" );
+		} else if ( strcmp( command, "neg" ) == 0 ) {
+			fprintf( ofp, "neg\n" );
 		}
 	}
 }

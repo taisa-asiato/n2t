@@ -886,6 +886,7 @@ void compile_Do_Statement( FILE * ifp, FILE * ofp, int depth ) {
 	// サブルーチンをコンパイルする
 	compile_Subroutine_Call( ifp, ofp, p, sec_depth );
 	compile_Symbol( ifp, ofp, ';', sec_depth ); 
+	writePop( ofp, VM_TEMP, 0 );
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
@@ -990,9 +991,7 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 	char classdotfunc[256];
 	sprintf( classdotfunc, "%s.%s", lp->symbol_name, p->subroutine_name );
 	writeCall( ofp, classdotfunc, argnum );
-
 	fprintf( stdout, "after start sprintf\n" );
-
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
@@ -1196,7 +1195,7 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 				ungets( ifp, strlen( token ) );
 				compile_Symbol( ifp, ofp, '-', sec_depth );
 				compile_Term( ifp, ofp, sec_depth );
-				writeAritmetic( ofp, tmp_symbol );
+				writeAritmetic( ofp, "neg" );
 			} else if ( token[0] == '~' ) {
 				flag = 1;
 				ungets( ifp, strlen( token ) );
