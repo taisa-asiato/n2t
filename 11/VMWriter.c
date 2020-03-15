@@ -3,7 +3,7 @@
 void writePush( FILE * ofp, int SEGNUMBER, int index ) {
 	if ( isstdout & debug ) {
 		fprintf( stdout, "push %s\n", token );
-	} else if ( isstdout  & !debug ) {
+	} else if ( isstdout  & !xml ) {
 		if ( SEGNUMBER == VM_CONST ) {
 			fprintf( stdout, "push constant %s\n", token );
 		} else if ( SEGNUMBER == VM_ARG ) {
@@ -45,7 +45,7 @@ void writePush( FILE * ofp, int SEGNUMBER, int index ) {
 void writePop( FILE * ofp, int SEGNUMBER, int index ) {
 	if ( isstdout & debug ) {
 		fprintf( stdout, "pop %s\n", token );
-	} else if ( isstdout & !debug ) {
+	} else if ( isstdout & xml ) {
 		if ( SEGNUMBER == VM_CONST ) {
 			fprintf( stdout, "pop constant %d\n", index );
 		} else if ( SEGNUMBER == VM_ARG ) {
@@ -87,7 +87,7 @@ void writePop( FILE * ofp, int SEGNUMBER, int index ) {
 void writeAritmetic( FILE * ofp, char command[256] ) {
 	if ( isstdout & debug ) {
 		fprintf( stdout, "%s\n", token );
-	} else if ( isstdout & !debug ) {
+	} else if ( isstdout & !xml ) {
 		if ( strcmp( command, "+" ) == 0 ) {
 			fprintf( stdout, "add\n" );
 		} else if ( strcmp( command, "-" ) == 0 ) {
@@ -149,7 +149,7 @@ void writeAritmetic( FILE * ofp, char command[256] ) {
 void writeLabel( FILE * ofp, char labelname[256] ) {
 	if ( isstdout & debug ) {
 		fprintf( stdout, "label %s\n", labelname );
-	} else if ( isstdout & !debug ) {
+	} else if ( isstdout & !xml ) {
 		fprintf( stdout, "label %s\n", labelname );
 	} else {
 		fprintf( ofp, "label %s\n", labelname );
@@ -159,7 +159,7 @@ void writeLabel( FILE * ofp, char labelname[256] ) {
 void writeGoto( FILE * ofp, char labelname[256] ) {
 	if ( isstdout & debug ) {
 		fprintf( stdout, "goto %s\n", labelname );
-	} else if ( isstdout & !debug ) {
+	} else if ( isstdout & !xml ) {
 		fprintf( stdout, "goto %s\n", labelname );
 	} else {
 		fprintf( ofp, "goto %s\n", labelname );
@@ -169,7 +169,7 @@ void writeGoto( FILE * ofp, char labelname[256] ) {
 void writeIf( FILE * ofp, char labelname[256] ) {
 	if ( isstdout & debug ) {
 		fprintf( stdout, "if-goto %s\n", labelname );
-	} else if ( isstdout & !debug ) {
+	} else if ( isstdout & !xml ) {
 		fprintf( stdout, "if-goto %s\n", labelname );
 	} else {
 		fprintf( ofp, "if-goto %s\n", labelname );
@@ -179,7 +179,7 @@ void writeIf( FILE * ofp, char labelname[256] ) {
 void writeCall( FILE * ofp, char func[256], int nargs ) {
 	if ( isstdout & debug ) {
 		fprintf( stdout, "call %s %d\n", func, nargs );
-	} else if ( isstdout & !debug ) {
+	} else if ( isstdout & !xml ) {
 		fprintf( stdout, "call %s %d\n", func, nargs );
 	} else {
 		fprintf( ofp, "call %s %d\n", func, nargs );
@@ -189,7 +189,7 @@ void writeCall( FILE * ofp, char func[256], int nargs ) {
 void writeFunction( FILE * ofp, char func[256], int nlocals ) {
 	if ( isstdout & debug ) {
 		fprintf( stdout, "function %s %d\n", func, nlocals );
-	} else if ( isstdout & !debug ) {
+	} else if ( isstdout & !xml ) {
 		fprintf( stdout, "function %s %d\n", func, nlocals );
 	} else {
 		fprintf( ofp, "function %s %d\n", func, nlocals );
@@ -199,7 +199,7 @@ void writeFunction( FILE * ofp, char func[256], int nlocals ) {
 void writeReturn( FILE * ofp ) {
 	if ( isstdout & debug ) {
 		fprintf( stdout, "return\n" );
-	} else if ( isstdout & !debug ) {
+	} else if ( isstdout & !xml ) {
 		fprintf( stdout, "return\n" );
 	} else {
 		fprintf( ofp, "return\n" );

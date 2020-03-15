@@ -124,6 +124,8 @@ extern char thisclassname[256];
 extern char opstack[512];
 extern int opnum;
 
+extern int xml;
+
 /* JackAnalyzer.c */
 int gen_inputfilename( struct dirent * dp, char * dirname );
 void jack_analyze_main( char *fname );
