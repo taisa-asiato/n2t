@@ -1,7 +1,7 @@
 #include "define.h"
 
 void printTab( FILE * ofp, int depth ) {
-	if ( isstdout ) {
+	if ( isstdout & xml ) {
 		while ( depth ) {
 			fprintf( stdout, "  " );
 			depth--;
@@ -81,7 +81,7 @@ void printTokenStatus( FILE * ofp, char * thistoken, int depth ) {
 			printTab( ofp, depth );
 			fprintf( stdout, "no registerd symbol : %s\n", thistoken );
 		}
-	} else if ( isstdout & !xml ) {
+	} else if ( isstdout & xml ) {
 		fprintf( stdout, "push " );
 	} else {
 		//fprintf( ofp, "<status> %s %s %s %d </status>\n",thistoken, propof, my_typeof, local_index );
@@ -101,7 +101,7 @@ void printSubrotStatus( FILE * ofp, list_t * class_p, char * thistoken, int dept
 
 		printTab( ofp, depth );
 		fprintf( stdout, "<belong_class> %s </belong_class>\n", class_p->symbol_name );
-	} else if ( isstdout & !xml ) {
+	} else if ( isstdout & debug ) {
 		fprintf( stdout, "function %s.%s\n", class_p->symbol_name, thistoken );
 	} else {
 		//fprintf( ofp, "function %s.%s\n", class_p->symbol_name, thistoken );
@@ -742,6 +742,7 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 	int flag = 0;
 	char before;
 	int sec_depth = depth+1;
+	char thistoken[256];
 	scope_t * tmp;
 
 	printTokenAndTagStart( ofp, "letStatement", depth );
@@ -751,6 +752,7 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
 		type_of_token = token_type( token );
+		strcpy( thistoken, token );
 		if ( type_of_token == IDENTIFIER ) {
 			strcpy( propof, "notVar" );
 			//printTokenAndTag( ofp, t_type, token, sec_depth );
@@ -783,6 +785,16 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
 	}
+
+	if ( debug ) {
+		fprintf( stdout, "[%s]:token %s kind is %d", __func__, thistoken, kind_Of(thistoken) );
+	}	
+
+	if ( kind_Of( thistoken ) == VAR ) {
+		writePop( ofp, VM_LOCAL, index_Of( thistoken) );
+		writePush( ofp, VM_LOCAL, index_Of( thistoken) );
+	}
+
 
 	printTokenAndTagEnd( ofp, "letStatement", depth );
 
@@ -887,7 +899,10 @@ void compile_Do_Statement( FILE * ifp, FILE * ofp, int depth ) {
 	// サブルーチンをコンパイルする
 	compile_Subroutine_Call( ifp, ofp, p, sec_depth );
 	compile_Symbol( ifp, ofp, ';', sec_depth ); 
+
+	// fprintf( stdout, "in %s \n", __func__ );
 	writePop( ofp, VM_TEMP, 0 );
+	// fprintf( stdout, "out %s\n", __func__ );
 
 
 	if ( debug ) {
@@ -989,7 +1004,9 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			}
 		}
 	}
-	fprintf( stdout, "before start sprintf, %s %s\n", lp->symbol_name, p->subroutine_name  );
+	if ( isstdout & debug ) {
+		fprintf( stdout, "before start sprintf, %s %s\n", lp->symbol_name, p->subroutine_name  );
+	}
 	char classdotfunc[256];
 	sprintf( classdotfunc, "%s.%s", lp->symbol_name, p->subroutine_name );
 	writeCall( ofp, classdotfunc, argnum );
@@ -1004,6 +1021,7 @@ int compile_Return_Statement( FILE * ifp, FILE * ofp, int depth, char func_type[
 	int type_of_token;
 	int sec_depth = depth+1;
 	int flag = 0;
+	char tmp_token[256];
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]\n", __func__  );
@@ -1032,10 +1050,15 @@ int compile_Return_Statement( FILE * ifp, FILE * ofp, int depth, char func_type[
 
 	if ( strcmp( func_type, "void" ) == 0 ) {
 		if ( isstdout & !xml ) {
-			fprintf( stdout, "pop temp 0\n" );
-			fprintf( stdout, "push constant 0\n" );
+			// writePop( ofp, VM_TEMP, 0 );
+			// void時には0を返すため，一度0の値をtokenへコピー
+			// 一次退避用にtmp_tokenへtokenの値の保存及び復元を行う
+			strcpy( tmp_token, token );	
+			strcpy( token, "0" );
+			writePush( ofp, VM_CONST, 0 );
+			strcpy( token, tmp_token );
 		} else if ( !isstdout & !xml ){
-			fprintf( ofp, "pop temp 0\n" );
+			// fprintf( ofp, "pop temp 0\n" );
 			fprintf( ofp, "push constant 0\n" );
 		}
 	}
@@ -1089,7 +1112,7 @@ void compile_Expression( FILE * ifp, FILE * ofp, int depth ) {
 			} else if ( ( clsp = list_Find_Node_Subrot_BelongClass( token ) ) ) {
 				printSubrotStatus( ofp, clsp, token, depth );
 			} else {
-				fprintf( stdout, "debug information\n" );
+				// fprintf( stdout, "debug information\n" );
 				//printTokenStatus( ofp, token, depth );
 			}
 		} 
