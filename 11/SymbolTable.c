@@ -54,6 +54,7 @@ void my_define( int iscls, char * symbol_name, char * type, char * proper, int n
 	strcpy( tmp->type, type );
 	strcpy( tmp->proper, proper);
 	tmp->number = number;
+
 	if ( symbol_define ) {
 		tmp->defined = 1;
 	}
@@ -123,11 +124,13 @@ int var_ClassCount( char * my_proper ) {
 }
 
 int var_SubrotCount( char * my_proper ) {
+	// 現在の関数のシンボルが登録されたテーブルから
+	// 該当する属性の変数の個数を返す
 	int cnt = 0;
 	if ( strcmp( my_proper, "var" ) == 0 || strcmp( my_proper, "argument" ) == 0 ) {
-		scope_t * tmp = sub->next;
-		while ( tmp ) {
-			if ( strcmp( tmp->type, my_proper ) == 0 ) {
+		scope_t * tmp = sub;
+		while ( tmp != NULL ) {
+			if ( strcmp( tmp->proper, my_proper ) == 0 ) {
 				cnt += 1;
 			}
 			tmp = tmp->next;
@@ -137,19 +140,23 @@ int var_SubrotCount( char * my_proper ) {
 }
 
 int kind_Of( char * name ) {
-	
+	scope_t * tmp;
 	if ( debug ) {
 		fprintf(stdout, "[%s]\n", __func__);
 	}
-	
-	if ( strcmp( name, "static" ) == 0 ) {
-		return STATIC;
-	} else if ( strcmp( name, "field" ) == 0 ) {
-		return FIELD;
-	} else if ( strcmp( name, "argument" ) == 0 ) {
-		return ARG;
-	} else if ( strcmp( name, "var" ) == 0 ) {
-		return VAR;
+
+
+	tmp = list_Find_Scope_Sub( name );
+	if ( tmp ) {
+		if ( strcmp( tmp->proper, "static" ) == 0 ) {
+			return STATIC;
+		} else if ( strcmp( tmp->proper, "field" ) == 0 ) {
+			return FIELD;
+		} else if ( strcmp( tmp->proper, "argument" ) == 0 ) {
+			return ARG;
+		} else if ( strcmp( tmp->proper, "var" ) == 0 ) {
+			return VAR;
+		}
 	}
 	return NONE;
 }
@@ -215,7 +222,7 @@ void del_SubroutineTable() {
 	}
 }
 
-void print_All_Symbol( char * funcname ) {
+void print_All_Class_Symbol( char * funcname ) {
 	scope_t * tmp = cls;
 	fprintf(stdout, "==> [Class_Scope] <==\n");
 	fprintf( stdout, "[%s]\n", funcname );
@@ -232,9 +239,12 @@ void print_All_Symbol( char * funcname ) {
 		fprintf(stdout, "==\n");
 		tmp = tmp->next;
 	}
+}
 
-	fprintf(stdout, "==> [Subrot_Scope] <==\n");
-	tmp = sub;
+void print_All_Function_Symbol( scope_t * function_pt ) {
+
+	scope_t * tmp = function_pt;
+	// fprintf(stdout, "==> [Subrot_Scope] <==\n");
 	while ( tmp ) {
 		fprintf(stdout, "%10s(name)\n", tmp->name );
 		fprintf(stdout, "%10s(type)\n", tmp->type );

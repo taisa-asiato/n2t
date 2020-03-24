@@ -1192,6 +1192,14 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 			// keywordConst
 			flag = 1;
 			printTokenAndTag( ofp, t_type, token, sec_depth );
+
+			// 値を退避しつつ行う
+			strcpy( tmp_symbol, token );
+			strcpy( token, "0" );
+			writePush( ofp, VM_CONST, 0 );
+			strcpy( token, tmp_symbol );
+
+			writeAritmetic( ofp, "not" );
 		} else if ( type_of_token == IDENTIFIER ) {
 			// varName
 			if ( ( p = list_Find_Node( token ) ) ) {

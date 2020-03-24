@@ -45,7 +45,7 @@ void writePush( FILE * ofp, int SEGNUMBER, int index ) {
 void writePop( FILE * ofp, int SEGNUMBER, int index ) {
 	if ( isstdout & debug ) {
 		fprintf( stdout, "pop %s\n", token );
-	} else if ( isstdout & xml ) {
+	} else if ( isstdout & !xml ) {
 		if ( SEGNUMBER == VM_CONST ) {
 			fprintf( stdout, "pop constant %d\n", index );
 		} else if ( SEGNUMBER == VM_ARG ) {
@@ -114,6 +114,8 @@ void writeAritmetic( FILE * ofp, char command[256] ) {
 			fprintf( stdout, "call Math.divide 2\n" );
 		} else if ( strcmp( command, "neg" ) == 0 ) {
 			fprintf( stdout, "neg\n" );
+		} else if ( strcmp( command, "not" ) == 0 ) {
+			fprintf( stdout, "not\n" );
 		}
 	} else {
 		if ( strcmp( command, "+" ) == 0 ) {
@@ -142,6 +144,8 @@ void writeAritmetic( FILE * ofp, char command[256] ) {
 			fprintf( ofp, "call Math.divide 2\n" );
 		} else if ( strcmp( command, "neg" ) == 0 ) {
 			fprintf( ofp, "neg\n" );
+		} else if ( strcmp( command, "not" ) == 0 ) {
+			fprintf( ofp, "not\n" );
 		}
 	}
 }
@@ -187,6 +191,7 @@ void writeCall( FILE * ofp, char func[256], int nargs ) {
 }
 
 void writeFunction( FILE * ofp, char func[256], int nlocals ) {
+	// 第3引数はローカル変数の個数
 	if ( isstdout & debug ) {
 		fprintf( stdout, "function %s %d\n", func, nlocals );
 	} else if ( isstdout & !xml ) {
