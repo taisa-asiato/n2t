@@ -455,11 +455,9 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 
 	char classdotfunc[256];
 	sprintf( classdotfunc, "%s.%s", class_pos->symbol_name, function_name );
-	fprintf( stdout, "function address is %s [%p]\n", function_name, list_Find_Scope( function_name ) );
 	print_All_Function_Symbol( list_Find_Scope_Sub( function_name ) );
 	writeFunction( ofp, classdotfunc, var_SubrotCount( "var" ) );
 
-	fprintf( stdout, "local arg number is %d\n", cnt_var );
 
 	// statementsをコンパイル
 	compile_Statements( ifp, ofp, thd_depth, function_type );
@@ -596,8 +594,8 @@ int compile_Var_Dec( FILE * ifp, FILE * ofp, int depth ) {
 			fprintf( stdout, "next value is %c\n", token[0] );
 		}
 		if ( type_of_token == IDENTIFIER ) {
-			cnt_var += 1;
 			my_define( 0, token, my_typeof, propof, cnt_var );
+			cnt_var += 1;
 			//printTokenAndTag( ofp, t_type, token, sec_depth );
 			printTokenStatus( ofp, token, sec_depth+1 );
 		} else {
@@ -620,8 +618,8 @@ int compile_Var_Dec( FILE * ifp, FILE * ofp, int depth ) {
 			type_of_token = token_type( token );
 			if ( type_of_token == IDENTIFIER ) {
 				if ( strcmp( propof, "var" ) == 0 ) {
-					cnt_var += 1;
 					my_define( 0, token, my_typeof, propof, cnt_var );
+					cnt_var += 1;
 					//printTokenAndTag( ofp, t_type, token, sec_depth );
 					printTokenStatus( ofp, token, sec_depth+1 );
 				}
@@ -722,8 +720,8 @@ int compile_ParameterList( FILE * ifp, FILE * ofp, int depth ) {
 			if ( type_of_token == IDENTIFIER ) {
 				// 引数名をコンパイルする
 				strcpy( propof, "argument" );
-				cnt_arg += 1;
 				my_define( 0, token, my_typeof, propof, cnt_arg );
+				cnt_arg += 1;
 				//printTokenAndTag( ofp, t_type, token, sec_depth );
 				printTokenStatus( ofp, token, depth );
 			}
