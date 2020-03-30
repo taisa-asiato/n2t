@@ -19,6 +19,7 @@ list_t * head;
 list_t * end;
 // デバッグ情報を出力する場合, 1をセットしコンパイルする
 int debug = 0;
+
 // 出力先を変更する場合, 1をセットしコンパイルする
 int isstdout = 1;
 // もしxml = 0の場合vmコードを生成する。
@@ -45,6 +46,11 @@ char sname[256];
 char thisclassname[256];
 char opstack[512];
 int opnum = 0;
+char while_start[256];
+char while_end[256];
+int while_start_number = 0;
+int while_end_number = 0;
+
 
 int main( int argc, char ** argv ) {
 	/* エラー時の処理 */

@@ -65,6 +65,7 @@ typedef struct __list {
 	subroutine_name_t * subrot_end;
 } list_t;
 
+// function, method, classのシンボルを登録するテーブル
 typedef struct _scope {
 	char name[256];
 	char type[256];
@@ -123,8 +124,12 @@ extern char thisclassname[256];
 
 extern char opstack[512];
 extern int opnum;
-
 extern int xml;
+
+extern int while_start_number;
+extern int while_end_number;
+extern char while_start[256];
+extern char while_end[256];
 
 /* JackAnalyzer.c */
 int gen_inputfilename( struct dirent * dp, char * dirname );
@@ -214,7 +219,8 @@ int type_Of( char * name );
 int index_Of( char * name );
 void del_SymbolTable();
 void del_SubroutineTable();
-void print_All_Symbol();
+void print_All_Class_Symbol( char * funcname );
+void print_All_Function_Symbol( scope_t * function_pt );
 void print_Class_Subrot( char * symbol_name, int iscls );
 int Is_Used( char * thistoken );
 int Is_Defined( char * thistoken );

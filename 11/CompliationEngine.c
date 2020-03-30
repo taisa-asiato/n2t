@@ -458,7 +458,6 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 	print_All_Function_Symbol( list_Find_Scope_Sub( function_name ) );
 	writeFunction( ofp, classdotfunc, var_SubrotCount( "var" ) );
 
-
 	// statementsをコンパイル
 	compile_Statements( ifp, ofp, thd_depth, function_type );
 	compile_Symbol( ifp, ofp, '}', thd_depth );
@@ -527,8 +526,6 @@ int compile_Statements( FILE * ifp, FILE * ofp, int depth, char func_type[256] )
 			if ( debug ) {
 				fprintf( stdout, "[%s]:Finish\n", __func__ );
 			}
-			// printTab( depth ); 
-			// fprintf( stdout, "</statements>\n" );
 			break;
 		}
 	}
@@ -536,8 +533,6 @@ int compile_Statements( FILE * ifp, FILE * ofp, int depth, char func_type[256] )
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
 	}
 
-	// printTab( depth ); 
-	// fprintf( stdout, "</statements>\n" );
 	printTokenAndTagEnd( ofp, "statements", depth );
 	return 1;
 }
@@ -795,7 +790,7 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 
 	if ( kind_Of( thistoken ) == VAR ) {
 		writePop( ofp, VM_LOCAL, index_Of( thistoken) );
-		writePush( ofp, VM_LOCAL, index_Of( thistoken) );
+		//writePush( ofp, VM_LOCAL, index_Of( thistoken) );
 	}
 
 
@@ -859,7 +854,13 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth ) {
 void compile_While_Statement( FILE * ifp, FILE * ofp, int depth ) {
 	int type_of_token;
 	int sec_depth = depth+1;
+	while_start_number += 1;
+	while_end_number += 1;
+	snprintf( while_start, 256, "WHILE_EXP%d", while_start_number );
+	snprintf( while_end, 256, "WHILE_EXP%d", while_end_number );
 
+	// whileループのスタート部分のラベルを出力する
+	writeLabel( ofp, while_start ); 
 	if ( debug ) {
 		fprintf( stdout, "[%s]\n", __func__  );
 	}
@@ -875,14 +876,19 @@ void compile_While_Statement( FILE * ifp, FILE * ofp, int depth ) {
 
 	compile_Symbol( ifp, ofp, '{', sec_depth );
 
+	// if-got while_end 
+	writeIf( ofp, while_end );
 	// while文の本文をコンパイルする
 	compile_Statements( ifp, ofp, sec_depth, "" );
 
+	writeGoto( ofp, while_start );
 	compile_Symbol( ifp, ofp, '}', sec_depth );
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
 	}
+
+	writeLabel( ofp, while_end );
 	printTokenAndTagEnd( ofp, "whileStatement", depth );
 
 }
@@ -1156,6 +1162,7 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 	int flag = 0;
 	int sec_depth = depth+1;
 	char tmp_symbol[256];
+	char tmp_token[256];
 	list_t * p;
 
 	if ( debug ) {
@@ -1196,6 +1203,7 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 			// 値を退避しつつ行う
 			strcpy( tmp_symbol, token );
 			strcpy( token, "0" );
+			
 			writePush( ofp, VM_CONST, 0 );
 			strcpy( token, tmp_symbol );
 
@@ -1211,9 +1219,17 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 				flag = 1;
 				//printTokenAndTag( ofp, t_type, token, sec_depth );
 				printTokenStatus( ofp, token, sec_depth );
+				strcpy( tmp_token, token );
 				if ( compile_Symbol( ifp, ofp, '[', sec_depth ) ) {
+					// 変数が配列の場合
 					compile_Expression( ifp, ofp, sec_depth );
 					compile_Symbol( ifp, ofp, ']', sec_depth );
+				} else {
+					int inumber = index_Of( tmp_token );
+					int tnumber = kind_Of( tmp_token );
+					if ( tnumber == VAR ) {
+						writePush( ofp, VM_LOCAL, inumber );
+					}
 				}
 			}
 		} else if ( type_of_token == SYMBOL ) {
