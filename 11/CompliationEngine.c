@@ -871,6 +871,7 @@ void compile_While_Statement( FILE * ifp, FILE * ofp, int depth ) {
 
 	// while文の条件部分をコンパイルする
 	compile_Expression( ifp, ofp, sec_depth );
+	writeArithmetic( ofp, "not" );
 
 	compile_Symbol( ifp, ofp, ')', sec_depth );
 
@@ -1140,7 +1141,7 @@ void compile_Expression( FILE * ifp, FILE * ofp, int depth ) {
 				
 				strcpy( op_token, token );
 				compile_Term( ifp, ofp, sec_depth );
-				writeAritmetic( ofp, op_token );
+				writeArithmetic( ofp, op_token );
 			} else {
 				break;
 			}
@@ -1207,7 +1208,7 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 			writePush( ofp, VM_CONST, 0 );
 			strcpy( token, tmp_symbol );
 
-			writeAritmetic( ofp, "not" );
+			writeArithmetic( ofp, "not" );
 		} else if ( type_of_token == IDENTIFIER ) {
 			// varName
 			if ( ( p = list_Find_Node( token ) ) ) {
@@ -1247,13 +1248,13 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 				ungets( ifp, strlen( token ) );
 				compile_Symbol( ifp, ofp, '-', sec_depth );
 				compile_Term( ifp, ofp, sec_depth );
-				writeAritmetic( ofp, "neg" );
+				writeArithmetic( ofp, "neg" );
 			} else if ( token[0] == '~' ) {
 				flag = 1;
 				ungets( ifp, strlen( token ) );
 				compile_Symbol( ifp, ofp, '~', sec_depth );
 				compile_Term( ifp, ofp, sec_depth );
-				writeAritmetic( ofp, tmp_symbol );
+				writeArithmetic( ofp, tmp_symbol );
 			}
 		}
 	}
