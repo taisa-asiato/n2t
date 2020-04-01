@@ -50,7 +50,12 @@ char while_start[256];
 char while_end[256];
 int while_start_number = 0;
 int while_end_number = 0;
-
+int if_false_number = 0;
+int if_true_number = 0;
+int if_end_number = 0;
+char if_true[256];
+char if_false[256];
+char if_end[256];
 
 int main( int argc, char ** argv ) {
 	/* エラー時の処理 */

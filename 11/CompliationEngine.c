@@ -811,9 +811,19 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth ) {
 	printTokenAndTag( ofp, t_type, token, sec_depth );
 
 	compile_Symbol( ifp, ofp, '(', sec_depth );
-
 	// 条件文をコンパイルする
 	compile_Expression( ifp, ofp, sec_depth );
+
+	
+	// if文vmコードへ変換する
+	sprintf( if_true, "IF_TRUE%d", if_true_number ); if_true_number++;
+	sprintf( if_false, "IF_FALSE%d", if_false_number ); if_false_number++;
+	sprintf( if_end, "IF_END%d", if_end_number  ); if_end_number++;
+
+	writeIf( ofp, if_true );
+	writeGoto( ofp, if_false );
+	writeLabel( ofp, if_true );
+	writeGoto( ofp, if_end );
 
 	compile_Symbol( ifp, ofp, ')', sec_depth );
 
@@ -824,6 +834,7 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth ) {
 
 	compile_Symbol( ifp, ofp, '}', sec_depth );
 
+	writeLabel( ofp, if_false );
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
 		type_of_token = token_type( token );
@@ -839,11 +850,13 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth ) {
 				}
 			} else {
 				ungets( ifp, strlen( token ) );
+				
 			}
 		} else {
 			ungets( ifp, strlen( token ) );
 		}
 	}
+	writeLabel( ofp, if_end );
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );

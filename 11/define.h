@@ -131,6 +131,14 @@ extern int while_end_number;
 extern char while_start[256];
 extern char while_end[256];
 
+
+extern int if_true_number;
+extern int if_false_number;
+extern int if_end_number;
+extern char if_true[256];
+extern char if_false[256];
+extern char if_end[256];
+
 /* JackAnalyzer.c */
 int gen_inputfilename( struct dirent * dp, char * dirname );
 void jack_analyze_main( char *fname );
@@ -232,7 +240,7 @@ void delete_SubroutineTable();
 /* VMWriter.c */
 void writePush( FILE * ofp, int SEGNUMBER, int index );
 void writePop( FILE * ofp, int SEGNUMBER, int index );
-void writeAritmetic( FILE * ofp, char command[256] );
+void writeArithmetic( FILE * ofp, char command[256] );
 void writeLabel( FILE * ofp, char labelname[256] );
 void writeGoto( FILE * ofp, char labelname[256] );
 void writeIf( FILE * ofp, char labelname[256] );
