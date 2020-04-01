@@ -84,7 +84,7 @@ void writePop( FILE * ofp, int SEGNUMBER, int index ) {
 	}
 }
 
-void writeAritmetic( FILE * ofp, char command[256] ) {
+void writeArithmetic( FILE * ofp, char command[256] ) {
 	if ( isstdout & debug ) {
 		fprintf( stdout, "%s\n", token );
 	} else if ( isstdout & !xml ) {
