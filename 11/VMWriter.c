@@ -99,15 +99,15 @@ void writeArithmetic( FILE * ofp, char command[256] ) {
 		} else if ( strcmp( command, "=" ) == 0 ) {
 			fprintf( stdout, "eq\n" );
 		} else if ( strcmp( command, ">" ) == 0 ) {
-			fprintf( stdout, "gt" );
+			fprintf( stdout, "gt\n" );
 		} else if ( strcmp( command, "<" ) == 0 ) {
-			fprintf( stdout, "lt" );
+			fprintf( stdout, "lt\n" );
 		} else if ( strcmp( command, "&" ) == 0 ) {
-			fprintf( stdout, "&\n" );
+			fprintf( stdout, "and\n" );
 		} else if ( strcmp( command, "|" ) == 0 ) {
-			fprintf( stdout, "|" );
+			fprintf( stdout, "|\n" );
 		} else if ( strcmp( command, "!" ) == 0 ) {
-			fprintf( stdout, "!" );
+			fprintf( stdout, "!\n" );
 		} else if ( strcmp( command, "*" ) == 0 ) {
 			fprintf( stdout, "call Math.multiply 2\n" );
 		} else if ( strcmp( command, "/" ) == 0 ) {
@@ -129,15 +129,15 @@ void writeArithmetic( FILE * ofp, char command[256] ) {
 		} else if ( strcmp( command, "=" ) == 0 ) {
 			fprintf( ofp, "eq\n" );
 		} else if ( strcmp( command, ">" ) == 0 ) {
-			fprintf( ofp, "gt" );
+			fprintf( ofp, "gt\n" );
 		} else if ( strcmp( command, "<" ) == 0 ) {
-			fprintf( ofp, "lt" );
+			fprintf( ofp, "lt\n" );
 		} else if ( strcmp( command, "&" ) == 0 ) {
-			fprintf( ofp, "&\n" );
+			fprintf( ofp, "and\n" );
 		} else if ( strcmp( command, "|" ) == 0 ) {
-			fprintf( ofp, "|" );
+			fprintf( ofp, "|\n" );
 		} else if ( strcmp( command, "!" ) == 0 ) {
-			fprintf( ofp, "!" );
+			fprintf( ofp, "!\n" );
 		} else if ( strcmp( command, "*" ) == 0 ) {
 			fprintf( ofp, "call Math.multiply 2\n" );
 		} else if ( strcmp( command, "/" ) == 0 ) {

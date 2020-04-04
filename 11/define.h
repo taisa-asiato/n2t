@@ -126,19 +126,6 @@ extern char opstack[512];
 extern int opnum;
 extern int xml;
 
-extern int while_start_number;
-extern int while_end_number;
-extern char while_start[256];
-extern char while_end[256];
-
-
-extern int if_true_number;
-extern int if_false_number;
-extern int if_end_number;
-extern char if_true[256];
-extern char if_false[256];
-extern char if_end[256];
-
 /* JackAnalyzer.c */
 int gen_inputfilename( struct dirent * dp, char * dirname );
 void jack_analyze_main( char *fname );
@@ -168,11 +155,11 @@ void compile_main( FILE * ifp, FILE * ofp );
 int compile_Class( FILE * ifp, FILE * ofp, int depth );
 int compile_Class_Var_Dec( FILE * ifp, FILE * ofp, int depth );
 int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int depth );
-int compile_Statements( FILE * ifp, FILE * ofp, int depth, char func_type[256] );
+int compile_Statements( FILE * ifp, FILE * ofp, int depth, char func_type[256], int if_index, int while_index );
 int compile_Var_Dec( FILE * ifp, FILE * ofp, int depth );
 int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth );
-void compile_If_Statement( FILE * ifp, FILE * ofp, int depth );
-void compile_While_Statement( FILE * ifp, FILE * ofp, int depth );
+void compile_If_Statement( FILE * ifp, FILE * ofp, int depth, int if_index, int while_index );
+void compile_While_Statement( FILE * ifp, FILE * ofp, int depth, int if_index, int while_index );
 void compile_Do_Statement( FILE * ifp, FILE * ofp, int depth );
 void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int depth );
 int compile_Return_Statement( FILE * ifp, FILE * ofp, int depth, char func_type[256] );

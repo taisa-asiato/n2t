@@ -21,7 +21,7 @@ list_t * end;
 int debug = 0;
 
 // 出力先を変更する場合, 1をセットしコンパイルする
-int isstdout = 1;
+int isstdout = 0;
 // もしxml = 0の場合vmコードを生成する。
 // xml = 1の場合xmlコードを生成する
 int xml = 0;
@@ -46,16 +46,6 @@ char sname[256];
 char thisclassname[256];
 char opstack[512];
 int opnum = 0;
-char while_start[256];
-char while_end[256];
-int while_start_number = 0;
-int while_end_number = 0;
-int if_false_number = 0;
-int if_true_number = 0;
-int if_end_number = 0;
-char if_true[256];
-char if_false[256];
-char if_end[256];
 
 int main( int argc, char ** argv ) {
 	/* エラー時の処理 */
