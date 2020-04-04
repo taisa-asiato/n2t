@@ -1228,11 +1228,13 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 			// 値を退避しつつ行う
 			strcpy( tmp_symbol, token );
 			strcpy( token, "0" );
-			
-			writePush( ofp, VM_CONST, 0 );
-			strcpy( token, tmp_symbol );
 
-			writeArithmetic( ofp, "not" );
+			writePush( ofp, VM_CONST, 0 );
+			if ( strcmp(tmp_symbol, "true" ) == 0 ) {
+				strcpy( token, tmp_symbol );
+				writeArithmetic( ofp, "not" );
+			}
+		
 		} else if ( type_of_token == IDENTIFIER ) {
 			// varName
 			if ( ( p = list_Find_Node( token ) ) ) {
