@@ -793,7 +793,9 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 	if ( kind_Of( thistoken ) == VAR ) {
 		writePop( ofp, VM_LOCAL, index_Of( thistoken) );
 		//writePush( ofp, VM_LOCAL, index_Of( thistoken) );
-	}
+	} else if ( kind_Of( thistoken ) == ARG ) {
+		writePop( ofp, VM_ARG, index_Of( thistoken ) );
+	} 
 
 
 	printTokenAndTagEnd( ofp, "letStatement", depth );
@@ -1252,6 +1254,8 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 					int tnumber = kind_Of( tmp_token );
 					if ( tnumber == VAR ) {
 						writePush( ofp, VM_LOCAL, inumber );
+					} else if ( tnumber == ARG ) {
+						writePush( ofp, VM_ARG, inumber );
 					}
 				}
 			}
