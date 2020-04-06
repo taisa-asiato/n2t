@@ -211,6 +211,9 @@ int compile_Class( FILE * ifp, FILE * ofp, int depth ) {
 			cnt_var = 0;
 			cnt_arg = 0;
 			compile_Subroutine_Dec( ifp, ofp, p, sec_depth );
+			if ( debug ) {
+				fprintf( stdout, "[%s]:internal %s\n", __func__, token );
+			}
 			delete_SubroutineTable();
 		} else {
 			if ( debug ) {
@@ -424,6 +427,9 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 	
 	// パラメータリストをコンパイル
 	compile_ParameterList( ifp, ofp, sec_depth );
+	if ( debug ) {
+		fprintf( stdout, "[%s]:after parameter list\n", __func__ );
+	}
 
 
 	if ( !compile_Symbol( ifp, ofp, ')', sec_depth ) ) {
@@ -491,6 +497,9 @@ int compile_Statements( FILE * ifp, FILE * ofp, int depth, char func_type[256], 
 			advance( ifp );
 			type_of_token = token_type( token );
 
+			if ( debug ) {
+				fprintf( stdout, "[%s]: token is %s\n", __func__, token );
+			}
 			if ( type_of_token == KEYWORD ) {
 				if ( strcmp( token, "let" ) == 0 ) {
 
@@ -924,7 +933,7 @@ void compile_Do_Statement( FILE * ifp, FILE * ofp, int depth ) {
 
 	list_t * p = list_Find_Node( token );
 	if ( debug ) {
-		fprintf( stdout, "[%s]\n", __func__  );
+		fprintf( stdout, "[%s]:Start\n", __func__  );
 	}
 
 	printTokenAndTagStart( ofp, "doStatement", depth );
@@ -950,24 +959,24 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 	int type_of_token;
 	char class_name[256];
 	char tmp_token[256];
+	char classdotfunc[256];
 	subroutine_name_t * p;
 	list_t * lp;
 	strcpy( class_name, token );
 	int argnum = 0;
 
 	if ( debug ) {
-		fprintf( stdout, "[%s]\n", __func__  );
+		fprintf( stdout, "[%s]:Start\n", __func__  );
 	}
 
 	// サブルーチン名をコンパイル
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
 		type_of_token = token_type( token );
+		if ( debug ) {
+			fprintf( stdout, "[%s]: token is %s\n", __func__, token );
+		}
 		if ( type_of_token == IDENTIFIER ) {
-			if ( debug ) {
-				fprintf( stdout, "call subroutine, this class is registered at function list\n" );
-			}
-
 			printTokenAndTag( ofp, t_type, token, depth );
 			strcpy( tmp_token, token );
 			advance( ifp );
@@ -979,11 +988,12 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 					}
 					lp = list_Find_Node( thisclassname );
 					list_Add_Subrot( lp, tmp_token );	
-					list_Print();
-						
+					// list_Print();
 				}
 				printSubrotStatus( ofp, lp, tmp_token, depth );
 				ungets( ifp, strlen( token ) );
+				// 関数コール用の文字列をここで作成する
+				sprintf( classdotfunc, "%s.%s", thisclassname, tmp_token ); 
 			} else if ( token[0] == '.' ) {
 				// クラスメソッドの場合, クラス名をコンパイルすることになる
 				lp = list_Find_Node( tmp_token );
@@ -1028,6 +1038,7 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 					printSubrotStatus( ofp, lp, token, depth );
 				}
 			}
+			sprintf( classdotfunc, "%s.%s", tmp_token, token );
 
 			if ( compile_Symbol( ifp, ofp, '(', depth ) ) {
 				argnum = compile_Expression_List( ifp, ofp, depth );
@@ -1038,11 +1049,13 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			}
 		}
 	}
+
 	if ( isstdout & debug ) {
-		fprintf( stdout, "before start sprintf, %s %s\n", lp->symbol_name, p->subroutine_name  );
+		// fprintf( stdout, "is this word output?\n" );
+		// fprintf( stdout, "%p", lp );
+		// fprintf( stdout, "before start sprintf, %s %s\n", lp->symbol_name, p->subroutine_name  );
 	}
-	char classdotfunc[256];
-	sprintf( classdotfunc, "%s.%s", lp->symbol_name, p->subroutine_name );
+	// sprintf( classdotfunc, "%s.%s", lp->symbol_name, p->subroutine_name );
 	writeCall( ofp, classdotfunc, argnum );
 	// fprintf( stdout, "after start sprintf\n" );
 
@@ -1110,7 +1123,7 @@ void compile_Expression( FILE * ifp, FILE * ofp, int depth ) {
 	char op_token[256];
 
 	if ( debug ) {
-		fprintf( stdout, "[%s]\n", __func__  );
+		fprintf( stdout, "[%s]:Start\n", __func__  );
 	}
 
 	// tokenの属性判定

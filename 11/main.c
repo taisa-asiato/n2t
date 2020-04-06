@@ -21,7 +21,7 @@ list_t * end;
 int debug = 0;
 
 // 出力先を変更する場合, 1をセットしコンパイルする
-int isstdout = 0;
+int isstdout = 1;
 // もしxml = 0の場合vmコードを生成する。
 // xml = 1の場合xmlコードを生成する
 int xml = 0;
