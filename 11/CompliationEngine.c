@@ -967,6 +967,7 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 	char class_name[256];
 	char tmp_token[256];
 	char classdotfunc[256];
+	int is_thisclassmethod = 0;
 	subroutine_name_t * p;
 	list_t * lp;
 	strcpy( class_name, token );
@@ -1002,8 +1003,9 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 				ungets( ifp, strlen( token ) );
 				// 関数コール用の文字列をここで作成する
 				sprintf( classdotfunc, "%s.%s", thisclassname, tmp_token ); 
+				is_thisclassmethod = 1;
 			} else if ( token[0] == '.' ) {
-				// クラスメソッドの場合, クラス名をコンパイルすることになる
+				// 他のクラスメソッドの場合, クラス名をコンパイルすることになる
 				lp = list_Find_Node( tmp_token );
 				if ( !lp ) {
 					// クラス名がリストに未登録の場合
@@ -1019,10 +1021,14 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 	// (をコンパイル
 	if ( compile_Symbol( ifp, ofp, '(', depth ) ) {
 		// サブルーチンの引数をコンパイル
-		argnum = compile_Expression_List( ifp, ofp, depth );
+		if ( is_thisclassmethod ) {
+			argnum = compile_Expression_List( ifp, ofp, depth ) + 1;
+		} else {
+			argnum = compile_Expression_List( ifp, ofp, depth );
+		}
 		compile_Symbol( ifp, ofp, ')', depth );
 	} else if ( compile_Symbol( ifp, ofp, '.', depth ) ) {
-		// サブルーチンが関数でなくメソッドの場合
+		// 他クラスのメソッドの場合, ここの部分でメソッド名コンパイルする
 		if ( has_more_tokens( ifp) ) {
 			advance( ifp );
 			type_of_token = token_type( token );
