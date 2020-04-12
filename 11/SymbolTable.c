@@ -146,7 +146,7 @@ int kind_Of( char * name ) {
 	}
 
 
-	tmp = list_Find_Scope_Sub( name );
+	tmp = list_Find_Scope( name );
 	if ( tmp ) {
 		if ( strcmp( tmp->proper, "static" ) == 0 ) {
 			return STATIC;

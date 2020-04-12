@@ -465,6 +465,13 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 	sprintf( classdotfunc, "%s.%s", class_pos->symbol_name, function_name );
 	print_All_Function_Symbol( list_Find_Scope_Sub( function_name ) );
 	writeFunction( ofp, classdotfunc, var_SubrotCount( "var" ) );
+	if ( func_type == CONSTRUCTOR ) {
+		writePush( ofp, VM_CONST, var_ClassCount("field") );
+		if ( isstdout ) {
+			fprintf( stdout, "something needs here\n" );
+		}
+
+	}
 
 	// statementsをコンパイル
 	compile_Statements( ifp, ofp, thd_depth, function_type, if_index, while_index );
@@ -981,6 +988,7 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			strcpy( tmp_token, token );
 			advance( ifp );
 			if ( token[0] == '(' ) {
+				// TODO:コンパイルしているクラスのメソッドの場合
 				lp = list_Find_Node_Subrot_BelongClass( tmp_token );
 				if ( !lp ) {
 					if ( debug ) {
@@ -1050,14 +1058,7 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 		}
 	}
 
-	if ( isstdout & debug ) {
-		// fprintf( stdout, "is this word output?\n" );
-		// fprintf( stdout, "%p", lp );
-		// fprintf( stdout, "before start sprintf, %s %s\n", lp->symbol_name, p->subroutine_name  );
-	}
-	// sprintf( classdotfunc, "%s.%s", lp->symbol_name, p->subroutine_name );
 	writeCall( ofp, classdotfunc, argnum );
-	// fprintf( stdout, "after start sprintf\n" );
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
@@ -1267,10 +1268,13 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 				} else {
 					int inumber = index_Of( tmp_token );
 					int tnumber = kind_Of( tmp_token );
+					// fprintf( stdout, "type number is %d\n", tnumber );
 					if ( tnumber == VAR ) {
 						writePush( ofp, VM_LOCAL, inumber );
 					} else if ( tnumber == ARG ) {
 						writePush( ofp, VM_ARG, inumber );
+					} else if ( tnumber == FIELD ) {
+						writePush( ofp, VM_THIS, inumber );
 					}
 				}
 			}
