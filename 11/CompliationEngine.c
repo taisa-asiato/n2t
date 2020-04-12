@@ -466,11 +466,14 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 	print_All_Function_Symbol( list_Find_Scope_Sub( function_name ) );
 	writeFunction( ofp, classdotfunc, var_SubrotCount( "var" ) );
 	if ( func_type == CONSTRUCTOR ) {
+		char tmp_token[256];
+		strcpy( tmp_token, token );
+		sprintf( token, "%d", var_ClassCount("field") );
 		writePush( ofp, VM_CONST, var_ClassCount("field") );
-		if ( isstdout ) {
-			fprintf( stdout, "something needs here\n" );
+		strcpy( token, tmp_token );
+		if ( strcmp( function_name, "new" ) == 0 ){
+			fprintf( stdout, "call Memory.alloc 1\n" );
 		}
-
 	}
 
 	// statementsをコンパイル
@@ -811,7 +814,9 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 		//writePush( ofp, VM_LOCAL, index_Of( thistoken) );
 	} else if ( kind_Of( thistoken ) == ARG ) {
 		writePop( ofp, VM_ARG, index_Of( thistoken ) );
-	} 
+	} else if ( kind_Of( thistoken ) == FIELD ) {
+		writePop( ofp, VM_THIS, index_Of( thistoken ) );
+	}
 
 
 	printTokenAndTagEnd( ofp, "letStatement", depth );
@@ -989,7 +994,6 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			strcpy( tmp_token, token );
 			advance( ifp );
 			if ( token[0] == '(' ) {
-				// TODO:コンパイルしているクラスのメソッドの場合
 				lp = list_Find_Node_Subrot_BelongClass( tmp_token );
 				if ( !lp ) {
 					if ( debug ) {
@@ -1065,6 +1069,10 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 	}
 
 	writeCall( ofp, classdotfunc, argnum );
+	if ( is_thisclassmethod ) {
+		//fprintf( stdout, "this is method\n" );
+		// writePop( ofp, VM_POINTER, 0 );
+	}
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
@@ -1174,7 +1182,7 @@ void compile_Expression( FILE * ifp, FILE * ofp, int depth ) {
 
 		while ( 1 ) {
 			if ( 	   compile_Symbol( ifp, ofp, '+', sec_depth ) 
-				|| compile_Symbol( ifp, ofp,  '-', sec_depth ) 
+				|| compile_Symbol( ifp, ofp, '-', sec_depth ) 
 				|| compile_Symbol( ifp, ofp, '*', sec_depth ) 
 				|| compile_Symbol( ifp, ofp, '/', sec_depth ) 
 				|| compile_Symbol( ifp, ofp, '&', sec_depth ) 
@@ -1249,10 +1257,13 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 			strcpy( tmp_symbol, token );
 			strcpy( token, "0" );
 
-			writePush( ofp, VM_CONST, 0 );
 			if ( strcmp(tmp_symbol, "true" ) == 0 ) {
+				writePush( ofp, VM_CONST, 0 );
 				strcpy( token, tmp_symbol );
 				writeArithmetic( ofp, "not" );
+			} else if ( strcmp( "this", tmp_symbol ) == 0 ) {
+				strcpy( token, tmp_symbol );
+				writePush( ofp, VM_POINTER, 0 );
 			}
 		
 		} else if ( type_of_token == IDENTIFIER ) {
