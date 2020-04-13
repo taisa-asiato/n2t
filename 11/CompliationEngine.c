@@ -1074,13 +1074,12 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			}
 		}
 	}
-
-	writeCall( ofp, classdotfunc, argnum );
 	if ( is_thisclassmethod ) {
-		//fprintf( stdout, "this is method\n" );
-		// writePop( ofp, VM_POINTER, 0 );
+		writePush( ofp, VM_POINTER, 0 );
 	}
 
+	writeCall( ofp, classdotfunc, argnum );
+	
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
 	}
