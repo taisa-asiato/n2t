@@ -464,8 +464,8 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 	char classdotfunc[256];
 	sprintf( classdotfunc, "%s.%s", class_pos->symbol_name, function_name );
 	print_All_Function_Symbol( list_Find_Scope_Sub( function_name ) );
-	writeFunction( ofp, classdotfunc, var_SubrotCount( "var" ) );
 	if ( func_type == CONSTRUCTOR ) {
+		writeFunction( ofp, classdotfunc, var_SubrotCount( "var" ) );
 		char tmp_token[256];
 		strcpy( tmp_token, token );
 		sprintf( token, "%d", var_ClassCount("field") );
@@ -474,6 +474,13 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 		if ( strcmp( function_name, "new" ) == 0 ){
 			fprintf( stdout, "call Memory.alloc 1\n" );
 		}
+	} else if ( func_type == METHOD ) {
+		// TODO:これで本当にあってる？
+		writeFunction( ofp, classdotfunc, var_SubrotCount( "var" ) );
+		writePush( ofp, VM_ARG, 0 );
+		writePop( ofp, VM_POINTER, 0 );
+	} else if ( func_type == FUNCTION ) {
+		writeFunction( ofp, classdotfunc, var_SubrotCount( "var" ) );
 	}
 
 	// statementsをコンパイル
@@ -1261,10 +1268,13 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 				writePush( ofp, VM_CONST, 0 );
 				strcpy( token, tmp_symbol );
 				writeArithmetic( ofp, "not" );
-			} else if ( strcmp( "this", tmp_symbol ) == 0 ) {
+			} else if ( strcmp( tmp_symbol, "this" ) == 0 ) {
 				strcpy( token, tmp_symbol );
 				writePush( ofp, VM_POINTER, 0 );
-			}
+			} else if ( strcmp( tmp_symbol, "false" ) == 0 || strcmp( tmp_symbol, "null") == 0 ) {
+				writePush( ofp, VM_CONST, 0 );
+				strcpy( token, tmp_symbol );
+			} 
 		
 		} else if ( type_of_token == IDENTIFIER ) {
 			// varName
