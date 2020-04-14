@@ -102,7 +102,7 @@ void printSubrotStatus( FILE * ofp, list_t * class_p, char * thistoken, int dept
 		printTab( ofp, depth );
 		fprintf( stdout, "<belong_class> %s </belong_class>\n", class_p->symbol_name );
 	} else if ( isstdout & debug ) {
-		fprintf( stdout, "function %s.%s\n", class_p->symbol_name, thistoken );
+		fprintf( stdout, "[Debugging]:function %s.%s\n", class_p->symbol_name, thistoken );
 	} else {
 		//fprintf( ofp, "function %s.%s\n", class_p->symbol_name, thistoken );
 	}
@@ -280,6 +280,7 @@ int compile_Class_Var_Dec( FILE * ifp, FILE * ofp, int depth )  {
 			} 
 		} else if ( type_of_token == IDENTIFIER ) {
 			// ユーザ宣言の型/クラスの場合
+ 			list_Print();
 			if ( list_Find_Node( token ) ) {
 				strcpy( my_typeof, token );
 				printTokenAndTag( ofp, t_type, token, sec_depth );
@@ -809,10 +810,6 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 
 	compile_Symbol( ifp, ofp, ';', sec_depth ); 
 	if ( debug ) {
-		fprintf( stdout, "[%s]:Finish\n", __func__ );
-	}
-
-	if ( debug ) {
 		fprintf( stdout, "[%s]:token %s kind is %d", __func__, thistoken, kind_Of(thistoken) );
 	}	
 
@@ -827,6 +824,10 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 
 
 	printTokenAndTagEnd( ofp, "letStatement", depth );
+	if ( debug ) {
+		fprintf( stdout, "[%s]:Finish\n", __func__ );
+	}
+
 
 	return 1;
 }
@@ -1019,9 +1020,18 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 				// 他のクラスメソッドの場合, クラス名をコンパイルすることになる
 				lp = list_Find_Node( tmp_token );
 				if ( !lp ) {
+					// TODO:tmp_token`が必ずしもクラス名とは限らない
+					// 　　:変数名かもしれないので, その変数名があるかを確認する必要がある
 					// クラス名がリストに未登録の場合
 					list_Add( tmp_token );
 					lp = list_Find_Node( tmp_token );
+					if ( debug ) {
+						fprintf( stdout, "this class isnot registerd at class list\n" );
+					}
+				} else {
+					if ( debug ) {
+						fprintf( stdout, "this class is registerd at class list %s\n",tmp_token );
+					}
 				}
 				printClassStatus( ofp, lp, tmp_token, depth );
 				ungets( ifp, strlen( token ) );
@@ -1052,8 +1062,15 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			if ( type_of_token == IDENTIFIER ) {
 				// methodの登録クラスを確認
 				lp = list_Find_Node( tmp_token );
+				if ( debug ) {
+					fprintf( stdout, "method belonging class is [%s], address is [%p]\n", tmp_token, lp );
+				}
 				// 登録クラス中のメソッドが登録されているか確認
 				p = list_Find_Node_Subrot( lp, token );
+
+				if ( debug ) {
+					fprintf( stdout, "method address is %p, %s\n", p->subroutine_name, token );
+				}
 				if ( p ) {
 					// lp = list_Find_Node_Subrot_BelongClass( token );
 					printSubrotStatus( ofp, lp, token, depth );
@@ -1349,11 +1366,12 @@ char compile_Symbol( FILE * ifp, FILE * ofp, char sym, int depth ) {
 	char tmp_token[10];
 
 	if ( debug ) {
-		fprintf( stdout, "[%s]\n", __func__ );
+		fprintf( stdout, "[%s]:Start\n", __func__ );
 	}
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
 		type_of_token = token_type( token );
+		fprintf( stdout, "first token value is %d\n", token[0] );
 		if ( type_of_token == SYMBOL && token[0] == sym ) {
 			if ( token[0] == '<' ) {
 				strcpy( tmp_token, "&lt;" );

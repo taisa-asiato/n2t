@@ -122,7 +122,7 @@ subroutine_name_t * list_Find_Node_Subrot( list_t * class_name, char * subrot_na
 	
 	while ( p ) {
 		if ( debug ) {
-			fprintf( stdout, "[%s]:Start\n", __func__  );
+			fprintf( stdout, "[%s]:Start, class name is [%s]: class address is [%p]\n", __func__, class_name->symbol_name, class_name->symbol_name  );
 		}
 		if ( strcmp( p->subroutine_name, subrot_name ) == 0 ) {
 				return p;
