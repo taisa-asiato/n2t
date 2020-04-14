@@ -17,7 +17,7 @@ void writePush( FILE * ofp, int SEGNUMBER, int index ) {
 		} else if ( SEGNUMBER == VM_THAT ) {
 			fprintf( stdout, "push that %d\n", index );
 		} else if ( SEGNUMBER == VM_POINTER ) {
-			fprintf( stdout, "push pointer %s\n", token );
+			fprintf( stdout, "push pointer %d\n", index );
 		} else if ( SEGNUMBER == VM_TEMP ) {
 			fprintf( stdout, "push temp %d\n", index );
 		}
@@ -35,7 +35,7 @@ void writePush( FILE * ofp, int SEGNUMBER, int index ) {
 		} else if ( SEGNUMBER == VM_THAT ) {
 			fprintf( ofp, "push that %d\n", index );
 		} else if ( SEGNUMBER == VM_POINTER ) {
-			fprintf( ofp, "push pointer %s\n", token );
+			fprintf( ofp, "push pointer %d\n", index );
 		} else if ( SEGNUMBER == VM_TEMP ) {
 			fprintf( ofp, "push temp %d\n", index );
 		}
