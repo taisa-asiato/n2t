@@ -1018,19 +1018,28 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 				is_thisclassmethod = 1;
 			} else if ( token[0] == '.' ) {
 				// 他のクラスメソッドの場合, クラス名をコンパイルすることになる
-				lp = list_Find_Node( tmp_token );
-				if ( !lp ) {
-					// TODO:tmp_token`が必ずしもクラス名とは限らない
-					// 　　:変数名かもしれないので, その変数名があるかを確認する必要がある
-					// クラス名がリストに未登録の場合
-					list_Add( tmp_token );
-					lp = list_Find_Node( tmp_token );
+
+				scope_t * class_var = list_Find_Scope( tmp_token );
+				if ( class_var ) {
 					if ( debug ) {
-						fprintf( stdout, "this class isnot registerd at class list\n" );
+						fprintf( stdout, "this var class type is %s\n", class_var->type  );
 					}
+					sprintf( thisclassname, "%s", class_var->type );
 				} else {
-					if ( debug ) {
-						fprintf( stdout, "this class is registerd at class list %s\n",tmp_token );
+					lp = list_Find_Node( tmp_token );
+					if ( !lp ) {
+						// TODO:tmp_token`が必ずしもクラス名とは限らない
+						// 　　:変数名かもしれないので, その変数名があるかを確認する必要がある
+						// クラス名がリストに未登録の場合
+						list_Add( tmp_token );
+						lp = list_Find_Node( tmp_token );
+						if ( debug ) {
+							fprintf( stdout, "this class isnot registerd at class list\n" );
+						}
+					} else {
+						if ( debug ) {
+							fprintf( stdout, "this class is registerd at class list %s\n",tmp_token );
+						}
 					}
 				}
 				printClassStatus( ofp, lp, tmp_token, depth );

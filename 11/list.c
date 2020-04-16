@@ -125,6 +125,9 @@ subroutine_name_t * list_Find_Node_Subrot( list_t * class_name, char * subrot_na
 			fprintf( stdout, "[%s]:Start, class name is [%s]: class address is [%p]\n", __func__, class_name->symbol_name, class_name->symbol_name  );
 		}
 		if ( strcmp( p->subroutine_name, subrot_name ) == 0 ) {
+			if ( debug ) {
+				fprintf( stdout, "method name is [%s], method address is [%p]\n", p->subroutine_name, p->subroutine_name );
+			}
 				return p;
 		}
 		p = p->next;
