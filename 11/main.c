@@ -18,10 +18,10 @@ char t_type[256];
 list_t * head;
 list_t * end;
 // デバッグ情報を出力する場合, 1をセットしコンパイルする
-int debug = 1;
+int debug = 0;
 
 // 出力先を変更する場合, 1をセットしコンパイルする
-int isstdout = 1;
+int isstdout = 0;
 // もしxml = 0の場合vmコードを生成する。
 // xml = 1の場合xmlコードを生成する
 int xml = 0;

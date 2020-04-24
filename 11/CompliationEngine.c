@@ -982,9 +982,11 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 	char classdotfunc[256];
 	int is_thisclassmethod = 0;
 	subroutine_name_t * p;
+	scope_t * class_var;
 	list_t * lp;
 	strcpy( class_name, token );
 	int argnum = 0;
+	int var_class = 0;
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Start\n", __func__  );
@@ -1019,12 +1021,14 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			} else if ( token[0] == '.' ) {
 				// 他のクラスメソッドの場合, クラス名をコンパイルすることになる
 
-				scope_t * class_var = list_Find_Scope( tmp_token );
+				class_var = list_Find_Scope( tmp_token );
 				if ( class_var ) {
+					// tmp_token の値がクラス名でなく, あるクラスの変数名であった場合
 					if ( debug ) {
 						fprintf( stdout, "this var class type is %s\n", class_var->type  );
 					}
-					sprintf( thisclassname, "%s", class_var->type );
+					var_class = 1;
+					// sprintf( thisclassname, "%s", class_var->type );
 				} else {
 					lp = list_Find_Node( tmp_token );
 					if ( !lp ) {
@@ -1070,23 +1074,27 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			printTokenAndTag( ofp, t_type, token, depth );
 			if ( type_of_token == IDENTIFIER ) {
 				// methodの登録クラスを確認
-				lp = list_Find_Node( tmp_token );
-				if ( debug ) {
-					fprintf( stdout, "method belonging class is [%s], address is [%p]\n", tmp_token, lp );
-				}
-				// 登録クラス中のメソッドが登録されているか確認
-				p = list_Find_Node_Subrot( lp, token );
-
-				if ( debug ) {
-					fprintf( stdout, "method address is %p, %s\n", p->subroutine_name, token );
-				}
-				if ( p ) {
-					// lp = list_Find_Node_Subrot_BelongClass( token );
-					printSubrotStatus( ofp, lp, token, depth );
-				} else {
-					list_Add_Subrot( lp, token );
+				if ( var_class == 1 ) {
+					strcpy( tmp_token, class_var->name );		
+				} else { 
+					lp = list_Find_Node( tmp_token );
+					if ( debug ) {
+						fprintf( stdout, "method belonging class is [%s], address is [%p]\n", tmp_token, lp );
+					}
+					// 登録クラス中のメソッドが登録されているか確認
 					p = list_Find_Node_Subrot( lp, token );
-					printSubrotStatus( ofp, lp, token, depth );
+
+					if ( debug ) {
+						fprintf( stdout, "method address is %p, %s\n", p->subroutine_name, token );
+					}
+					if ( p ) {
+						// lp = list_Find_Node_Subrot_BelongClass( token );
+						printSubrotStatus( ofp, lp, token, depth );
+					} else {
+						list_Add_Subrot( lp, token );
+						p = list_Find_Node_Subrot( lp, token );
+						printSubrotStatus( ofp, lp, token, depth );
+					}
 				}
 			}
 			sprintf( classdotfunc, "%s.%s", tmp_token, token );
