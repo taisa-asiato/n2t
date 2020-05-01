@@ -473,7 +473,11 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 		writePush( ofp, VM_CONST, var_ClassCount("field") );
 		strcpy( token, tmp_token );
 		if ( strcmp( function_name, "new" ) == 0 ){
-			fprintf( stdout, "call Memory.alloc 1\n" );
+			if ( debug || isstdout ) {
+				fprintf( stdout, "call Memory.alloc 1\n" );
+			} else {
+				fprintf( ofp, "call Memory.alloc 1\n" );
+			}
 		}
 	} else if ( func_type == METHOD ) {
 		// TODO:これで本当にあってる？
@@ -1028,6 +1032,8 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 						fprintf( stdout, "this var class type is %s\n", class_var->type  );
 					}
 					var_class = 1;
+					writePush( ofp, VM_THIS, 0 );	
+					is_thisclassmethod = 1;
 					// sprintf( thisclassname, "%s", class_var->type );
 				} else {
 					lp = list_Find_Node( tmp_token );
@@ -1071,11 +1077,19 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 				fprintf( stdout, "call subroutine, this method is registered at method list\n" );
 			}
 
-			printTokenAndTag( ofp, t_type, token, depth );
+			// printTokenAndTag( ofp, t_type, token, depth );
 			if ( type_of_token == IDENTIFIER ) {
 				// methodの登録クラスを確認
+				if ( debug ) {
+					fprintf( stdout, "token is   : %s\n", token );
+				}
 				if ( var_class == 1 ) {
-					strcpy( tmp_token, class_var->name );		
+					//list_Print();
+					if ( debug ) {
+						fprintf( stdout, "this method belongs to %s\n", class_var->type  );
+					}
+					is_thisclassmethod = 1;
+					strcpy( tmp_token, class_var->type );		
 				} else { 
 					lp = list_Find_Node( tmp_token );
 					if ( debug ) {
@@ -1100,7 +1114,11 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			sprintf( classdotfunc, "%s.%s", tmp_token, token );
 
 			if ( compile_Symbol( ifp, ofp, '(', depth ) ) {
-				argnum = compile_Expression_List( ifp, ofp, depth );
+				if ( is_thisclassmethod ) {
+					argnum = compile_Expression_List( ifp, ofp, depth ) + 1;
+				} else {
+					argnum = compile_Expression_List( ifp, ofp, depth );
+				}
 				compile_Symbol( ifp, ofp, ')', depth );
 			} else {
 				fprintf( stdout, "[ERROR]: Subroutine Parameter must start (, %s\n", token );
