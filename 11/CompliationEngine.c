@@ -477,6 +477,7 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 				fprintf( stdout, "call Memory.alloc 1\n" );
 			} else {
 				fprintf( ofp, "call Memory.alloc 1\n" );
+				writePop( ofp, VM_POINTER, 0 );
 			}
 		}
 	} else if ( func_type == METHOD ) {
@@ -991,6 +992,7 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 	strcpy( class_name, token );
 	int argnum = 0;
 	int var_class = 0;
+	int is_access_obj_field = 0;
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Start\n", __func__  );
@@ -1022,6 +1024,7 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 				// 関数コール用の文字列をここで作成する
 				sprintf( classdotfunc, "%s.%s", thisclassname, tmp_token ); 
 				is_thisclassmethod = 1;
+				is_access_obj_field = 1;
 			} else if ( token[0] == '.' ) {
 				// 他のクラスメソッドの場合, クラス名をコンパイルすることになる
 
@@ -1032,7 +1035,11 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 						fprintf( stdout, "this var class type is %s\n", class_var->type  );
 					}
 					var_class = 1;
-					writePush( ofp, VM_THIS, 0 );	
+					if ( strcmp( class_var->proper, "var" ) == 0 ) {
+						writePush( ofp, VM_LOCAL, class_var->number );
+					} else {
+						writePush( ofp, VM_THIS, 0 );	
+					}
 					is_thisclassmethod = 1;
 					// sprintf( thisclassname, "%s", class_var->type );
 				} else {
@@ -1126,7 +1133,8 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 			}
 		}
 	}
-	if ( is_thisclassmethod ) {
+
+	if ( is_access_obj_field == 1 ) {
 		writePush( ofp, VM_POINTER, 0 );
 	}
 
