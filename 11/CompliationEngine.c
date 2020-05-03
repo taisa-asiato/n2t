@@ -1281,7 +1281,9 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 	int sec_depth = depth+1;
 	char tmp_symbol[256];
 	char tmp_token[256];
+	unsigned long str_length = 0;
 	list_t * p;
+	scope_t * p_var;
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]\n", __func__  );
@@ -1309,9 +1311,18 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 			flag = 1;
 			get_stringconst( ifp );
 			// printTokenAndTag( ofp, t_type, token, sec_depth );
+			strcpy( tmp_token, token );
+			sprintf( token, "%lu", str_length = strlen(tmp_token) );
 			writePush( ofp, VM_CONST, strlen( token ) );
 			// メソッドの場合は引数のベースアドレスを1からスタートする
 			fprintf( ofp, "call String.new 1\n" );
+			for ( int i = 0 ; i < str_length ; i++ ) {
+				sprintf( token, "%d", tmp_token[i] );
+				writePush( ofp, VM_CONST, strlen(tmp_token));
+				writeCall( ofp, "String.appendChar", 2 );
+			}
+
+			strcpy( token, tmp_token );
 		} else if (	strcmp( token, "true" ) == 0 || strcmp( token, "false" ) == 0 || 
 				strcmp( token, "null" ) == 0 || strcmp( token, "this" ) == 0 ) {
 			// keywordConst
@@ -1345,11 +1356,14 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 				flag = 1;
 				//printTokenAndTag( ofp, t_type, token, sec_depth );
 				printTokenStatus( ofp, token, sec_depth );
+				p_var =  list_Find_Scope( token );
+				fprintf( ofp, "%s type is %s\n", token,p_var->type );
 				strcpy( tmp_token, token );
 				if ( compile_Symbol( ifp, ofp, '[', sec_depth ) ) {
 					// 変数が配列の場合
 					compile_Expression( ifp, ofp, sec_depth );
 					compile_Symbol( ifp, ofp, ']', sec_depth );
+
 				} else {
 					int inumber = index_Of( tmp_token );
 					int tnumber = kind_Of( tmp_token );
