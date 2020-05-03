@@ -149,6 +149,8 @@ int compile_Class( FILE * ifp, FILE * ofp, int depth ) {
 	int flag = 0;
 	int sec_depth = depth+1;
 	list_t * p;
+	if_index = 0;
+	while_index = 0;
 
 	printTokenAndTagStart( ofp, "class", depth );
 
@@ -342,8 +344,8 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 	int func_type = 0; 
 	char function_name[256];
 	char function_type[256];
-	int if_index = 0;
-	int while_index = 0;
+	//int if_index = 0;
+	//int while_index = 0;
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]\n", __func__  );
@@ -505,7 +507,7 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 	return 1;
 }
 
-int compile_Statements( FILE * ifp, FILE * ofp, int depth, char func_type[256], int if_index, int while_index ) {
+int compile_Statements( FILE * ifp, FILE * ofp, int depth, char func_type[256], int if_id, int while_id ) {
 	int type_of_token;
 	// このブロックをコンパイルする時に一番低い
 	// インデント深さを記録する
@@ -837,7 +839,7 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 	return 1;
 }
 
-void compile_If_Statement( FILE * ifp, FILE * ofp, int depth, int if_index, int while_index ) {
+void compile_If_Statement( FILE * ifp, FILE * ofp, int depth, int if_id, int while_id ) {
 	int type_of_token;
 	int sec_depth = depth+1;
 	char if_true[256];
@@ -866,16 +868,12 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth, int if_index, int 
 
 	compile_Symbol( ifp, ofp, '{', sec_depth );
 
-	// 条件が真の場合, if-trueへジャンプ
-	writeIf( ofp, if_true );
-	// 条件が偽の場合, if-falseへジャンプする
-	writeGoto( ofp, if_false );
+	writeIf( ofp, if_true ); // 条件が真の場合, if-trueへジャンプ
+	writeGoto( ofp, if_false ); // 条件が偽の場合, if-falseへジャンプする
 	writeLabel( ofp, if_true );
+
 	// 条件分岐後の式をコンパイルする
 	compile_Statements( ifp, ofp, sec_depth, "", if_index, while_index );
-
-	writeGoto( ofp, if_end );
-
 	compile_Symbol( ifp, ofp, '}', sec_depth );
 
 	if ( has_more_tokens( ifp ) ) {
@@ -887,12 +885,14 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth, int if_index, int 
 			if ( strcmp( token, "else" ) == 0 ) {
 				printTokenAndTag( ofp, t_type, token, sec_depth );
 				if ( compile_Symbol( ifp, ofp, '{', sec_depth ) ) {
-					// 条件分岐後の式をコンパイルする
 					writeLabel( ofp, if_false ); 
+					// 条件分岐後の式をコンパイルする
 					compile_Statements( ifp, ofp, sec_depth, "", if_index, while_index );
+
 					compile_Symbol( ifp, ofp, '}', sec_depth );
 				}
 			} else {
+				writeLabel( ofp, if_false ); 
 				ungets( ifp, strlen( token ) );
 				
 			}
@@ -900,7 +900,6 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth, int if_index, int 
 			ungets( ifp, strlen( token ) );
 		}
 	}
-	writeLabel( ofp, if_end );
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
@@ -908,7 +907,7 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth, int if_index, int 
 	printTokenAndTagEnd( ofp, "ifStatement", depth );
 }
 
-void compile_While_Statement( FILE * ifp, FILE * ofp, int depth, int if_index, int while_index ) {
+void compile_While_Statement( FILE * ifp, FILE * ofp, int depth, int if_id, int while_id ) {
 	int type_of_token;
 	int sec_depth = depth+1;
 	char while_start[256];
@@ -935,7 +934,7 @@ void compile_While_Statement( FILE * ifp, FILE * ofp, int depth, int if_index, i
 
 	compile_Symbol( ifp, ofp, '{', sec_depth );
 
-	// if-got while_end 
+	// if-goto while_end 
 	writeIf( ofp, while_end );
 	// while文の本文をコンパイルする
 	compile_Statements( ifp, ofp, sec_depth, "", if_index, while_index );

@@ -47,6 +47,9 @@ char thisclassname[256];
 char opstack[512];
 int opnum = 0;
 
+int if_index = 0;
+int while_index = 0;
+
 int main( int argc, char ** argv ) {
 	/* エラー時の処理 */
 	if ( argc != 2 ) {
