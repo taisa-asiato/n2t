@@ -287,9 +287,11 @@ int compile_Class_Var_Dec( FILE * ifp, FILE * ofp, int depth )  {
 				strcpy( my_typeof, token );
 				printTokenAndTag( ofp, t_type, token, sec_depth );
 			} else { 
+				list_Add( token );
+				strcpy( my_typeof, token );
 				fprintf( stdout, "[ERROR]:Undefined Class name %s\n", token );
-				ungets( ifp, strlen( token ) );
-				return -1;
+				//ungets( ifp, strlen( token ) );
+				// return -1;
 			}
 		} else {
 			fprintf( stdout, "[ERROR]:Type is not defined\n" );
@@ -429,7 +431,7 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 	}
 	
 	// パラメータリストをコンパイル
-	compile_ParameterList( ifp, ofp, sec_depth );
+	compile_ParameterList( ifp, ofp, sec_depth, func_type );
 	if ( debug ) {
 		fprintf( stdout, "[%s]:after parameter list\n", __func__ );
 	}
@@ -610,9 +612,12 @@ int compile_Var_Dec( FILE * ifp, FILE * ofp, int depth ) {
 			strcpy( my_typeof, token );
 			printTokenAndTag( ofp, t_type, token, sec_depth );
 		} else { 
+			list_Print();
+			list_Add( token );
+			strcpy( my_typeof, token );
 			fprintf( stdout, "[ERROR]: Var type must be int, char, boolean or classname\n" );
-			ungets( ifp, strlen( token ) );
-			return 0;
+			//ungets( ifp, strlen( token ) );
+			//return 0;
 		}
 	}
 
@@ -703,7 +708,7 @@ int compile_subroutine_name( FILE * ifp, FILE * ofp, int depth ) {
 	return 0;
 }
 
-int compile_ParameterList( FILE * ifp, FILE * ofp, int depth ) {
+int compile_ParameterList( FILE * ifp, FILE * ofp, int depth, int func_type ) {
 	int type_of_token;
 	int sec_depth = depth + 1;
 
@@ -712,6 +717,9 @@ int compile_ParameterList( FILE * ifp, FILE * ofp, int depth ) {
 	}
 
 	printTokenAndTagStart( ofp, "parameterList", depth );
+	if ( func_type == METHOD ) {
+		cnt_arg++;
+	} 
 
 	// サブルーチンのパラメータリストのコンパイルを開始する
 	while ( 1 ) {
@@ -888,6 +896,7 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth, int if_id, int whi
 	// 条件分岐後の式をコンパイルする
 	compile_Statements( ifp, ofp, sec_depth, "", if_index, while_index );
 	compile_Symbol( ifp, ofp, '}', sec_depth );
+	writeGoto( ofp, if_end );
 
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
@@ -901,11 +910,9 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth, int if_id, int whi
 					writeLabel( ofp, if_false ); 
 					// 条件分岐後の式をコンパイルする
 					compile_Statements( ifp, ofp, sec_depth, "", if_index, while_index );
-
 					compile_Symbol( ifp, ofp, '}', sec_depth );
 				}
 			} else {
-				writeLabel( ofp, if_false ); 
 				ungets( ifp, strlen( token ) );
 				
 			}
@@ -913,6 +920,7 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth, int if_id, int whi
 			ungets( ifp, strlen( token ) );
 		}
 	}
+	writeLabel( ofp, if_end ); 
 
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
@@ -1039,7 +1047,6 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 				is_access_obj_field = 1;
 			} else if ( token[0] == '.' ) {
 				// 他のクラスメソッドの場合, クラス名をコンパイルすることになる
-
 				class_var = list_Find_Scope( tmp_token );
 				if ( class_var ) {
 					// tmp_token の値がクラス名でなく, あるクラスの変数名であった場合
@@ -1057,8 +1064,6 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 				} else {
 					lp = list_Find_Node( tmp_token );
 					if ( !lp ) {
-						// TODO:tmp_token`が必ずしもクラス名とは限らない
-						// 　　:変数名かもしれないので, その変数名があるかを確認する必要がある
 						// クラス名がリストに未登録の場合
 						list_Add( tmp_token );
 						lp = list_Find_Node( tmp_token );
@@ -1104,6 +1109,7 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 				}
 				if ( var_class == 1 ) {
 					//list_Print();
+					// tmp_tokenがクラス名でなく変数名の場合(methodの場合)
 					if ( debug ) {
 						fprintf( stdout, "this method belongs to %s\n", class_var->type  );
 					}
@@ -1121,11 +1127,24 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 						fprintf( stdout, "method address is %p, %s\n", p->subroutine_name, token );
 					}
 					if ( p ) {
+						if ( debug ) {
+							fprintf( stdout, "registered\n" );
+						}
 						// lp = list_Find_Node_Subrot_BelongClass( token );
 						printSubrotStatus( ofp, lp, token, depth );
 					} else {
+						if ( debug ) {
+							fprintf( stdout, "not registered at %s %p\n", tmp_token, lp );
+						}
+						list_Init_Subrot( lp );
 						list_Add_Subrot( lp, token );
+						if ( debug ) { 
+							fprintf( stdout, "%s is registered at %p\n", token, p );
+						}
 						p = list_Find_Node_Subrot( lp, token );
+						if ( debug ) {
+							fprintf( stdout, "get address\n" );
+						}
 						printSubrotStatus( ofp, lp, token, depth );
 					}
 				}
