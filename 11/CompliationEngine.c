@@ -795,6 +795,8 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 			tmp->used = 1;
 		}
 	}
+	int index = index_Of( thistoken );
+	int kind = kind_Of( thistoken );
 
 	// TODO ; beforeへの値いれを行う
 	if ( has_more_tokens( ifp ) ) {
@@ -805,14 +807,24 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 		ungetc( token[0], ifp );
 		compile_Symbol( ifp, ofp, '=', sec_depth );
 		compile_Expression( ifp, ofp, sec_depth );
+		flag = 1;
 	} else if ( token[0] == '[' ) {
 		ungetc( token[0], ifp );
+		// aryの添字の処理の前にary本体お処理を行う必要がある
 		compile_Symbol( ifp, ofp, '[', sec_depth );
 		compile_Expression( ifp, ofp, sec_depth );
 		compile_Symbol( ifp, ofp, ']', sec_depth );
-
+		if ( kind == VAR ) {
+			writePush( ofp, VM_LOCAL, index );
+			writeArithmetic( ofp, "+" );	
+		}
 		compile_Symbol( ifp, ofp, '=', sec_depth );
 		compile_Expression( ifp, ofp, sec_depth );
+
+		writePop( ofp, VM_TEMP, 0 );
+		writePop( ofp, VM_POINTER,  1 );
+		writePush( ofp, VM_TEMP, 0 );
+		writePop( ofp, VM_THAT, 0 );
 	}
 
 	compile_Symbol( ifp, ofp, ';', sec_depth ); 
@@ -820,15 +832,16 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 		fprintf( stdout, "[%s]:token %s kind is %d", __func__, thistoken, kind_Of(thistoken) );
 	}	
 
-	if ( kind_Of( thistoken ) == VAR ) {
-		writePop( ofp, VM_LOCAL, index_Of( thistoken) );
-		//writePush( ofp, VM_LOCAL, index_Of( thistoken) );
-	} else if ( kind_Of( thistoken ) == ARG ) {
-		writePop( ofp, VM_ARG, index_Of( thistoken ) );
-	} else if ( kind_Of( thistoken ) == FIELD ) {
-		writePop( ofp, VM_THIS, index_Of( thistoken ) );
+	if ( flag ) {
+		if ( kind_Of( thistoken ) == VAR ) {
+			writePop( ofp, VM_LOCAL, index_Of( thistoken) );
+			//writePush( ofp, VM_LOCAL, index_Of( thistoken) );
+		} else if ( kind_Of( thistoken ) == ARG ) {
+			writePop( ofp, VM_ARG, index_Of( thistoken ) );
+		} else if ( kind_Of( thistoken ) == FIELD ) {
+			writePop( ofp, VM_THIS, index_Of( thistoken ) );
+		}
 	}
-
 
 	printTokenAndTagEnd( ofp, "letStatement", depth );
 	if ( debug ) {
@@ -1357,16 +1370,44 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 				//printTokenAndTag( ofp, t_type, token, sec_depth );
 				printTokenStatus( ofp, token, sec_depth );
 				p_var =  list_Find_Scope( token );
-				fprintf( ofp, "%s type is %s\n", token,p_var->type );
 				strcpy( tmp_token, token );
 				if ( compile_Symbol( ifp, ofp, '[', sec_depth ) ) {
 					// 変数が配列の場合
 					compile_Expression( ifp, ofp, sec_depth );
 					compile_Symbol( ifp, ofp, ']', sec_depth );
+					int inumber = index_Of( tmp_token );
+					int tnumber = kind_Of( tmp_token );
+					if ( tnumber == VAR ) {
+						writePush( ofp, VM_LOCAL, inumber );
+					} else if ( tnumber == ARG ) {
+						writePush( ofp, VM_ARG, inumber );
+					} else if ( tnumber == FIELD ) {
+						writePush( ofp, VM_THIS, inumber );
+					}
+					writeArithmetic( ofp, "+" );
+					writePop( ofp, VM_POINTER, 1 );
+					writePush( ofp, VM_THAT, 0 );
 
+				} else if ( strcmp( p_var->type, "Array" ) == 0 ) {
+					// 配列の先頭要素のみにアクセスしている場合
+					// ex) var Array a
+					// ex) a = ~など
+					fprintf( ofp, "head address of array\n" );
+					int inumber = index_Of( tmp_token );
+					int tnumber = kind_Of( tmp_token );
+					if ( tnumber == VAR ) {
+						writePush( ofp, VM_LOCAL, inumber );
+					} else if ( tnumber == ARG ) {
+						writePush( ofp, VM_ARG, inumber );
+					} else if ( tnumber == FIELD ) {
+						writePush( ofp, VM_THIS, inumber );
+					}
+					strcpy( token, "0" );
+					writePush( ofp, VM_CONST, 0 );
 				} else {
 					int inumber = index_Of( tmp_token );
 					int tnumber = kind_Of( tmp_token );
+
 					// fprintf( stdout, "type number is %d\n", tnumber );
 					if ( tnumber == VAR ) {
 						writePush( ofp, VM_LOCAL, inumber );
