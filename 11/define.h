@@ -170,7 +170,7 @@ void compile_Expression( FILE * ifp, FILE * ofp, int depth );
 void compile_Term( FILE * ifp, FILE * ofp, int depth );
 char compile_Symbol( FILE * ifp, FILE * ofp, char sym, int depth );
 void ungets( FILE * ifp, int length );
-int compile_ParameterList( FILE * ifp, FILE * ofp, int depth );
+int compile_ParameterList( FILE * ifp, FILE * ofp, int depth, int func_type );
 int compile_Expression_List( FILE * ifp, FILE * ofp, int depth );
 void printTab( FILE * ofp, int depth );
 void printTokenAndTag( FILE * ofp, char * type, char * thistoken, int depth );

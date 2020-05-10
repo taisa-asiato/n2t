@@ -105,7 +105,7 @@ void writeArithmetic( FILE * ofp, char command[256] ) {
 		} else if ( strcmp( command, "&" ) == 0 ) {
 			fprintf( stdout, "and\n" );
 		} else if ( strcmp( command, "|" ) == 0 ) {
-			fprintf( stdout, "|\n" );
+			fprintf( stdout, "or\n" );
 		} else if ( strcmp( command, "!" ) == 0 ) {
 			fprintf( stdout, "!\n" );
 		} else if ( strcmp( command, "*" ) == 0 ) {
@@ -135,7 +135,7 @@ void writeArithmetic( FILE * ofp, char command[256] ) {
 		} else if ( strcmp( command, "&" ) == 0 ) {
 			fprintf( ofp, "and\n" );
 		} else if ( strcmp( command, "|" ) == 0 ) {
-			fprintf( ofp, "|\n" );
+			fprintf( ofp, "or\n" );
 		} else if ( strcmp( command, "!" ) == 0 ) {
 			fprintf( ofp, "!\n" );
 		} else if ( strcmp( command, "*" ) == 0 ) {

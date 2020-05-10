@@ -848,6 +848,8 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 			writePop( ofp, VM_ARG, index_Of( thistoken ) );
 		} else if ( kind_Of( thistoken ) == FIELD ) {
 			writePop( ofp, VM_THIS, index_Of( thistoken ) );
+		} else if ( kind_Of( thistoken ) == STATIC ) {
+			writePop( ofp, VM_STATIC, index_Of( thistoken ) );
 		}
 	}
 
@@ -1025,6 +1027,7 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 		if ( debug ) {
 			fprintf( stdout, "[%s]: token is %s\n", __func__, token );
 		}
+
 		if ( type_of_token == IDENTIFIER ) {
 			printTokenAndTag( ofp, t_type, token, depth );
 			strcpy( tmp_token, token );
@@ -1056,6 +1059,10 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 					var_class = 1;
 					if ( strcmp( class_var->proper, "var" ) == 0 ) {
 						writePush( ofp, VM_LOCAL, class_var->number );
+					} else if ( strcmp( class_var->proper, "field" ) == 0 )  {
+						int inumber = index_Of( tmp_token );
+						int tnumber = kind_Of( tmp_token );
+						writePush( ofp, VM_THIS, inumber );
 					} else {
 						writePush( ofp, VM_THIS, 0 );	
 					}
@@ -1259,6 +1266,9 @@ void compile_Expression( FILE * ifp, FILE * ofp, int depth ) {
 			}
 		}
 	}
+	if ( debug ) {
+		fprintf( stdout, "token type is FLAG:%d, %s\n", flag, token );
+	}
 
 	// token名をコンパイル, 属性に応じて出力先を変更する
 	if ( flag > 0 ) {
@@ -1331,6 +1341,7 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 			fprintf( stdout, "[%s]: char is %c\n", __func__, token[0] );
 		}
 
+		fprintf( stdout, "Current token is %s\n", token );
 		if ( type_of_token == INT_CONST ) {
 			// integerConst
 			flag = 1;
@@ -1379,7 +1390,19 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 		
 		} else if ( type_of_token == IDENTIFIER ) {
 			// varName
-			if ( ( p = list_Find_Node( token ) ) ) {
+			strcpy( tmp_token, token );
+			fprintf( stdout, "this is var, %s: %s\n", tmp_token, token );
+			//if ( has_more_tokens(ifp) ) {
+			//	advance( ifp );
+			//}
+			if ( compile_Symbol( ifp, ofp, '.', sec_depth ) ) {
+				flag = 1;
+				fprintf( stdout, "this is method\n" );
+				ungets( ifp, strlen( token ) );
+				strcpy( token, tmp_token );
+				ungets( ifp, strlen( token ) );
+				compile_Subroutine_Call( ifp, ofp, p, sec_depth );
+			} else if ( ( p = list_Find_Node( token ) ) ) {
 				// サブルーチン呼び出し
 				flag = 1;
 				ungets( ifp, strlen( token ) );
@@ -1388,6 +1411,9 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 				flag = 1;
 				//printTokenAndTag( ofp, t_type, token, sec_depth );
 				printTokenStatus( ofp, token, sec_depth );
+				//ungets( ifp, strlen( token ) );
+				strcpy( token, tmp_token );
+				fprintf( stdout, "this is var, %s: %s\n", tmp_token, token );
 				p_var =  list_Find_Scope( token );
 				strcpy( tmp_token, token );
 				if ( compile_Symbol( ifp, ofp, '[', sec_depth ) ) {
