@@ -827,6 +827,9 @@ int compile_Let_Statement( FILE * ifp, FILE * ofp, int depth ) {
 		if ( kind == VAR ) {
 			writePush( ofp, VM_LOCAL, index );
 			writeArithmetic( ofp, "+" );	
+		} else if ( kind == ARG ) {
+			writePush( ofp, VM_ARG, index );
+			writeArithmetic( ofp, "+" );	
 		}
 		compile_Symbol( ifp, ofp, '=', sec_depth );
 		compile_Expression( ifp, ofp, sec_depth );
@@ -1445,7 +1448,7 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 					// 配列の先頭要素のみにアクセスしている場合
 					// ex) var Array a
 					// ex) a = ~など
-					fprintf( ofp, "head address of array\n" );
+					//fprintf( ofp, "head address of array\n" );
 					int inumber = index_Of( tmp_token );
 					int tnumber = kind_Of( tmp_token );
 					if ( tnumber == VAR ) {
@@ -1456,7 +1459,7 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 						writePush( ofp, VM_THIS, inumber );
 					}
 					strcpy( token, "0" );
-					writePush( ofp, VM_CONST, 0 );
+					//writePush( ofp, VM_CONST, 0 );
 				} else {
 					int inumber = index_Of( tmp_token );
 					int tnumber = kind_Of( tmp_token );
