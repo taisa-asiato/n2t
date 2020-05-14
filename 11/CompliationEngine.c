@@ -395,6 +395,8 @@ int compile_Subroutine_Dec( FILE * ifp, FILE * ofp, list_t * class_pos, int dept
 				return -1;
 			}
 		} else if ( type_of_token == IDENTIFIER ) {
+
+			strcpy( function_type, token );
 			if ( class_pos ) {
 				// サブルーチンの型なのでサブルーチンの詳細情報は下記で出力する
 				printTokenAndTag( ofp, t_type, token, sec_depth );
@@ -899,7 +901,7 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth, int if_id, int whi
 	compile_Statements( ifp, ofp, sec_depth, "", if_index, while_index );
 	compile_Symbol( ifp, ofp, '}', sec_depth );
 	writeGoto( ofp, if_end );
-
+	writeLabel( ofp, if_false ); 
 	if ( has_more_tokens( ifp ) ) {
 		advance( ifp );
 		type_of_token = token_type( token );
@@ -909,7 +911,7 @@ void compile_If_Statement( FILE * ifp, FILE * ofp, int depth, int if_id, int whi
 			if ( strcmp( token, "else" ) == 0 ) {
 				printTokenAndTag( ofp, t_type, token, sec_depth );
 				if ( compile_Symbol( ifp, ofp, '{', sec_depth ) ) {
-					writeLabel( ofp, if_false ); 
+					//writeLabel( ofp, if_false ); 
 					// 条件分岐後の式をコンパイルする
 					compile_Statements( ifp, ofp, sec_depth, "", if_index, while_index );
 					compile_Symbol( ifp, ofp, '}', sec_depth );
@@ -1089,6 +1091,12 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 		}
 	}
 
+	if ( is_access_obj_field == 1 ) {
+		writePush( ofp, VM_POINTER, 0 );
+	}
+
+
+
 	// (をコンパイル
 	if ( compile_Symbol( ifp, ofp, '(', depth ) ) {
 		// サブルーチンの引数をコンパイル
@@ -1172,12 +1180,9 @@ void compile_Subroutine_Call( FILE * ifp, FILE * ofp, list_t * class_pos, int de
 		}
 	}
 
-	if ( is_access_obj_field == 1 ) {
-		writePush( ofp, VM_POINTER, 0 );
-	}
 
 	writeCall( ofp, classdotfunc, argnum );
-	
+
 	if ( debug ) {
 		fprintf( stdout, "[%s]:Finish\n", __func__ );
 	}
@@ -1200,6 +1205,7 @@ int compile_Return_Statement( FILE * ifp, FILE * ofp, int depth, char func_type[
 		advance( ifp );
 
 		type_of_token = token_type( token );
+		//fprintf( ofp, "[%s]: token is %s\n", __func__, token );
 		if ( type_of_token == SYMBOL && token[0] == ';' ) {
 			ungets( ifp, strlen( token ) );
 			compile_Symbol( ifp, ofp, ';', sec_depth );
@@ -1227,6 +1233,8 @@ int compile_Return_Statement( FILE * ifp, FILE * ofp, int depth, char func_type[
 			// fprintf( ofp, "pop temp 0\n" );
 			fprintf( ofp, "push constant 0\n" );
 		}
+	} else {
+		
 	}
 
 	printTokenAndTagEnd( ofp, "returnStatement", depth );
@@ -1453,13 +1461,15 @@ void compile_Term( FILE * ifp, FILE * ofp, int depth ) {
 					int inumber = index_Of( tmp_token );
 					int tnumber = kind_Of( tmp_token );
 
-					// fprintf( stdout, "type number is %d\n", tnumber );
+					// fprintf( ofp, "[%s]:%s type number is %d\n", __func__, tmp_token, tnumber );
 					if ( tnumber == VAR ) {
 						writePush( ofp, VM_LOCAL, inumber );
 					} else if ( tnumber == ARG ) {
 						writePush( ofp, VM_ARG, inumber );
 					} else if ( tnumber == FIELD ) {
 						writePush( ofp, VM_THIS, inumber );
+					} else if ( tnumber == VM_STATIC || tnumber == STATIC ) { 
+						writePush( ofp, VM_STATIC, inumber );
 					}
 				}
 			}
