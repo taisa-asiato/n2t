@@ -1,0 +1,83 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Memory.jack
+
+/**
+ * This library provides two services: direct access to the computer's main
+ * memory (RAM), and allocation and recycling of memory blocks. The Hack RAM
+ * consists of 32,768 words, each holding a 16-bit binary number.
+ */ 
+class Memory {
+
+    static Array ram;
+    static int base;
+    static int length;
+    static int next;
+    static int end;
+
+    /** Initializes the class. */
+    function void init() {
+        let ram = 0;
+        let base = 2048;
+        let length = 16348 - base;
+        let next = base + 1;
+        let end = -1;
+        let ram[base] = length;
+        let ram[next] = end;
+        return;
+    }
+
+    /** Returns the RAM value at the given address. */
+    function int peek(int address) {
+        return ram[address];
+    }
+
+    /** Sets the RAM value at the given address to the given value. */
+    function void poke(int address, int value) {
+        let ram[address] = value;
+        return;
+    }
+
+    /** Finds an available RAM block of the given size and returns
+     *  a reference to its base address. */
+    function int alloc(int size) {
+        var int curr;
+        var int prev;
+        var int nxt;
+        var int retaddr;
+
+        let curr = length;
+        let prev = length;
+        let nxt = next;
+        let retaddr = -1;
+
+        while ( (ram[curr] < size) & ~(ram[nxt] = end) ) {
+            let prev = curr;
+            let curr = ram[nxt];
+            let nxt = ram[nxt + 1];
+        }
+
+        if ( ~( nxt = end ) ) {
+            if ( curr < (size+3) ) {
+                let ram[prev+1] = ram[curr+1];
+                let ram[curr] = size + 1;
+                let retaddr = curr + 1;
+            } else {
+                let ram[curr] = ram[curr] - size - 1;
+                let retaddr = curr + ram[curr];
+                let ram[retaddr-1] = size + 1;
+            }
+        }
+        return retaddr;
+    }
+
+    /** De-allocates the given object (cast as an array) by making
+     *  it available for future allocations. */
+    function void deAlloc(int object) {
+        let ram[object] = ram[object-1];
+        let ram[object+1] = ram[length+1];
+        let ram[length+1] = object;
+        return;
+    }    
+}
