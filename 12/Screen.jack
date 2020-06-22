@@ -13,11 +13,32 @@ class Screen {
 
     static int addr;
     static boolean color_bit;
+    static Array bit;
+    static Array scrn;
 
     /** Initializes the Screen. */
     function void init() {
         let addr = 16384;
-        let color_bit = false;
+        let scrn = 16384;
+        let color_bit = true;
+
+        let bit = Array.new(16);
+        let bit[0] = 1;
+        let bit[1] = 2;
+        let bit[2] = 4;
+        let bit[3] = 8;
+        let bit[4] = 16;
+        let bit[5] = 32;
+        let bit[6] = 64;
+        let bit[7] = 128;
+        let bit[8] = 256;
+        let bit[9] = 512;
+        let bit[10] = 1024;
+        let bit[11] = 2048;
+        let bit[12] = 4096;
+        let bit[13] = 8192;
+        let bit[14] = 16384;
+        let bit[15] = 16384 + 16384;
         return;
     }
 
@@ -42,21 +63,24 @@ class Screen {
     function void drawPixel(int x, int y) {
         var int scrn_addr, pixel_x;
         var int memory_addr;
+        var int is_black;
 
         if (( x < 0 ) | ( x > 511 ) | ( y < 0 ) | ( y > 255 )) {
             do Sys.error(7);
         }
-        let pixel_x = x - (x/16) * 16;
+        let pixel_x = x - ((x/16) * 16);
         // アドレス変換はテキスト参照(一行に16bit x 32個並んでいるので)
-        let scrn_addr = addr + (32*y) + (pixel_x/16);                
+        let scrn_addr = addr + (32*y) + (x/16);                
 
-        // 書き込みを行う対象メモリアドレス
-        //do Output.printInt(scrn_addr);
-        //do Output.println();
-        //do Output.printInt(addr);
+        // 16bitワードの各桁が黒・白を表すため，各桁に正しく色が設定される様アドレスを計算する
+        let is_black = Memory.peek(scrn_addr);
+        if ( color_bit ) {
+            let is_black = is_black | bit[pixel_x];
+        } else {
+            let is_black = is_black & ~bit[pixel_x];
+        }
 
-        //let memory_addr = Memory.peek(scrn_addr);
-        do Memory.poke(scrn_addr, color_bit);
+        do Memory.poke(scrn_addr, is_black);
         return;
     }
 
@@ -83,30 +107,49 @@ class Screen {
         if ( dx = 0 | dy = 0 ) {
             // x or y軸と平行な線の場合
             if ( dx = 0 ) {
+                // y軸と平行な線
                 let b = y1;
-                while ( ~(b > y2) ) {
+                while ( ~(b > y2) ) { // b <= y2
                     do Screen.drawPixel(x1,b);
                     let b = b + 1;
                 }
             } else {
+                // x軸と平行な線
                 let a = x1;
-                while ( ~(a > x2) ) {
+                while ( ~(a > x2) ) { // a <= x2
                     do Screen.drawPixel(a, y1);
                     let a = a + 1;
                 }
             }
         } else {
-            let adyminusbdx = a*dy - b*dx;
+            // x軸 or y軸と平行でない線の場合
             let a = 0;
             let b = 0;
-            while ( ~(a > dx) & ~(b > dy) )  {
-                do Screen.drawPixel(x1+a,y1+b);
-                if ( adyminusbdx < 0 ) {
-                    let a = a + 1;
-                    let adyminusbdx = adyminusbdx + dy;
-                } else {
-                    let b = b + 1;
-                    let adyminusbdx = adyminusbdx - dx;
+            let adyminusbdx = 0;
+
+            if ( y1 < y2 ) {
+                // 右上がりの直線
+                while ( ~(a > dx) & ~(b > dy) )  { // a <= dx & b <= dy
+                    do Screen.drawPixel(x1+a,y1+b);
+                    if ( adyminusbdx < 0 ) {
+                        let a = a + 1;
+                        let adyminusbdx = adyminusbdx + dy;
+                    } else {
+                        let b = b + 1;
+                        let adyminusbdx = adyminusbdx - dx;
+                    }
+                }
+            } else {
+                // 右下がりの直線
+                while ( ~(a > dx) & ~(b < dy) ) {
+                     do Screen.drawPixel(x1+a,y1+b);
+                    if ( adyminusbdx < 0 ) {
+                        let a = a + 1;
+                        let adyminusbdx = adyminusbdx - dy;
+                    } else {
+                        let b = b - 1;
+                        let adyminusbdx = adyminusbdx - dx;
+                    }
                 }
             }
         }
@@ -120,12 +163,13 @@ class Screen {
         let i = x1;
         let j = y1;
 
-        while ( ~(i>x2) ) {
-            while ( ~(j>y2) ) {
+        while ( ~(i>x2) ) { // i <= x2
+            while ( ~(j>y2) ) { // j <= y2
                 do Screen.drawPixel(i, j);
                 let j = j + 1;
             }
             let i = i + 1;
+            let j = y1;
         }
         return;
     }
@@ -136,8 +180,8 @@ class Screen {
         var int dx;
         let dy = -r;
 
-        while ( ~(dy>r) ) {
-            let dx = Math.sqrt(r*r-dy*dy);
+        while ( ~(dy=r) ) { // dy <= r
+            let dx = Math.sqrt((r*r)-(dy*dy));
             do Screen.drawLine( x-dx, y+dy, x+dx, y+dy );
             let dy = dy + 1;
         }
