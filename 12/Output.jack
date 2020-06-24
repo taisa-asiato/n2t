@@ -18,8 +18,8 @@ class Output {
 
     // Character map for displaying characters
     static Array charMaps; 
-    field int cursor_x;
-    field int cursor_y;
+    static int cursor_x;
+    static int cursor_y;
     static Array mask;
 
     /** Initializes the screen, and locates the cursor at the screen's top-left. */
@@ -37,7 +37,8 @@ class Output {
         let mask[6] = 64;
         let mask[7] = 128;
 
-        do initMap();
+        do Output.initMap();
+        return;
     }
 
     // Initializes the character map array
@@ -88,7 +89,7 @@ class Output {
         do Output.create(64,30,51,51,59,59,59,27,3,30,0,0);  // @
         do Output.create(63,30,51,51,24,12,12,0,12,12,0,0);  // ?
 
-        do Output.create(65,0,0,0,0,0,0,0,0,0,0,0);          // A ** TO BE FILLED **
+        do Output.create(65,12,30,51,51,63,51,51,51,51,0,0);          // A ** TO BE FILLED **
         do Output.create(66,31,51,51,51,31,51,51,51,31,0,0); // B
         do Output.create(67,28,54,35,3,3,3,35,54,28,0,0);    // C
         do Output.create(68,15,27,51,51,51,51,51,27,15,0,0); // D
@@ -193,8 +194,9 @@ class Output {
     /** Moves the cursor to the j-th column of the i-th row,
      *  and erases the character displayed there. */
     function void moveCursor(int i, int j) {
-        let cursor_x = i;
-        let cursor_y = j;
+        let cursor_x = j;
+        let cursor_y = i;
+        //do Output.printChar(0);
         return;
     }
 
@@ -202,7 +204,7 @@ class Output {
      *  and advances the cursor one column forward. */
     function void printChar(char c) {
         var Array Char;
-        var int scrn_addr, y_offset, x_offset, row_bits;
+        var int y_offset, x_offset, row_bits;
         var int x, y;
         /* 文字データ取得 */
         let Char = Output.getMap(c);
@@ -213,24 +215,29 @@ class Output {
         let x = 0;
         let y = 0;
         
-        while ( x < 8 ) {
-            let row_bits = Char[x];
-            while ( y < 11 ) {
+        while ( y < 11 ) {
+            let row_bits = Char[y];
+            let x = 0;
+            while ( x < 8 ) {
                 do Screen.setColor( mask[x] & row_bits );
-                do Screen.drawPixel( y_offset+y, x_offset+x );
-                let y = y + 1;
+                do Screen.drawPixel( x_offset+x, y_offset+y );
+                let x = x + 1;
             }
-            let x = x + 1; 
-            let y = 0;
+            let y = y + 1; 
         }
 
         //カーソル移動
-        if ( cursor_x > 64 ) {
-            do Output.moveCursor( 0, cursor_y );
+        let cursor_x = cursor_x + 1;
+        if ( cursor_x > 63 ) {
+            let cursor_x = 0;
+            if ( cursor_y = 22 ) {
+                let cursor_y = 0;
+            } else {
+                let cursor_y = cursor_y + 1;
+            }
         }
-        if ( cursor_y > 22 ) {
-            do Output.moveCursor( cursor_x, 0 );
-        }
+        // do Output.moveCursor( cursor_y, cursor_x );
+
         return;
     }
 
@@ -250,14 +257,56 @@ class Output {
     /** Displays the given integer starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printInt(int i) {
-        
+        var String num_str;
+        if ( i < 0 ) {
+            let i = -i;
+            do Output.printChar(45);
+        } 
+        let num_str = Output.int2Char( i );
+        do Output.printString( num_str ); 
+        return;
     }
 
     /** Advances the cursor to the beginning of the next line. */
     function void println() {
+        let cursor_x = 0;
+        if ( cursor_y = 22 ) {
+            let cursor_y = 0; 
+        } else {
+            let cursor_y = cursor_y + 1;
+        }
+        return;
     }
 
     /** Moves the cursor one column back. */
     function void backSpace() {
+        if ( cursor_x = 0 ) {
+            let cursor_x = 63;
+            if ( cursor_y = 0 ) {
+                let cursor_y = 22;
+            } else {
+                let cursor_y = cursor_y - 1;
+            }
+        } else {
+            let cursor_x = cursor_x - 1;
+        }
+        return;
+    }
+
+    function String int2Char( int i ) {
+        var int number;
+        var int char_number;
+        var String s;
+
+        let number = i - ((i / 10)*10);
+        let char_number = number + 48;
+
+        if ( i < 10 ) {
+            let s = String.new(6);
+            return s.appendChar(char_number);
+        } else {
+            let s = Output.int2Char( i / 10 );
+            return s.appendChar(char_number);
+        }
     }
 }
